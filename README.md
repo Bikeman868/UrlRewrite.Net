@@ -15,7 +15,8 @@ Replacement for the IIS Url Rewriter that fixes all the limitations in the Micro
 * Ability to replace specific parts of the path or query string without the clunky regex back reference syntax.
 * Register .Net classes as conditions or actions allowing you to include complex business logic in your rewriter rules.
 * Integrates into your application with Dependency Injection.
-* Implemented as an IIS managed module. All source code is in .Net so you can set break points and trace code if you want.
+* Implemented as an IIS managed module.
+* All source code is in .Net so you can set break points and trace code if you want.
 * Provides a mechanism similar to the Microsoft Failed Request Trace module to trace rule execution.
 * Unless rules are set to 'Dynamic' the results of rule evaluation will be cached for subsequent requests.
 
