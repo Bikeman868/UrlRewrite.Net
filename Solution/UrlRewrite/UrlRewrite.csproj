@@ -50,6 +50,7 @@
     <Compile Include="Conditions\PathContainsString.cs" />
     <Compile Include="Configuration\RuleParser.cs" />
     <Compile Include="Interfaces\CombinationLogic.cs" />
+    <Compile Include="Interfaces\IApplicationExtension.cs" />
     <Compile Include="Interfaces\IFactory.cs" />
     <Compile Include="Interfaces\IRequestInfo.cs" />
     <Compile Include="Interfaces\IRequestLog.cs" />

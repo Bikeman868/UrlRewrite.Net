@@ -10,7 +10,7 @@ using UrlRewrite.Rules;
 
 namespace UrlRewrite
 {
-    public class RewriteModule: IHttpModule, IDisposable
+    public class RewriteModule: IHttpModule, IDisposable, ILog
     {
         private static IRule _rootRule;
         private static ILog _log;
@@ -18,29 +18,53 @@ namespace UrlRewrite
         private static SortedList<string, string> _rewrittenUrlsToTrace;
         private static bool _tracingEnabled;
 
-        private bool _firstRequest = true;
-
         /// <summary>
-        /// The host application must call this to integrate the DI framework
+        /// The host application must call this or no rewriting will take place
         /// </summary>
+        /// <param name="log">Optional logger or null for no logging</param>
+        /// <param name="requestUrlsToTrace">A list of the urls to log traces for. 
+        /// If you have a specific URL that is not rewriting as you want then
+        /// add the lower case version of that url to this list to log an
+        /// execution trace through the rewriting rules</param>
+        /// <param name="rewrittenUrlsToTrace">A list of the rewritten urls
+        /// to log traces for. If your site it redirecting to an unexpected
+        /// page and you want to know why it was redirected there, add the
+        /// lower case version of the rewritten/redirected url to this list</param>
+        /// <param name="factory">Pass a factory that can construct your
+        /// custom actions and custom conditions using Dependency Injection. You
+        /// can pass null if all of your custom extensions have a default public
+        /// constructor</param>
+        /// <param name="rules">Pass the rewriting rules here. This allows you
+        /// to store your rules wherever you want (in a database for example).
+        /// You can also pass null to read rles from the RewriteRules.config
+        /// file just like the Microsofy one does</param>
         public static void Initialize(
-            IFactory factory, 
-            XElement rules,
+            ILog log = null,
             SortedList<string, string> requestUrlsToTrace = null,
-            SortedList<string, string> rewrittenUrlsToTrace = null)
+            SortedList<string, string> rewrittenUrlsToTrace = null,
+            IFactory factory = null, 
+            XElement rules = null)
         {
             if (_log == null)
-                _log = factory.Create<ILog>();
+            {
+                if (log == null && factory != null)
+                    log = factory.Create<ILog>();
+                _log = log;
+            }
 
-            var parser = new RuleParser();
+            // TODO: when rules are null load from RewriteRules.config
+            var parser = new RuleParser(factory);
             _rootRule = parser.Parse(rules);
 
             _requestUrlsToTrace = requestUrlsToTrace;
             _rewrittenUrlsToTrace = rewrittenUrlsToTrace;
 
             _tracingEnabled =
-                (requestUrlsToTrace != null && requestUrlsToTrace.Count > 0) ||
-                (rewrittenUrlsToTrace != null && rewrittenUrlsToTrace.Count > 0);
+                _log != null &&
+                (
+                    (requestUrlsToTrace != null && requestUrlsToTrace.Count > 0) ||
+                    (rewrittenUrlsToTrace != null && rewrittenUrlsToTrace.Count > 0)
+                );
         }
 
         public void Init(HttpApplication application)
@@ -57,12 +81,14 @@ namespace UrlRewrite
             var rootRule = _rootRule;
             if (rootRule == null) return;
 
+            var log = _log ?? this;
+
             var application = (HttpApplication) source;
             var context = application.Context;
+            var requestInfo = new RequestInfo(application, log);
 
             try
             {
-                var requestInfo = new RequestInfo(application, _log);
 
                 if (_tracingEnabled && _requestUrlsToTrace != null && _requestUrlsToTrace.Count > 0)
                     requestInfo.TraceRequest = _requestUrlsToTrace.ContainsKey(context.Request.RawUrl);
@@ -114,12 +140,24 @@ namespace UrlRewrite
             }
             catch (Exception ex)
             {
-                if (_log == null) throw;
-                _log.LogException(ex);
+                log.LogException(requestInfo, ex);
             }
         }
+        
+        #region Dummy ILog implementation
 
-        private class RequestInfo: IRequestInfo
+        void ILog.LogException(IRequestInfo request, Exception ex)
+        {
+        }
+
+        IRequestLog ILog.GetRequestLog(HttpApplication application, HttpContext context)
+        {
+            return null;
+        }
+
+        #endregion
+
+        private class RequestInfo: IRequestInfo, IRequestLog
         {
             public HttpApplication Application { get; private set; }
             public HttpContext Context { get; private set; }
@@ -138,6 +176,7 @@ namespace UrlRewrite
                 Application = application;
                 Context = application.Context;
                 Log = log.GetRequestLog(application, application.Context);
+                if (Log == null) Log = this;
 
                 // TODO: improve performance by making the rest of this lazy
 
@@ -168,6 +207,20 @@ namespace UrlRewrite
                     NewQueryString.Add(key, newValues);
                 }
             }
+
+            #region IRequestLog
+
+            void IRequestLog.LogException(Exception ex) { }
+            void IRequestLog.LogWarning(string message) { }
+            void IRequestLog.TraceRuleBegin(IRule rule) { }
+            void IRequestLog.TraceRuleEnd(bool matched, bool stopProcessing) { }
+            void IRequestLog.TraceConditionListBegin(CombinationLogic logic) { }
+            void IRequestLog.TraceConditionListEnd(bool conditionsMet) { }
+            void IRequestLog.TraceCondition(ICondition condition, bool isTrue) { }
+            void IRequestLog.TraceAction(IAction action) { }
+
+            #endregion
         }
+
     }
 }

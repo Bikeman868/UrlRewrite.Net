@@ -27,3 +27,64 @@ open source community have worked their magic.
 
 ## Roadmap
 Estimated completion date for version 1.0 is July 2016.
+
+## Getting started
+If you already use the Microsoft URL Rewriter module, follow these steps to replace it with this modue.
+
+1. Add a reference to the UrlRewrite.dll assembly. You can compile the source, or install the NuGet package "UrlRewrite.Net".
+2. Add the module to your web.config file.
+3. Implement a couple of interfaces in your application.
+4. Initialize the UrlRewrite module in your application startup code.
+
+These steps are described in more detail below.
+
+### Install the rewriter module.
+1. In Visual Studio, go to the Tools Menu and choose "NuGet Package Manager" then "Package Manager Console"
+2. In the package manager console type "Install-Package UrlRewrite.Net" and press Enter.
+
+### Add the module to your web.config file.
+Merge this into your web.config file
+```
+   <system.webServer>
+     <modules runAllManagedModulesForAllRequests="true">
+       <remove name="UrlRoutingModule" />
+       <add name="UrlRoutingModule" type="UrlRewrite.RewriteModule, UrlRewrite" />
+     </modules>
+   </system.webServer>
+```
+
+Note that your web site needs to be running in Integrated Pipeline mode and not Classic. This is a setting on the AppPool in IIS.
+
+### Implement the interfaces that the rewriter depends on
+You can define some of the behaviour of the UrlRewriter by implementing a couple of interfaces. These are all optional unless
+you want to add custom actions or custom conditions with constructor injection. To get started you don't need to implement
+any of these, but implementing `ILog` would be a useful debugging aid.
+
+#### UrlRewrite.Interfaces.ILog
+The rewriter module will use this to log exceptions and also for request tracing if you enable it.
+The `GetRequestLog()` method of `ILog` can return null if you do not want to use request tracing.
+
+#### UrlRewrite.Interfaces.IFactory
+If you implement this interface then the rewriter module will use it to construct your custom actions and conditions
+so that these classes can use Dependency Injection via their constructor. If you don't implement this interface
+then any custom extensions you write must have a default public constructor.
+
+### Initialize the rewriter
+The rewriter must be initialized by your application before it will rewrite any requests. This is usually done in 
+the `Application_Start()` method of `Global.asax.cs`.
+
+Note that `Global.asax` runs /after/ the rewriter module, so for the very first request to your web site the 
+rewriter will not rewrite the request. Until you initialize the rewriter it does not know where the rules are, or
+how to construct your custom types.
+
+To initialize the rewriter call the static `Initialize()` method like this:
+
+```
+    void Application_Start(object sender, EventArgs e)
+    {
+	   UrlRewrite.RewriteModule.Initialize();
+    }
+   
+```
+
+The `Initialize)()` method has parameters you can pass to customize its behvior, these are described in more detail below.

@@ -66,9 +66,33 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Global.asax" />
+    <Content Include="rewriteOne.aspx" />
+    <Content Include="rewriteThree.aspx" />
+    <Content Include="rewriteTwo.aspx" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="rewriteOne.aspx.cs">
+      <DependentUpon>rewriteOne.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="rewriteOne.aspx.designer.cs">
+      <DependentUpon>rewriteOne.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="rewriteThree.aspx.cs">
+      <DependentUpon>rewriteThree.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="rewriteThree.aspx.designer.cs">
+      <DependentUpon>rewriteThree.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="rewriteTwo.aspx.cs">
+      <DependentUpon>rewriteTwo.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="rewriteTwo.aspx.designer.cs">
+      <DependentUpon>rewriteTwo.aspx</DependentUpon>
+    </Compile>
     <Content Include="App_Code\Global.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

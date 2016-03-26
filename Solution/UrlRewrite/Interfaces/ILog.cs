@@ -8,7 +8,7 @@ namespace UrlRewrite.Interfaces
 {
     public interface ILog
     {
-        void LogException(Exception ex);
+        void LogException(IRequestInfo request, Exception ex);
         IRequestLog GetRequestLog(HttpApplication application, HttpContext context);
     }
 }
