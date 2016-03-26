@@ -5,7 +5,7 @@ using System.Text;
 
 namespace UrlRewrite.Interfaces
 {
-    public interface IRuleCondition
+    public interface ICondition
     {
         /// <summary>
         /// Tests a request to see if it meets this condition

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Web;
 
 namespace UrlRewrite.Interfaces
@@ -12,5 +9,9 @@ namespace UrlRewrite.Interfaces
         HttpContext Context { get; }
         IRequestLog Log { get; }
         bool TraceRequest { get; }
+        List<string> OriginalPath { get; }
+        List<string> NewPath { get; set; }
+        Dictionary<string, List<string>> OriginalQueryString { get; }
+        Dictionary<string, List<string>> NewQueryString { get; set; }
     }
 }

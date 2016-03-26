@@ -2,7 +2,7 @@
 
 namespace UrlRewrite.Conditions
 {
-    internal class PathContainsString: IRuleCondition
+    internal class PathContainsString: ICondition
     {
         private readonly string _match;
 

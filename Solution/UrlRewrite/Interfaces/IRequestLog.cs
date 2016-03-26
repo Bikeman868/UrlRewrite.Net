@@ -11,13 +11,13 @@ namespace UrlRewrite.Interfaces
         void LogException(Exception ex);
         void LogWarning(string message);
 
-        void TraceRuleBegin(string rulePath);
-        void TraceRuleEnd(string rulePath);
+        void TraceRuleBegin(IRule rule);
+        void TraceRuleEnd(bool matched, bool stopProcessing);
 
-        void TraceConditionListBegin(ConditionLogic logic);
+        void TraceConditionListBegin(CombinationLogic logic);
         void TraceConditionListEnd(bool conditionsMet);
 
-        void TraceCondition(IRuleCondition condition, bool isTrue);
-        void TraceAction(IRuleAction action);
+        void TraceCondition(ICondition condition, bool isTrue);
+        void TraceAction(IAction action);
     }
 }

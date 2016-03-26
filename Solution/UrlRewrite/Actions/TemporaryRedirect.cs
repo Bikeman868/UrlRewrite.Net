@@ -3,22 +3,18 @@ using UrlRewrite.Interfaces;
 
 namespace UrlRewrite.Actions
 {
-    internal class TemporaryRedirect : IRuleAction
+    internal class TemporaryRedirect : Action, IAction
     {
+        public TemporaryRedirect()
+        {
+            _stopProcessing = true;
+            _endRequest = true;
+        }
+     
         public bool PerformAction(IRequestInfo requestInfo)
         {
-            requestInfo.Context.Response.Redirect("/SomewhereElse.aspx");
+            requestInfo.Context.Response.Redirect(BuildNewUrl(requestInfo));
             return StopProcessing;
-        }
-
-        public bool EndRequest
-        {
-            get { return true; }
-        }
-
-        public bool StopProcessing
-        {
-            get { return true; }
         }
     }
 }

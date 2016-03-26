@@ -12,7 +12,7 @@ namespace TestSite.App_Code
     {
         void Application_Start(object sender, EventArgs e)
         {
-            UrlRewrite.RewriteModule.Initialize(this);
+            UrlRewrite.RewriteModule.Initialize(this, null);
         }
 
         public T Create<T>()
@@ -43,15 +43,7 @@ namespace TestSite.App_Code
         {
         }
 
-        public void TraceRuleBegin(string rulePath)
-        {
-        }
-
-        public void TraceRuleEnd(string rulePath)
-        {
-        }
-
-        public void TraceConditionListBegin(UrlRewrite.Interfaces.ConditionLogic logic)
+        public void TraceConditionListBegin(UrlRewrite.Interfaces.CombinationLogic logic)
         {
         }
 
@@ -59,11 +51,19 @@ namespace TestSite.App_Code
         {
         }
 
-        public void TraceCondition(UrlRewrite.Interfaces.IRuleCondition condition, bool isTrue)
+        public void TraceCondition(UrlRewrite.Interfaces.ICondition condition, bool isTrue)
         {
         }
 
-        public void TraceAction(UrlRewrite.Interfaces.IRuleAction action)
+        public void TraceAction(UrlRewrite.Interfaces.IAction action)
+        {
+        }
+
+        public void TraceRuleBegin(UrlRewrite.Interfaces.IRule rule)
+        {
+        }
+
+        public void TraceRuleEnd(bool matched, bool stopProcessing)
         {
         }
     }

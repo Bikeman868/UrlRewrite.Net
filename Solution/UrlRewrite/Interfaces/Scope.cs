@@ -5,11 +5,10 @@ using System.Text;
 
 namespace UrlRewrite.Interfaces
 {
-    public enum ConditionLogic
+    public enum Scope
     {
-        AllTrue,
-        AllFalse,
-        AnyTrue,
-        AnyFalse
+        Url,
+        Path,
+        QueryString
     }
 }

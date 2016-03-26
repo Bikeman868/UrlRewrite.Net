@@ -1,96 +1,112 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
+using System.Linq;
 using System.Web;
+using System.Xml.Linq;
+using UrlRewrite.Configuration;
 using UrlRewrite.Interfaces;
+using UrlRewrite.Rules;
 
 namespace UrlRewrite
 {
     public class RewriteModule: IHttpModule, IDisposable
     {
-        private static IRuleEngine _ruleEngine;
+        private static IRule _rootRule;
         private static ILog _log;
+        private static SortedList<string, string> _requestUrlsToTrace;
+        private static SortedList<string, string> _rewrittenUrlsToTrace;
+        private static bool _tracingEnabled;
 
         private bool _firstRequest = true;
-        private bool _tracingEnabled;
-        private IRequestLog _dummyLog;
-        private SortedList<string, string> _requestUrlsToTrace;
-        private SortedList<string, string> _rewrittenUrlsToTrace;
 
         /// <summary>
         /// The host application must call this to integrate the DI framework
         /// </summary>
-        public static void Initialize(IFactory factory)
+        public static void Initialize(
+            IFactory factory, 
+            XElement rules,
+            SortedList<string, string> requestUrlsToTrace = null,
+            SortedList<string, string> rewrittenUrlsToTrace = null)
         {
             if (_log == null)
                 _log = factory.Create<ILog>();
 
-            if (_ruleEngine == null)
-            {
-                _ruleEngine = factory.Create<RuleEngine>();
+            var parser = new RuleParser();
+            _rootRule = parser.Parse(rules);
 
-                //TODO: Load rules and initialize rule engine
-                //TODO: Polulate _requestUrlsToTrace and _rewrittenUrlsToTrace and set _tracingEnabled flag
-            }
+            _requestUrlsToTrace = requestUrlsToTrace;
+            _rewrittenUrlsToTrace = rewrittenUrlsToTrace;
+
+            _tracingEnabled =
+                (requestUrlsToTrace != null && requestUrlsToTrace.Count > 0) ||
+                (rewrittenUrlsToTrace != null && rewrittenUrlsToTrace.Count > 0);
         }
 
         public void Init(HttpApplication application)
         {
-            _dummyLog = new DummyLog();
-
-            _requestUrlsToTrace = new SortedList<string, string>();
-            _rewrittenUrlsToTrace = new SortedList<string, string>();
-
             application.BeginRequest += OnBeginRequest;
         }
 
         public void Dispose()
         {
-            var ruleEngine = _ruleEngine;
-            _ruleEngine = null;
-
-            if (ruleEngine != null)
-                ruleEngine.Dispose();
         }
 
         private void OnBeginRequest(object source, EventArgs args)
         {
-            var ruleEngine = _ruleEngine;
-            if (ruleEngine == null) return;
+            var rootRule = _rootRule;
+            if (rootRule == null) return;
 
             var application = (HttpApplication) source;
             var context = application.Context;
 
             try
             {
-                var requestInfo = new RequestInfo
-                {
-                    Application = application,
-                    Context = context
-                };
+                var requestInfo = new RequestInfo(application, _log);
 
-                requestInfo.Log = _log == null ? _dummyLog : _log.GetRequestLog(application, context);
+                if (_tracingEnabled && _requestUrlsToTrace != null && _requestUrlsToTrace.Count > 0)
+                    requestInfo.TraceRequest = _requestUrlsToTrace.ContainsKey(context.Request.RawUrl);
 
-                if (_tracingEnabled)
-                {
-                    // Check if request matches _requestUrlsToTrace
-                    requestInfo.TraceRequest = true;
-                }
+                IList<IAction> executedActions = null;
 
-                var actions = ruleEngine.EvaluateRules(requestInfo);
-                if (actions == null) return;
+                var ruleResult = _rootRule.Evaluate(requestInfo);
+                if (ruleResult == null || ruleResult.Actions == null || ruleResult.Actions.Count == 0) 
+                    return;
 
                 var endRequest = false;
-                foreach (var action in actions)
+                foreach (var action in ruleResult.Actions)
                 {
-                    action.PerformAction(requestInfo);
+                    if (_tracingEnabled)
+                    {
+                        if (executedActions == null)
+                            executedActions = new List<IAction>();
+                        executedActions.Add(action);
+                    }
+
+                    var stopProcessing = action.PerformAction(requestInfo);
                     if (action.EndRequest) endRequest = true;
+                    if (stopProcessing)
+                        break;
                 }
 
                 if (_tracingEnabled && !requestInfo.TraceRequest)
                 {
-                    // Check if request matches _rewrittenUrlsToTrace
-                    requestInfo.TraceRequest = true;
-                    ruleEngine.EvaluateRules(requestInfo);
+                    var newPath = "/";
+                    if (requestInfo.NewPath != null && requestInfo.NewPath.Count > 0)
+                        newPath += string.Join("/", requestInfo.NewPath);
+
+                    if (_rewrittenUrlsToTrace.ContainsKey(newPath))
+                    {
+                        requestInfo.TraceRequest = true;
+                        _rootRule.Evaluate(requestInfo);
+                        if (executedActions != null)
+                        {
+                            foreach (var action in executedActions)
+                            {
+                                requestInfo.Log.TraceAction(action);
+                            }
+                        }
+                    }
                 }
                 
                 if (endRequest)
@@ -105,22 +121,53 @@ namespace UrlRewrite
 
         private class RequestInfo: IRequestInfo
         {
-            public HttpApplication Application { get; set; }
-            public HttpContext Context { get; set; }
-            public IRequestLog Log { get; set; }
-            public bool TraceRequest { get; set; }
-        }
+            public HttpApplication Application { get; private set; }
+            public HttpContext Context { get; private set; }
+            public IRequestLog Log { get; private set; }
+            public List<string> OriginalPath { get; private set; }
+            public Dictionary<string, List<string>> OriginalQueryString { get; private set; }
 
-        private class DummyLog : IRequestLog
-        {
-            public void LogException(Exception ex) { }
-            public void LogWarning(string message) { }
-            public void TraceRuleBegin(string rulePath) { }
-            public void TraceRuleEnd(string rulePath) { }
-            public void TraceConditionListBegin(ConditionLogic logic) { }
-            public void TraceConditionListEnd(bool conditionsMet) { }
-            public void TraceAction(IRuleAction action) { }
-            public void TraceCondition(IRuleCondition condition, bool isTrue) { }
+            public bool TraceRequest { get; set; }
+            public List<string> NewPath { get; set; }
+            public Dictionary<string, List<string>> NewQueryString { get; set; }
+
+            public RequestInfo(
+                HttpApplication application,
+                ILog log)
+            {
+                Application = application;
+                Context = application.Context;
+                Log = log.GetRequestLog(application, application.Context);
+
+                // TODO: improve performance by making the rest of this lazy
+
+                var request = application.Context.Request;
+
+                OriginalPath = request.Path
+                    .Split('/')
+                    .Where(e => !string.IsNullOrEmpty(e))
+                    .ToList();
+                NewPath = OriginalPath.ToList();
+
+                OriginalQueryString = new Dictionary<string, List<string>>();
+                NewQueryString = new Dictionary<string, List<string>>();
+
+                foreach (var key in request.QueryString.AllKeys)
+                {
+                    var value = request.QueryString[key];
+                    List<string> originalValues = null;
+                    List<string> newValues = null;
+
+                    if (value != null)
+                    {
+                        var values = value.Split(',');
+                        originalValues = values.ToList();
+                        newValues = values.ToList();
+                    }
+                    OriginalQueryString.Add(key, originalValues);
+                    NewQueryString.Add(key, newValues);
+                }
+            }
         }
     }
 }
