@@ -10,8 +10,7 @@ namespace UrlRewrite
         private static IRuleEngine _ruleEngine;
         private static ILog _log;
 
-        private HttpApplication _application;
-
+        private bool _firstRequest = true;
         private bool _tracingEnabled;
         private IRequestLog _dummyLog;
         private SortedList<string, string> _requestUrlsToTrace;
@@ -22,17 +21,25 @@ namespace UrlRewrite
         /// </summary>
         public static void Initialize(IFactory factory)
         {
-            _log = factory.Create<ILog>();
-            _ruleEngine = factory.Create<RuleEngine>();
+            if (_log == null)
+                _log = factory.Create<ILog>();
+
+            if (_ruleEngine == null)
+            {
+                _ruleEngine = factory.Create<RuleEngine>();
+
+                //TODO: Load rules and initialize rule engine
+                //TODO: Polulate _requestUrlsToTrace and _rewrittenUrlsToTrace and set _tracingEnabled flag
+            }
         }
 
         public void Init(HttpApplication application)
         {
-            _requestUrlsToTrace = new SortedList<string, string>();
-            _rewrittenUrlsToTrace = new SortedList<string, string>();
             _dummyLog = new DummyLog();
 
-            _application = application;
+            _requestUrlsToTrace = new SortedList<string, string>();
+            _rewrittenUrlsToTrace = new SortedList<string, string>();
+
             application.BeginRequest += OnBeginRequest;
         }
 
