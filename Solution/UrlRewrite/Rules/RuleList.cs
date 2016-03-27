@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Xml.Linq;
 using UrlRewrite.Interfaces;
 
 namespace UrlRewrite.Rules
@@ -7,7 +8,6 @@ namespace UrlRewrite.Rules
     {
         private readonly string _name;
         private readonly ICondition _condition;
-        private readonly IRuleResult _noMatchResult;
         private readonly bool _stopProcessing;
 
         private IList<IRule> _rules;
@@ -18,7 +18,6 @@ namespace UrlRewrite.Rules
             _condition = condition;
             _rules = rules;
             _stopProcessing = stopProcessing;
-            _noMatchResult = new RuleResult();
         }
 
         public RuleList Add(IRule rule)
@@ -36,7 +35,7 @@ namespace UrlRewrite.Rules
         public IRuleResult Evaluate(IRequestInfo request)
         {
             if (request.TraceRequest)
-                request.Log.TraceRuleBegin(this);
+                request.Log.TraceRuleBegin(request, this);
 
             var conditionIsTrue = true;
             if (_condition != null)
@@ -44,7 +43,7 @@ namespace UrlRewrite.Rules
                 conditionIsTrue = _condition.Test(request);
 
                 if (request.TraceRequest)
-                    request.Log.TraceCondition(_condition, conditionIsTrue);
+                    request.Log.TraceCondition(request, _condition, conditionIsTrue);
             }
 
             var result = new RuleResult();
@@ -73,9 +72,24 @@ namespace UrlRewrite.Rules
             }
 
             if (request.TraceRequest)
-                request.Log.TraceRuleEnd(conditionIsTrue, result.StopProcessing);
+                request.Log.TraceRuleEnd(request, this, conditionIsTrue, result.StopProcessing);
 
             return result;
+        }
+
+        public override string ToString()
+        {
+            var count = _rules == null ? 0 : _rules.Count;
+            return "list of " + count + " rules '" + _name + "'";
+        }
+
+        public void Initialize(XElement configuration)
+        {
+        }
+
+        public string ToString(IRequestInfo request)
+        {
+            return ToString();
         }
     }
 }

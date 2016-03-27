@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace UrlRewrite.Interfaces
+﻿namespace UrlRewrite.Interfaces
 {
-    public interface ICondition
+    public interface ICondition : IRuleElement
     {
         /// <summary>
         /// Tests a request to see if it meets this condition

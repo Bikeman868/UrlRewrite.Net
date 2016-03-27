@@ -1,9 +1,11 @@
 ﻿using System;
 using System.CodeDom;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Web;
 using System.Xml.Linq;
+using UrlRewrite.Actions;
 using UrlRewrite.Configuration;
 using UrlRewrite.Interfaces;
 using UrlRewrite.Rules;
@@ -37,11 +39,11 @@ namespace UrlRewrite
         /// <param name="rules">Pass the rewriting rules here. This allows you
         /// to store your rules wherever you want (in a database for example).
         /// You can also pass null to read rles from the RewriteRules.config
-        /// file just like the Microsofy one does</param>
+        /// file just like the Microsoft one does</param>
         public static void Initialize(
             ILog log = null,
-            SortedList<string, string> requestUrlsToTrace = null,
-            SortedList<string, string> rewrittenUrlsToTrace = null,
+            List<string> requestUrlsToTrace = null,
+            List<string> rewrittenUrlsToTrace = null,
             IFactory factory = null, 
             XElement rules = null)
         {
@@ -56,15 +58,23 @@ namespace UrlRewrite
             var parser = new RuleParser(factory);
             _rootRule = parser.Parse(rules);
 
-            _requestUrlsToTrace = requestUrlsToTrace;
-            _rewrittenUrlsToTrace = rewrittenUrlsToTrace;
+            if (requestUrlsToTrace != null)
+            {
+                _requestUrlsToTrace = new SortedList<string, string>();
+                foreach (var url in requestUrlsToTrace)
+                    _requestUrlsToTrace.Add(url.ToLower(), url);
+            }
+
+            if (rewrittenUrlsToTrace != null)
+            {
+                _rewrittenUrlsToTrace = new SortedList<string, string>();
+                foreach (var url in rewrittenUrlsToTrace)
+                    _rewrittenUrlsToTrace.Add(url.ToLower(), url);
+            }
 
             _tracingEnabled =
-                _log != null &&
-                (
-                    (requestUrlsToTrace != null && requestUrlsToTrace.Count > 0) ||
-                    (rewrittenUrlsToTrace != null && rewrittenUrlsToTrace.Count > 0)
-                );
+                (requestUrlsToTrace != null && requestUrlsToTrace.Count > 0) ||
+                (rewrittenUrlsToTrace != null && rewrittenUrlsToTrace.Count > 0);
         }
 
         public void Init(HttpApplication application)
@@ -93,6 +103,9 @@ namespace UrlRewrite
                 if (_tracingEnabled && _requestUrlsToTrace != null && _requestUrlsToTrace.Count > 0)
                     requestInfo.TraceRequest = _requestUrlsToTrace.ContainsKey(context.Request.RawUrl);
 
+                if (requestInfo.TraceRequest)
+                    requestInfo.Log.TraceRequestBegin(requestInfo);
+
                 IList<IAction> executedActions = null;
 
                 var ruleResult = _rootRule.Evaluate(requestInfo);
@@ -110,6 +123,10 @@ namespace UrlRewrite
                     }
 
                     var stopProcessing = action.PerformAction(requestInfo);
+
+                    if (requestInfo.TraceRequest && (action as ActionList == null))
+                        requestInfo.Log.TraceAction(requestInfo, action, action.EndRequest, stopProcessing);
+
                     if (action.EndRequest) endRequest = true;
                     if (stopProcessing)
                         break;
@@ -119,17 +136,18 @@ namespace UrlRewrite
                 {
                     var newPath = "/";
                     if (requestInfo.NewPath != null && requestInfo.NewPath.Count > 0)
-                        newPath += string.Join("/", requestInfo.NewPath);
+                        newPath = string.Join("/", requestInfo.NewPath).ToLower();
 
                     if (_rewrittenUrlsToTrace.ContainsKey(newPath))
                     {
                         requestInfo.TraceRequest = true;
+                        requestInfo.Log.TraceRequestBegin(requestInfo);
                         _rootRule.Evaluate(requestInfo);
                         if (executedActions != null)
                         {
                             foreach (var action in executedActions)
                             {
-                                requestInfo.Log.TraceAction(action);
+                                requestInfo.Log.TraceAction(requestInfo, action, false, false);
                             }
                         }
                     }
@@ -148,6 +166,7 @@ namespace UrlRewrite
 
         void ILog.LogException(IRequestInfo request, Exception ex)
         {
+            Trace.WriteLine("Exception in rewriter module: " + ex.Message);
         }
 
         IRequestLog ILog.GetRequestLog(HttpApplication application, HttpContext context)
@@ -175,8 +194,7 @@ namespace UrlRewrite
             {
                 Application = application;
                 Context = application.Context;
-                Log = log.GetRequestLog(application, application.Context);
-                if (Log == null) Log = this;
+                Log = log.GetRequestLog(application, application.Context) ?? this;
 
                 // TODO: improve performance by making the rest of this lazy
 
@@ -210,14 +228,68 @@ namespace UrlRewrite
 
             #region IRequestLog
 
-            void IRequestLog.LogException(Exception ex) { }
-            void IRequestLog.LogWarning(string message) { }
-            void IRequestLog.TraceRuleBegin(IRule rule) { }
-            void IRequestLog.TraceRuleEnd(bool matched, bool stopProcessing) { }
-            void IRequestLog.TraceConditionListBegin(CombinationLogic logic) { }
-            void IRequestLog.TraceConditionListEnd(bool conditionsMet) { }
-            void IRequestLog.TraceCondition(ICondition condition, bool isTrue) { }
-            void IRequestLog.TraceAction(IAction action) { }
+            void IRequestLog.LogException(IRequestInfo request, Exception ex)
+            {
+                Trace.WriteLine("Exception processing request in rewrite module. " + ex.Message);
+            }
+
+            void IRequestLog.LogWarning(IRequestInfo request, string message)
+            {
+                Trace.WriteLine("Warning from rewrite module. " + message);
+            }
+
+            void IRequestLog.TraceRequestBegin(IRequestInfo request)
+            {
+                Trace.WriteLine("Rewrite: executing rules for " + request.Context.Request.RawUrl);
+            }
+         
+            void IRequestLog.TraceRuleBegin(IRequestInfo request, IRule rule)
+            {
+                Trace.WriteLine("Rewrite: begin " + rule.ToString(request));
+            }
+
+            void IRequestLog.TraceRuleEnd(IRequestInfo request, IRule rule, bool matched, bool stopProcessing)
+            {
+                Trace.WriteLine(
+                    "Rewrite: rule " + rule.ToString(request) + " was" 
+                    + (matched ? " matched" : " not matched") 
+                    + (stopProcessing ? ", stop processing" : ""));
+            }
+
+            void IRequestLog.TraceConditionListBegin(IRequestInfo request, CombinationLogic logic)
+            {
+                Trace.WriteLine("Rewrite: list of conditions where " + logic);
+            }
+
+            void IRequestLog.TraceConditionListEnd(IRequestInfo request, bool conditionsMet)
+            {
+                Trace.WriteLine(
+                    "Rewrite: list of conditions was" 
+                    + (conditionsMet ? " met" : " not met"));
+            }
+
+            void IRequestLog.TraceCondition(IRequestInfo request, ICondition condition, bool isTrue)
+            {
+                Trace.WriteLine(
+                    "Rewrite: contition " 
+                    + condition.ToString(request)
+                    + (isTrue ? " is true" : " is false"));
+            }
+
+            void IRequestLog.TraceAction(IRequestInfo request, IAction action, bool endRequest, bool stopProcessing)
+            {
+                Trace.WriteLine("Rewrite: action " + action.ToString(request));
+            }
+
+            void IRequestLog.TraceActionListBegin(IRequestInfo request, IAction actionList)
+            {
+                Trace.WriteLine("Rewrite: start " + actionList.ToString(request));
+            }
+
+            void IRequestLog.TraceActionListEnd(IRequestInfo request, bool stopProcessing)
+            {
+                Trace.WriteLine("Rewrite: finished list of actions" + (stopProcessing ? ", stop processing" : ""));
+            }
 
             #endregion
         }

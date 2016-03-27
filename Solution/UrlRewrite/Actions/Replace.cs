@@ -2,49 +2,76 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml.Linq;
 using UrlRewrite.Interfaces;
 
 namespace UrlRewrite.Actions
 {
-    internal class Replace: Action, IAction
+    /// <summary>
+    /// This action replaces part of the URL from a static value defined in the rules
+    /// </summary>
+    internal class Replace : ReplaceBase, IAction
     {
-        private Scope _scope;
-        private List<string> _path;
-        private Dictionary<string, List<string>> _queryString;
+        private readonly string _value;
+        private readonly List<string> _path;
+        private readonly Dictionary<string, List<string>> _queryString;
 
-        public Replace(Scope scope, string value)
+        /// <summary>
+        /// Constructs a new URL replacement action
+        /// </summary>
+        /// <param name="scope">The part of the URL to replace</param>
+        /// <param name="value">The static value to put into the part of the URL</param>
+        public Replace(Scope scope, string value) :base(scope)
         {
-            _scope = scope;
+            _value = value;
             switch (scope)
             {
                 case Scope.Url:
+                    {
+                        var query = value == null ? -1 : value.IndexOf('?');
+                        if (query < 0)
+                        {
+                            _path = ParsePath(value);
+                            _queryString = ParseQueryString(null);
+                        }
+                        else
+                        {
+                            _path = ParsePath(value.Substring(0, query));
+                            _queryString = ParseQueryString(value.Substring(query + 1));
+                        }
+                    }
                     break;
                 case Scope.Path:
-                    _path = value
-                        .Split('/')
-                        .ToList();
+                    _path = ParsePath(value);
                     break;
                 case Scope.QueryString:
+                    _queryString = ParseQueryString(value);
                     break;
             }
         }
 
-        public bool PerformAction(IRequestInfo request)
+        protected override void GetValues(
+            IRequestInfo request, 
+            Scope scope, 
+            out List<string> path, 
+            out Dictionary<string, List<string>> queryString)
         {
-            switch (_scope)
-            {
-                case Scope.Url:
-                    request.NewPath = _path;
-                    request.NewQueryString = _queryString;
-                    break;
-                case Scope.Path:
-                    request.NewPath = _path;
-                    break;
-                case Scope.QueryString:
-                    request.NewQueryString = _queryString;
-                    break;
-            }
-            return false;
+            path = _path;
+            queryString = _queryString;
+        }
+
+        public override string ToString()
+        {
+            return "replace " + _scope + " with '" + _value + "'";
+        }
+
+        public void Initialize(XElement configuration)
+        {
+        }
+
+        public string ToString(IRequestInfo requestInfo)
+        {
+            return ToString();
         }
     }
 }

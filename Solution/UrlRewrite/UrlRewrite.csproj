@@ -43,14 +43,17 @@
   <ItemGroup>
     <Compile Include="Actions\Action.cs" />
     <Compile Include="Actions\ActionList.cs" />
+    <Compile Include="Actions\ReplaceDynamic.cs" />
+    <Compile Include="Actions\ReplaceBase.cs" />
     <Compile Include="Actions\Replace.cs" />
     <Compile Include="Actions\TemporaryRedirect.cs" />
     <Compile Include="Actions\PermenantRedirect.cs" />
     <Compile Include="Actions\Rewrite.cs" />
+    <Compile Include="Actions\Truncate.cs" />
     <Compile Include="Conditions\PathContainsString.cs" />
     <Compile Include="Configuration\RuleParser.cs" />
     <Compile Include="Interfaces\CombinationLogic.cs" />
-    <Compile Include="Interfaces\IApplicationExtension.cs" />
+    <Compile Include="Interfaces\IRuleElement.cs" />
     <Compile Include="Interfaces\IFactory.cs" />
     <Compile Include="Interfaces\IRequestInfo.cs" />
     <Compile Include="Interfaces\IRequestLog.cs" />

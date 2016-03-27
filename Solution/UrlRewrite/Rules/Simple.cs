@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Xml.Linq;
 using UrlRewrite.Interfaces;
 
 namespace UrlRewrite.Rules
@@ -37,7 +38,7 @@ namespace UrlRewrite.Rules
         public IRuleResult Evaluate(IRequestInfo request)
         {
             if (request.TraceRequest)
-                request.Log.TraceRuleBegin(this);
+                request.Log.TraceRuleBegin(request, this);
 
             var conditionIsTrue = true;
 
@@ -46,15 +47,29 @@ namespace UrlRewrite.Rules
                 conditionIsTrue = _condition.Test(request);
 
                 if (request.TraceRequest)
-                    request.Log.TraceCondition(_condition, conditionIsTrue);
+                    request.Log.TraceCondition(request, _condition, conditionIsTrue);
             }
 
             var result = conditionIsTrue ? _matchResult : _noMatchResult;
 
             if (request.TraceRequest)
-                request.Log.TraceRuleEnd(conditionIsTrue, result.StopProcessing);
+                request.Log.TraceRuleEnd(request, this, conditionIsTrue, result.StopProcessing);
 
             return result;
+        }
+
+        public override string ToString()
+        {
+            return "simple rule '" + _name + "'";
+        }
+
+        public void Initialize(XElement configuration)
+        {
+        }
+
+        public string ToString(IRequestInfo request)
+        {
+            return ToString();
         }
     }
 }

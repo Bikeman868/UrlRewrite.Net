@@ -2,8 +2,9 @@
 
 namespace UrlRewrite.Interfaces
 {
-    public interface IApplicationExtension
+    public interface IRuleElement
     {
         void Initialize(XElement configuration);
+        string ToString(IRequestInfo requestInfo);
     }
 }

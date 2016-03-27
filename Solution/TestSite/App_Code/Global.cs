@@ -9,7 +9,19 @@ namespace TestSite.App_Code
     {
         void Application_Start(object sender, EventArgs e)
         {
-            UrlRewrite.RewriteModule.Initialize();
+            var rawUrlsToTrace = new List<string>
+            {
+                "/test1.aspx"
+            };
+
+            var rewrittenUrlsToTrace = new List<string>
+            {
+                "/rewriteOne.aspx", 
+                "/rewriteTwo.aspx", 
+                "/rewriteThree.aspx"
+            };
+
+            UrlRewrite.RewriteModule.Initialize(null, rawUrlsToTrace, rewrittenUrlsToTrace);
         }
     }
 }

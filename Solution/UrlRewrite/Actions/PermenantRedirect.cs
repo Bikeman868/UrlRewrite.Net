@@ -1,4 +1,5 @@
 ﻿using System.Web;
+using System.Xml.Linq;
 using UrlRewrite.Interfaces;
 
 namespace UrlRewrite.Actions
@@ -15,6 +16,20 @@ namespace UrlRewrite.Actions
         {
             requestInfo.Context.Response.RedirectPermanent(BuildNewUrl(requestInfo));
             return StopProcessing;
+        }
+
+        public override string ToString()
+        {
+            return "Permenently redirect to new URL";
+        }
+
+        public void Initialize(XElement configuration)
+        {
+        }
+
+        public string ToString(IRequestInfo requestInfo)
+        {
+            return ToString();
         }
     }
 }

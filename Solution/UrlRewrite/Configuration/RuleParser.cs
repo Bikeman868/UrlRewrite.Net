@@ -26,7 +26,8 @@ namespace UrlRewrite.Configuration
                     new PathContainsString("1"), 
                     new ActionList(true)
                         .Add(new Replace(Scope.Path, "/rewriteOne.aspx"))
-                        .Add(new Rewrite())
+                        .Add(new Rewrite()),
+                        true
                     ));
 
             root.Add(
@@ -35,7 +36,8 @@ namespace UrlRewrite.Configuration
                     new PathContainsString("2"),
                     new ActionList(true)
                         .Add(new Replace(Scope.Path, "/rewriteTwo.aspx"))
-                        .Add(new TemporaryRedirect())
+                        .Add(new TemporaryRedirect()),
+                        true
                     ));
 
             root.Add(
@@ -44,7 +46,8 @@ namespace UrlRewrite.Configuration
                     new PathContainsString("3"),
                     new ActionList(true)
                         .Add(new Replace(Scope.Path, "rewriteThree.aspx"))
-                        .Add(new PermenantRedirect())
+                        .Add(new PermenantRedirect()),
+                        true
                     ));
 
             return root;
@@ -53,7 +56,7 @@ namespace UrlRewrite.Configuration
         private IAction ConstructAction(Type type, XElement configuration)
         {
             var action = _factory.Create(type) as IAction;
-            var extension = action as IApplicationExtension;
+            var extension = action as IRuleElement;
             if (extension != null) extension.Initialize(configuration);
             return action;
         }
@@ -61,7 +64,7 @@ namespace UrlRewrite.Configuration
         private ICondition ConstructCondition(Type type, XElement configuration)
         {
             var condition = _factory.Create(type) as ICondition;
-            var extension = condition as IApplicationExtension;
+            var extension = condition as IRuleElement;
             if (extension != null) extension.Initialize(configuration);
             return condition;
         }

@@ -1,4 +1,5 @@
-﻿using UrlRewrite.Interfaces;
+﻿using System.Xml.Linq;
+using UrlRewrite.Interfaces;
 
 namespace UrlRewrite.Conditions
 {
@@ -14,6 +15,20 @@ namespace UrlRewrite.Conditions
         public bool Test(IRequestInfo request)
         {
             return request.Context.Request.RawUrl.ToLower().Contains(_match);
+        }
+
+        public override string ToString()
+        {
+            return "does the original request path contain '" + _match + "'";
+        }
+
+        public void Initialize(XElement configuration)
+        {
+        }
+
+        public string ToString(IRequestInfo request)
+        {
+            return ToString();
         }
     }
 }

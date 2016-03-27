@@ -2,7 +2,7 @@
 
 namespace UrlRewrite.Interfaces
 {
-    public interface IAction
+    public interface IAction: IRuleElement
     {
         /// <summary>
         /// Performs the redirection, rewrite or whatever action is required
