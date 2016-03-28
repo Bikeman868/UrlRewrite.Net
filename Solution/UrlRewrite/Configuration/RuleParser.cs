@@ -22,6 +22,14 @@ namespace UrlRewrite.Configuration
 
             root.Add(
                 new Rule(
+                    "Exclude browser link",
+                    new StringMatch(Scope.Path, MatchPattern.StartsWith, "/__browserLink"),
+                    null,
+                    true)
+                );
+
+            root.Add(
+                new Rule(
                     "Rule 1", 
                     new ConditionList(CombinationLogic.AllTrue)
                         .Add(new StringMatch(Scope.Path, MatchPattern.Contains, "1"))

@@ -8,6 +8,7 @@ namespace UrlRewrite.Interfaces
         void LogWarning(IRequestInfo request, string message);
 
         void TraceRequestBegin(IRequestInfo request);
+        void TraceRequestEnd(IRequestInfo request);
 
         void TraceRuleListBegin(IRequestInfo request, IRuleList ruleList);
         void TraceRuleListEnd(IRequestInfo request, IRuleList ruleList, bool matched, IRuleListResult ruleResult);

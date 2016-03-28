@@ -9,13 +9,15 @@ namespace UrlRewrite.Conditions
         private readonly string _match;
         private readonly Scope _scope;
         private readonly MatchPattern _matchPattern;
+        private readonly bool _inverted;
         private readonly Func<IRequestInfo, string> _getValueFunc;
         private readonly Func<IRuleResult, string, bool> _testFunc;
 
         public StringMatch(
             Scope scope, 
             MatchPattern matchPattern,
-            string match)
+            string match,
+            bool inverted = false)
         {
             _match = match.ToLower();
             _scope = scope;
@@ -57,7 +59,9 @@ namespace UrlRewrite.Conditions
 
         public bool Test(IRequestInfo request, IRuleResult ruleResult)
         {
-            return _testFunc(ruleResult, _getValueFunc(request));
+            return _inverted 
+                ? !_testFunc(ruleResult, _getValueFunc(request))
+                : _testFunc(ruleResult, _getValueFunc(request));
         }
 
         public override string ToString()

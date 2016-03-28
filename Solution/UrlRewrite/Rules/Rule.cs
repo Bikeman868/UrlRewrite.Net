@@ -45,26 +45,29 @@ namespace UrlRewrite.Rules
             if (conditionIsTrue)
             {
                 result.StopProcessing = _stopProcessing;
-                result.Actions = new List<IAction>();
-
-                foreach (var action in _actions)
+                if (_actions != null)
                 {
-                    result.Actions.Add(action);
+                    result.Actions = new List<IAction>();
 
-                    bool stopProcessing;
-                    bool endRequest;
-                    action.PerformAction(request, result, out stopProcessing, out endRequest);
-
-                    if (request.ExecutionMode != ExecutionMode.ExecuteOnly)
-                        request.Log.TraceAction(request, action, endRequest, stopProcessing);
-
-                    if (endRequest)
-                        result.EndRequest = true;
-
-                    if (stopProcessing)
+                    foreach (var action in _actions)
                     {
-                        result.StopProcessing = true;
-                        break;
+                        result.Actions.Add(action);
+
+                        bool stopProcessing;
+                        bool endRequest;
+                        action.PerformAction(request, result, out stopProcessing, out endRequest);
+
+                        if (request.ExecutionMode != ExecutionMode.ExecuteOnly)
+                            request.Log.TraceAction(request, action, endRequest, stopProcessing);
+
+                        if (endRequest)
+                            result.EndRequest = true;
+
+                        if (stopProcessing)
+                        {
+                            result.StopProcessing = true;
+                            break;
+                        }
                     }
                 }
             }
