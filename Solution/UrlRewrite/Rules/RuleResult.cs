@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using UrlRewrite.Interfaces;
+using UrlRewrite.Utilities;
 
 namespace UrlRewrite.Rules
 {
@@ -10,5 +8,16 @@ namespace UrlRewrite.Rules
     {
         public List<IAction> Actions { get; set; }
         public bool StopProcessing { get; set; }
+        public bool EndRequest { get; set; }
+
+        private IPropertyBag _properties;
+        public IPropertyBag Properties
+        {
+            get 
+            {
+                if (_properties == null) _properties = new PropertyBag();
+                return _properties;
+            }
+        }
     }
 }

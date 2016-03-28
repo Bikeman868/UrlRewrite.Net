@@ -5,6 +5,6 @@
         /// <summary>
         /// Tests a request to see if it meets this condition
         /// </summary>
-        bool Test(IRequestInfo request);
+        bool Test(IRequestInfo request, IRuleResult ruleResult = null);
     }
 }

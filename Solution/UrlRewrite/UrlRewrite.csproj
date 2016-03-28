@@ -50,9 +50,13 @@
     <Compile Include="Actions\PermenantRedirect.cs" />
     <Compile Include="Actions\Rewrite.cs" />
     <Compile Include="Actions\Truncate.cs" />
-    <Compile Include="Conditions\PathContainsString.cs" />
+    <Compile Include="Conditions\ConditionList.cs" />
+    <Compile Include="Conditions\StringMatch.cs" />
     <Compile Include="Configuration\RuleParser.cs" />
     <Compile Include="Interfaces\CombinationLogic.cs" />
+    <Compile Include="Interfaces\ExecutionMode.cs" />
+    <Compile Include="Interfaces\IPropertyBag.cs" />
+    <Compile Include="Interfaces\IRuleList.cs" />
     <Compile Include="Interfaces\IRuleElement.cs" />
     <Compile Include="Interfaces\IFactory.cs" />
     <Compile Include="Interfaces\IRequestInfo.cs" />
@@ -62,12 +66,16 @@
     <Compile Include="Interfaces\ICondition.cs" />
     <Compile Include="Interfaces\IRule.cs" />
     <Compile Include="Interfaces\IRuleResult.cs" />
+    <Compile Include="Interfaces\IRuleListResult.cs" />
+    <Compile Include="Interfaces\MatchPattern.cs" />
     <Compile Include="Interfaces\Scope.cs" />
     <Compile Include="RewriteModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Rules\RuleList.cs" />
+    <Compile Include="Rules\RuleListResult.cs" />
     <Compile Include="Rules\RuleResult.cs" />
-    <Compile Include="Rules\Simple.cs" />
+    <Compile Include="Rules\Rule.cs" />
+    <Compile Include="Utilities\PropertyBag.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

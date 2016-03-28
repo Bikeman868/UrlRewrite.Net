@@ -6,16 +6,26 @@ namespace UrlRewrite.Actions
 {
     internal class PermenantRedirect : Action, IAction
     {
-        public PermenantRedirect()
+        public PermenantRedirect(bool stopProcessing = true, bool endRequest = true)
         {
-            _stopProcessing = true;
-            _endRequest = true;
+            _stopProcessing = stopProcessing;
+            _endRequest = endRequest;
         }
-     
-        public bool PerformAction(IRequestInfo requestInfo)
+
+        public void PerformAction(
+            IRequestInfo requestInfo,
+            IRuleResult ruleResult,
+            out bool stopProcessing,
+            out bool endRequest)
         {
-            requestInfo.Context.Response.RedirectPermanent(BuildNewUrl(requestInfo));
-            return StopProcessing;
+            if (requestInfo.ExecutionMode != ExecutionMode.TraceOnly)
+            {
+                var url = BuildNewUrl(requestInfo);
+                requestInfo.DeferredActions.Add(ri => ri.Context.Response.RedirectPermanent(url));
+            }
+
+            stopProcessing = _stopProcessing;
+            endRequest = _endRequest;
         }
 
         public override string ToString()
@@ -29,7 +39,8 @@ namespace UrlRewrite.Actions
 
         public string ToString(IRequestInfo requestInfo)
         {
-            return ToString();
+            var url = BuildNewUrl(requestInfo);
+            return "permenant redirect to '" + url + "'";
         }
     }
 }

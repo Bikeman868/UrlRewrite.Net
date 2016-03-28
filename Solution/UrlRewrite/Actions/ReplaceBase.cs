@@ -15,26 +15,32 @@ namespace UrlRewrite.Actions
             _scope = scope;
         }
 
-        public bool PerformAction(IRequestInfo request)
+        public void PerformAction(
+            IRequestInfo requestInfo,
+            IRuleResult ruleResult,
+            out bool stopProcessing,
+            out bool endRequest)
         {
             List<string> path;
             Dictionary<string, List<string>> queryString;
-            GetValues(request, _scope, out path, out queryString);
+            GetValues(requestInfo, _scope, out path, out queryString);
 
             switch (_scope)
             {
                 case Scope.Url:
-                    request.NewPath = path;
-                    request.NewQueryString = queryString;
+                    requestInfo.NewPath = path;
+                    requestInfo.NewParameters = queryString;
                     break;
                 case Scope.Path:
-                    request.NewPath = path;
+                    requestInfo.NewPath = path;
                     break;
                 case Scope.QueryString:
-                    request.NewQueryString = queryString;
+                    requestInfo.NewParameters = queryString;
                     break;
             }
-            return false;
+
+            stopProcessing = _stopProcessing;
+            endRequest = _endRequest;
         }
 
         protected abstract void GetValues(

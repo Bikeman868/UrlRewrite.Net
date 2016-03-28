@@ -19,12 +19,17 @@ namespace UrlRewrite.Actions
             _maximumDepth = maximumDepth;
         }
 
-        public bool PerformAction(IRequestInfo request)
+        public void PerformAction(
+            IRequestInfo requestInfo,
+            IRuleResult ruleResult,
+            out bool stopProcessing,
+            out bool endRequest)
         {
-            if (request.NewPath != null && request.NewPath.Count > _maximumDepth)
-                request.NewPath = request.NewPath.Take(_maximumDepth).ToList();
+            if (requestInfo.NewPath != null && requestInfo.NewPath.Count > _maximumDepth)
+                requestInfo.NewPath = requestInfo.NewPath.Take(_maximumDepth).ToList();
 
-            return _stopProcessing;
+            stopProcessing = _stopProcessing;
+            endRequest = _endRequest;
         }
 
         public override string ToString()

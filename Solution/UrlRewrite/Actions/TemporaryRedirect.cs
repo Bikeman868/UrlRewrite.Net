@@ -6,16 +6,26 @@ namespace UrlRewrite.Actions
 {
     internal class TemporaryRedirect : Action, IAction
     {
-        public TemporaryRedirect()
+        public TemporaryRedirect(bool stopProcessing = true, bool endRequest = true)
         {
-            _stopProcessing = true;
-            _endRequest = true;
+            _stopProcessing = stopProcessing;
+            _endRequest = endRequest;
         }
-     
-        public bool PerformAction(IRequestInfo requestInfo)
+
+        public void PerformAction(
+            IRequestInfo requestInfo,
+            IRuleResult ruleResult,
+            out bool stopProcessing,
+            out bool endRequest)
         {
-            requestInfo.Context.Response.Redirect(BuildNewUrl(requestInfo));
-            return StopProcessing;
+            if (requestInfo.ExecutionMode != ExecutionMode.TraceOnly)
+            {
+                var url = BuildNewUrl(requestInfo);
+                requestInfo.DeferredActions.Add(ri => ri.Context.Response.Redirect(url));
+            }
+
+            stopProcessing = _stopProcessing;
+            endRequest = _endRequest;
         }
 
         public override string ToString()

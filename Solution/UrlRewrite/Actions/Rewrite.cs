@@ -6,16 +6,23 @@ namespace UrlRewrite.Actions
 {
     internal class Rewrite: Action, IAction
     {
-        public Rewrite(bool stopProcessing = false, bool endRequest = false)
+        public Rewrite(bool stopProcessing = true, bool endRequest = false)
         {
             _stopProcessing = stopProcessing;
             _endRequest = endRequest;
         }
 
-        public bool PerformAction(IRequestInfo requestInfo)
+        public void PerformAction(
+            IRequestInfo requestInfo,
+            IRuleResult ruleResult,
+            out bool stopProcessing,
+            out bool endRequest)
         {
-            requestInfo.Context.RewritePath(BuildNewUrl(requestInfo));
-            return StopProcessing;
+            if (requestInfo.ExecutionMode != ExecutionMode.TraceOnly)
+                requestInfo.Context.RewritePath(BuildNewUrl(requestInfo));
+
+            stopProcessing = _stopProcessing;
+            endRequest = _endRequest;
         }
 
         public override string ToString()

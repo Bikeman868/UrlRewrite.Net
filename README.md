@@ -73,7 +73,7 @@ then any custom extensions you write must have a default public constructor.
 The rewriter must be initialized by your application before it will rewrite any requests. This is usually done in 
 the `Application_Start()` method of `Global.asax.cs`.
 
-Note that `Global.asax` runs /after/ the rewriter module, so for the very first request to your web site the 
+Note that `Global.asax` runs \after\ the rewriter module, so for the very first request to your web site the 
 rewriter will not rewrite the request. Until you initialize the rewriter it does not know where the rules are, or
 how to construct your custom types.
 

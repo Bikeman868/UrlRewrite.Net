@@ -4,7 +4,7 @@ using UrlRewrite.Interfaces;
 
 namespace UrlRewrite.Rules
 {
-    internal class RuleList: IRule
+    internal class RuleList: IRuleList, IAction
     {
         private readonly string _name;
         private readonly ICondition _condition;
@@ -12,7 +12,11 @@ namespace UrlRewrite.Rules
 
         private IList<IRule> _rules;
 
-        public RuleList(string name, ICondition condition, IList<IRule> rules = null, bool stopProcessing = false)
+        public RuleList(
+            string name, 
+            ICondition condition, 
+            IList<IRule> rules = null,
+            bool stopProcessing = false)
         {
             _name = name;
             _condition = condition;
@@ -32,49 +36,49 @@ namespace UrlRewrite.Rules
             get { return _name; }
         }
 
-        public IRuleResult Evaluate(IRequestInfo request)
+        public IRuleListResult Evaluate(IRequestInfo requestInfo)
         {
-            if (request.TraceRequest)
-                request.Log.TraceRuleBegin(request, this);
+            if (requestInfo.ExecutionMode != ExecutionMode.ExecuteOnly)
+                requestInfo.Log.TraceRuleListBegin(requestInfo, this);
+
+            var ruleListResult = new RuleListResult();
 
             var conditionIsTrue = true;
             if (_condition != null)
             {
-                conditionIsTrue = _condition.Test(request);
+                conditionIsTrue = _condition.Test(requestInfo);
 
-                if (request.TraceRequest)
-                    request.Log.TraceCondition(request, _condition, conditionIsTrue);
+                if (requestInfo.ExecutionMode != ExecutionMode.ExecuteOnly)
+                    requestInfo.Log.TraceCondition(requestInfo, _condition, conditionIsTrue);
             }
-
-            var result = new RuleResult();
 
             if (conditionIsTrue)
             {
-                result.StopProcessing = _stopProcessing;
+                ruleListResult.StopProcessing = _stopProcessing;
 
                 if (_rules != null && _rules.Count > 0)
                 {
-                    result.Actions = new List<IAction>();
+                    ruleListResult.RuleResults = new List<IRuleResult>();
+
                     foreach (var rule in _rules)
                     {
-                        var ruleResult = rule.Evaluate(request);
+                        var ruleResult = rule.Evaluate(requestInfo);
+                        ruleListResult.RuleResults.Add(ruleResult);
 
-                        if (ruleResult.Actions != null && ruleResult.Actions.Count > 0)
-                            result.Actions.AddRange(ruleResult.Actions);
-
+                        if (ruleResult.EndRequest) ruleListResult.EndRequest = true;
                         if (ruleResult.StopProcessing)
                         {
-                            result.StopProcessing = true;
+                            ruleListResult.StopProcessing = true;
                             break;
                         }
                     }
                 }
             }
 
-            if (request.TraceRequest)
-                request.Log.TraceRuleEnd(request, this, conditionIsTrue, result.StopProcessing);
+            if (requestInfo.ExecutionMode != ExecutionMode.ExecuteOnly)
+                requestInfo.Log.TraceRuleListEnd(requestInfo, this, conditionIsTrue, ruleListResult);
 
-            return result;
+            return ruleListResult;
         }
 
         public override string ToString()
@@ -90,6 +94,17 @@ namespace UrlRewrite.Rules
         public string ToString(IRequestInfo request)
         {
             return ToString();
+        }
+
+        void IAction.PerformAction(
+            IRequestInfo requestInfo, 
+            IRuleResult ruleResult, 
+            out bool stopProcessing, 
+            out bool endRequest)
+        {
+            var result = Evaluate(requestInfo);
+            stopProcessing = result.StopProcessing;
+            endRequest = result.EndRequest;
         }
     }
 }

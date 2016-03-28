@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
 using UrlRewrite.Interfaces;
 
 namespace UrlRewrite.Actions
@@ -10,16 +7,6 @@ namespace UrlRewrite.Actions
     {
         protected bool _stopProcessing;
         protected bool _endRequest;
-
-        public bool EndRequest
-        {
-            get { return _endRequest; }
-        }
-
-        public bool StopProcessing
-        {
-            get { return _stopProcessing; }
-        }
 
         protected string BuildNewUrl(IRequestInfo requestInfo)
         {
@@ -42,10 +29,10 @@ namespace UrlRewrite.Actions
                 sb.Append('/');
             }
 
-            if (requestInfo.NewQueryString != null && requestInfo.NewQueryString.Count > 0)
+            if (requestInfo.NewParameters != null && requestInfo.NewParameters.Count > 0)
             {
                 var first = true;
-                foreach (var param in requestInfo.NewQueryString)
+                foreach (var param in requestInfo.NewParameters)
                 {
                     if (param.Value != null && param.Value.Count > 0)
                     {

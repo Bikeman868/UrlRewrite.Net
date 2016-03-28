@@ -17,7 +17,6 @@ namespace UrlRewrite.Actions
         {
             _stopProcessing = stopProcessing;
             _endRequest = endRequest;
-            _actions = new List<IAction>();
         }
 
         public ActionList Add(IAction action)
@@ -30,32 +29,42 @@ namespace UrlRewrite.Actions
             return this;
         }
 
-        public bool PerformAction(IRequestInfo requestInfo)
+        public void PerformAction(
+            IRequestInfo requestInfo,
+            IRuleResult ruleResult,
+            out bool stopProcessing,
+            out bool endRequest)
         {
+            stopProcessing = _stopProcessing;
+            endRequest = _endRequest;
+
             if (_actions != null && _actions.Count > 0)
             {
-                if (requestInfo.TraceRequest)
+                if (requestInfo.ExecutionMode != ExecutionMode.ExecuteOnly)
                     requestInfo.Log.TraceActionListBegin(requestInfo, this);
 
                 foreach (var action in _actions)
                 {
-                    var stop = action.PerformAction(requestInfo);
+                    bool actionStopProcessing;
+                    bool actionEndRequest;
+                    action.PerformAction(requestInfo, ruleResult, out actionStopProcessing, out actionEndRequest);
 
-                    if (requestInfo.TraceRequest)
-                        requestInfo.Log.TraceAction(requestInfo, action, action.EndRequest, stop);
+                    if (requestInfo.ExecutionMode != ExecutionMode.ExecuteOnly)
+                        requestInfo.Log.TraceAction(requestInfo, action, actionEndRequest, actionStopProcessing);
 
-                    if (stop)
+                    if (actionEndRequest)
+                        endRequest = true;
+
+                    if (actionStopProcessing)
                     {
-                        if (requestInfo.TraceRequest)
-                            requestInfo.Log.TraceActionListEnd(requestInfo, true);
-                        return true;
+                        stopProcessing = true;
+                        break;
                     }
                 }
 
-                if (requestInfo.TraceRequest)
-                    requestInfo.Log.TraceActionListEnd(requestInfo, StopProcessing);
+                if (requestInfo.ExecutionMode != ExecutionMode.ExecuteOnly)
+                    requestInfo.Log.TraceActionListEnd(requestInfo, stopProcessing);
             }
-            return StopProcessing;
         }
 
         public override string ToString()

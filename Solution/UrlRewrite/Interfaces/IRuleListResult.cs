@@ -2,11 +2,10 @@
 
 namespace UrlRewrite.Interfaces
 {
-    public interface IRuleResult
+    public interface IRuleListResult
     {
         bool StopProcessing { get; }
         bool EndRequest { get; }
-        List<IAction> Actions { get; }
-        IPropertyBag Properties { get; }
+        List<IRuleResult> RuleResults { get; }
     }
 }

@@ -16,14 +16,16 @@ namespace UrlRewrite.Configuration
             _factory = factory ?? this;
         }
 
-        public IRule Parse(XElement rootNode)
+        public IRuleList Parse(XElement rootNode)
         {
             var root = new RuleList("Root", null);
 
             root.Add(
-                new Simple(
+                new Rule(
                     "Rule 1", 
-                    new PathContainsString("1"), 
+                    new ConditionList(CombinationLogic.AllTrue)
+                        .Add(new StringMatch(Scope.Path, MatchPattern.Contains, "1"))
+                        .Add(new StringMatch(Scope.Path, MatchPattern.EndsWith, ".aspx")), 
                     new ActionList(true)
                         .Add(new Replace(Scope.Path, "/rewriteOne.aspx"))
                         .Add(new Rewrite()),
@@ -31,9 +33,9 @@ namespace UrlRewrite.Configuration
                     ));
 
             root.Add(
-                new Simple(
+                new Rule(
                     "Rule 2",
-                    new PathContainsString("2"),
+                    new StringMatch(Scope.Path, MatchPattern.Contains, "2"),
                     new ActionList(true)
                         .Add(new Replace(Scope.Path, "/rewriteTwo.aspx"))
                         .Add(new TemporaryRedirect()),
@@ -41,9 +43,9 @@ namespace UrlRewrite.Configuration
                     ));
 
             root.Add(
-                new Simple(
+                new Rule(
                     "Rule 3",
-                    new PathContainsString("3"),
+                    new StringMatch(Scope.Path, MatchPattern.Contains, "3"),
                     new ActionList(true)
                         .Add(new Replace(Scope.Path, "rewriteThree.aspx"))
                         .Add(new PermenantRedirect()),

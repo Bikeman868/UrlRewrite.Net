@@ -3,6 +3,7 @@ using System.CodeDom;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Web;
 using System.Xml.Linq;
 using UrlRewrite.Actions;
@@ -14,7 +15,7 @@ namespace UrlRewrite
 {
     public class RewriteModule: IHttpModule, IDisposable, ILog
     {
-        private static IRule _rootRule;
+        private static IRuleList _rules;
         private static ILog _log;
         private static SortedList<string, string> _requestUrlsToTrace;
         private static SortedList<string, string> _rewrittenUrlsToTrace;
@@ -56,7 +57,7 @@ namespace UrlRewrite
 
             // TODO: when rules are null load from RewriteRules.config
             var parser = new RuleParser(factory);
-            _rootRule = parser.Parse(rules);
+            _rules = parser.Parse(rules);
 
             if (requestUrlsToTrace != null)
             {
@@ -88,8 +89,8 @@ namespace UrlRewrite
 
         private void OnBeginRequest(object source, EventArgs args)
         {
-            var rootRule = _rootRule;
-            if (rootRule == null) return;
+            var rules = _rules;
+            if (rules == null) return;
 
             var log = _log ?? this;
 
@@ -99,40 +100,21 @@ namespace UrlRewrite
 
             try
             {
-
-                if (_tracingEnabled && _requestUrlsToTrace != null && _requestUrlsToTrace.Count > 0)
-                    requestInfo.TraceRequest = _requestUrlsToTrace.ContainsKey(context.Request.RawUrl);
-
-                if (requestInfo.TraceRequest)
-                    requestInfo.Log.TraceRequestBegin(requestInfo);
-
-                IList<IAction> executedActions = null;
-
-                var ruleResult = _rootRule.Evaluate(requestInfo);
-                if (ruleResult == null || ruleResult.Actions == null || ruleResult.Actions.Count == 0) 
-                    return;
-
-                var endRequest = false;
-                foreach (var action in ruleResult.Actions)
+                if (_tracingEnabled
+                    && _requestUrlsToTrace != null
+                    && _requestUrlsToTrace.Count > 0
+                    && _requestUrlsToTrace.ContainsKey(context.Request.RawUrl))
                 {
-                    if (_tracingEnabled)
-                    {
-                        if (executedActions == null)
-                            executedActions = new List<IAction>();
-                        executedActions.Add(action);
-                    }
-
-                    var stopProcessing = action.PerformAction(requestInfo);
-
-                    if (requestInfo.TraceRequest && (action as ActionList == null))
-                        requestInfo.Log.TraceAction(requestInfo, action, action.EndRequest, stopProcessing);
-
-                    if (action.EndRequest) endRequest = true;
-                    if (stopProcessing)
-                        break;
+                    requestInfo.ExecutionMode = ExecutionMode.ExecuteAndTrace;
+                    requestInfo.Log.TraceRequestBegin(requestInfo);
                 }
 
-                if (_tracingEnabled && !requestInfo.TraceRequest)
+                var ruleListResult = _rules.Evaluate(requestInfo);
+
+                if (_tracingEnabled
+                    && requestInfo.ExecutionMode == ExecutionMode.ExecuteOnly
+                    && _rewrittenUrlsToTrace != null
+                    && _rewrittenUrlsToTrace.Count > 0)
                 {
                     var newPath = "/";
                     if (requestInfo.NewPath != null && requestInfo.NewPath.Count > 0)
@@ -140,21 +122,19 @@ namespace UrlRewrite
 
                     if (_rewrittenUrlsToTrace.ContainsKey(newPath))
                     {
-                        requestInfo.TraceRequest = true;
+                        requestInfo.ExecutionMode = ExecutionMode.TraceOnly;
                         requestInfo.Log.TraceRequestBegin(requestInfo);
-                        _rootRule.Evaluate(requestInfo);
-                        if (executedActions != null)
-                        {
-                            foreach (var action in executedActions)
-                            {
-                                requestInfo.Log.TraceAction(requestInfo, action, false, false);
-                            }
-                        }
+                        _rules.Evaluate(requestInfo);
                     }
                 }
-                
-                if (endRequest)
+
+                requestInfo.ExecuteDeferredActions();
+
+                if (ruleListResult.EndRequest)
                     application.CompleteRequest();
+            }
+            catch (ThreadAbortException)
+            {
             }
             catch (Exception ex)
             {
@@ -180,13 +160,170 @@ namespace UrlRewrite
         {
             public HttpApplication Application { get; private set; }
             public HttpContext Context { get; private set; }
-            public IRequestLog Log { get; private set; }
-            public List<string> OriginalPath { get; private set; }
-            public Dictionary<string, List<string>> OriginalQueryString { get; private set; }
+            public ExecutionMode ExecutionMode { get; set; }
 
-            public bool TraceRequest { get; set; }
-            public List<string> NewPath { get; set; }
-            public Dictionary<string, List<string>> NewQueryString { get; set; }
+            private readonly ILog _log;
+            private IRequestLog _requestLog;
+            public IRequestLog Log
+            {
+                get
+                {
+                    if (ReferenceEquals(_requestLog, null))
+                        _requestLog = _log.GetRequestLog(Application, Context) ?? this;
+                    return _requestLog;
+                }
+            }
+
+            private IList<System.Action<IRequestInfo>> _deferredActions;
+            public IList<System.Action<IRequestInfo>> DeferredActions 
+            { 
+                get
+                {
+                    if (ReferenceEquals(_deferredActions, null))
+                        _deferredActions = new List<System.Action<IRequestInfo>>();
+                    return _deferredActions;
+                }
+            }
+
+            private int? _queryPos;
+            public int QueryPos
+            {
+                get 
+                {
+                    if (!_queryPos.HasValue)
+                    {
+                        var request = Context.Request;
+                        _queryPos = request.RawUrl.IndexOf('?');
+                    }
+                    return _queryPos.Value;
+                }
+            }
+
+            private string _originalPathString;
+            public string OriginalPathString 
+            { 
+                get
+                {
+                    if (ReferenceEquals(_originalPathString, null))
+                    {
+                        _originalPathString = QueryPos < 0 
+                            ? Context.Request.RawUrl
+                            : Context.Request.RawUrl.Substring(0, QueryPos);
+                    }
+                    return _originalPathString;
+                }
+            }
+
+            private List<string> _originalPath;
+            public List<string> OriginalPath
+            {
+                get
+                {
+                    if (ReferenceEquals(_originalPath, null))
+                    {
+                        _originalPath = OriginalPathString
+                            .Split('/')
+                            .Where(e => !string.IsNullOrEmpty(e))
+                            .ToList();
+                        if (OriginalPathString.StartsWith("/"))
+                            _originalPath.Insert(0, "");
+                    }
+                    return _originalPath;
+                }
+            }
+
+            private List<string> _newPath;
+            public List<string> NewPath
+            {
+                get
+                {
+                    if (ReferenceEquals(_newPath, null))
+                        _newPath = OriginalPath.ToList();
+                    return _newPath;
+                }
+                set { _newPath = value; }
+            }
+
+            private string _originalParametersString;
+            public string OriginalParametersString
+            {
+                get
+                {
+                    if (ReferenceEquals(_originalParametersString, null))
+                    {
+                        _originalParametersString = QueryPos < 0
+                            ? ""
+                            : Context.Request.RawUrl.Substring(QueryPos + 1);
+                    }
+                    return _originalParametersString;
+                }
+            }
+
+            private Dictionary<string, List<string>> _originalParameters;
+            private Dictionary<string, List<string>> _newParameters;
+
+            private void ParseParameters()
+            {
+                var parameters = OriginalParametersString
+                    .Split('&')
+                    .Where(p => !string.IsNullOrEmpty(p))
+                    .ToList();
+
+                var originalParameters = new Dictionary<string, List<string>>();
+                var newParameters = new Dictionary<string, List<string>>();
+
+                foreach (var parameter in parameters)
+                {
+                    string key;
+                    string value = null;
+                    var equalsPos = parameter.IndexOf('=');
+                    if (equalsPos < 0)
+                    {
+                        key = parameter.ToLower();
+                    }
+                    else
+                    {
+                        key = parameter.Substring(0, equalsPos).ToLower();
+                        value = parameter.Substring(equalsPos + 1);
+                    }
+
+                    List<string> values;
+                    if (originalParameters.TryGetValue(key, out values))
+                    {
+                        values.Add(value);
+                        newParameters[key].Add(value);
+                    }
+                    else
+                    {
+                        originalParameters.Add(key, new List<string> { value });
+                        newParameters.Add(key, new List<string> { value });
+                    }
+                }
+
+                _originalParameters = originalParameters;
+                _newParameters = newParameters;
+            }
+         
+            public Dictionary<string, List<string>> OriginalParameters
+            {
+                get
+                {
+                    if (ReferenceEquals(_originalParameters, null))
+                        ParseParameters();
+                    return _originalParameters;
+                }
+            }
+
+            public Dictionary<string, List<string>> NewParameters
+            {
+                get
+                {
+                    if (ReferenceEquals(_newParameters, null))
+                        ParseParameters();
+                    return _newParameters;
+                }
+                set { _newParameters = value; }
+            }
 
             public RequestInfo(
                 HttpApplication application,
@@ -194,39 +331,18 @@ namespace UrlRewrite
             {
                 Application = application;
                 Context = application.Context;
-                Log = log.GetRequestLog(application, application.Context) ?? this;
-
-                // TODO: improve performance by making the rest of this lazy
-
-                var request = application.Context.Request;
-
-                OriginalPath = request.Path
-                    .Split('/')
-                    .Where(e => !string.IsNullOrEmpty(e))
-                    .ToList();
-                NewPath = OriginalPath.ToList();
-
-                OriginalQueryString = new Dictionary<string, List<string>>();
-                NewQueryString = new Dictionary<string, List<string>>();
-
-                foreach (var key in request.QueryString.AllKeys)
-                {
-                    var value = request.QueryString[key];
-                    List<string> originalValues = null;
-                    List<string> newValues = null;
-
-                    if (value != null)
-                    {
-                        var values = value.Split(',');
-                        originalValues = values.ToList();
-                        newValues = values.ToList();
-                    }
-                    OriginalQueryString.Add(key, originalValues);
-                    NewQueryString.Add(key, newValues);
-                }
+                _log = log;
+                ExecutionMode = ExecutionMode.ExecuteOnly;
             }
 
-            #region IRequestLog
+            public void ExecuteDeferredActions()
+            {
+                if (ReferenceEquals(_deferredActions, null)) return;
+                foreach (var action in _deferredActions)
+                    action(this);
+            }
+
+            #region Dummy IRequestLog implementation
 
             void IRequestLog.LogException(IRequestInfo request, Exception ex)
             {
@@ -240,20 +356,36 @@ namespace UrlRewrite
 
             void IRequestLog.TraceRequestBegin(IRequestInfo request)
             {
-                Trace.WriteLine("Rewrite: executing rules for " + request.Context.Request.RawUrl);
+                Trace.WriteLine("Rewrite: request URL " + request.Context.Request.RawUrl);
             }
-         
+
+            void IRequestLog.TraceRuleListBegin(IRequestInfo request, IRuleList ruleList)
+            {
+                Trace.WriteLine("Rewrite: begin " + ruleList.ToString(request));
+            }
+
+            void IRequestLog.TraceRuleListEnd(IRequestInfo request, IRuleList ruleList, bool matched, IRuleListResult ruleListResult)
+            {
+                Trace.WriteLine(
+                    "Rewrite: " + ruleList.ToString(request)
+                    + (matched ? " was executed." : " does not match this request.")
+                    + (ruleListResult.RuleResults != null && ruleListResult.RuleResults.Count > 0 ? " " + ruleListResult.RuleResults.Count + " rules evaluated.": "")
+                    + (ruleListResult.StopProcessing ? " Stop processing." : "")
+                    + (ruleListResult.EndRequest ? " End request." : ""));
+            }
+
             void IRequestLog.TraceRuleBegin(IRequestInfo request, IRule rule)
             {
                 Trace.WriteLine("Rewrite: begin " + rule.ToString(request));
             }
 
-            void IRequestLog.TraceRuleEnd(IRequestInfo request, IRule rule, bool matched, bool stopProcessing)
+            void IRequestLog.TraceRuleEnd(IRequestInfo request, IRule rule, bool matched, IRuleResult ruleResult)
             {
                 Trace.WriteLine(
-                    "Rewrite: rule " + rule.ToString(request) + " was" 
-                    + (matched ? " matched" : " not matched") 
-                    + (stopProcessing ? ", stop processing" : ""));
+                    "Rewrite: " + rule.ToString(request)
+                    + (matched ? " was executed." : " does not match this request.")
+                    + (ruleResult.StopProcessing ? " Stop processing." : "")
+                    + (ruleResult.EndRequest ? " End request." : ""));
             }
 
             void IRequestLog.TraceConditionListBegin(IRequestInfo request, CombinationLogic logic)
@@ -264,8 +396,7 @@ namespace UrlRewrite
             void IRequestLog.TraceConditionListEnd(IRequestInfo request, bool conditionsMet)
             {
                 Trace.WriteLine(
-                    "Rewrite: list of conditions was" 
-                    + (conditionsMet ? " met" : " not met"));
+                    "Rewrite: list of conditions evaluated to " + conditionsMet);
             }
 
             void IRequestLog.TraceCondition(IRequestInfo request, ICondition condition, bool isTrue)
@@ -288,10 +419,11 @@ namespace UrlRewrite
 
             void IRequestLog.TraceActionListEnd(IRequestInfo request, bool stopProcessing)
             {
-                Trace.WriteLine("Rewrite: finished list of actions" + (stopProcessing ? ", stop processing" : ""));
+                Trace.WriteLine("Rewrite: finished list of actions." + (stopProcessing ? " Stop processing" : ""));
             }
 
             #endregion
+
         }
 
     }
