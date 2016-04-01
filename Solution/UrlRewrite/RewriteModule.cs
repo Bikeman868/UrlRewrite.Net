@@ -3,10 +3,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Runtime.Remoting.Channels;
 using System.Threading;
 using System.Web;
-using System.Xml.Linq;
 using UrlRewrite.Configuration;
 using UrlRewrite.Interfaces;
 using UrlRewrite.Utilities;
@@ -17,36 +18,42 @@ namespace UrlRewrite
     {
         private static IRuleList _rules;
         private static ILog _log;
+
+#if !TRACE_ALL
         private static SortedList<string, string> _requestUrlsToTrace;
         private static SortedList<string, string> _rewrittenUrlsToTrace;
         private static bool _tracingEnabled;
-
+#endif
         /// <summary>
         /// The host application must call this or no rewriting will take place
         /// </summary>
-        /// <param name="log">Optional logger or null for no logging</param>
+        /// <param name="log">Optional logger or null for logging to Trace output</param>
         /// <param name="requestUrlsToTrace">A list of the urls to log traces for. 
         /// If you have a specific URL that is not rewriting as you want then
-        /// add the lower case version of that url to this list to log an
-        /// execution trace through the rewriting rules</param>
+        /// add that url to this list to log an execution trace through the 
+        /// rewriting rules</param>
         /// <param name="rewrittenUrlsToTrace">A list of the rewritten urls
         /// to log traces for. If your site it redirecting to an unexpected
         /// page and you want to know why it was redirected there, add the
-        /// lower case version of the rewritten/redirected url to this list</param>
+        /// rewritten/redirected url to this list</param>
         /// <param name="factory">Pass a factory that can construct your
         /// custom actions and custom conditions using Dependency Injection. You
         /// can pass null if all of your custom extensions have a default public
         /// constructor</param>
-        /// <param name="rules">Pass the rewriting rules here. This allows you
+        /// <param name="ruleStream">Pass the rewriting rules here. This allows you
         /// to store your rules wherever you want (in a database for example).
         /// You can also pass null to read rles from the RewriteRules.config
         /// file just like the Microsoft one does</param>
+        /// <param name="ruleParser">Provide a custom parser to support your
+        /// own rule syntax, or pass null for backward compatibility with
+        /// the Microsoft IIS Rewriter module but with many more features</param>
         public static void Initialize(
             ILog log = null,
             List<string> requestUrlsToTrace = null,
             List<string> rewrittenUrlsToTrace = null,
             IFactory factory = null, 
-            XElement rules = null)
+            Stream ruleStream = null,
+            IRuleParser ruleParser = null)
         {
             if (_log == null)
             {
@@ -55,13 +62,17 @@ namespace UrlRewrite
                 _log = log;
             }
 
-            // TODO: when rules are null load from RewriteRules.config
-            var parser = new RuleParser(factory);
-            _rules = parser.Parse(rules);
+            if (ruleStream == null)
+            {
+                var filePath = HttpContext.Current.Server.MapPath("RewriteRules.config");
+                ruleStream = File.Open(filePath, FileMode.Open, FileAccess.Read);
+            }
+         
+            var parser = ruleParser ?? new StandardRuleParser(factory);
+            _rules = parser.Parse(ruleStream);
+            ruleStream.Close();
 
-#if TRACE_ALL
-            _tracingEnabled = true;
-#else
+#if !TRACE_ALL
             if (requestUrlsToTrace != null)
             {
                 _requestUrlsToTrace = new SortedList<string, string>();

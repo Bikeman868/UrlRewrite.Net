@@ -52,7 +52,8 @@
     <Compile Include="Actions\Truncate.cs" />
     <Compile Include="Conditions\ConditionList.cs" />
     <Compile Include="Conditions\StringMatch.cs" />
-    <Compile Include="Configuration\RuleParser.cs" />
+    <Compile Include="Configuration\StandardRuleParser.cs" />
+    <Compile Include="Configuration\TestRuleParser.cs" />
     <Compile Include="Interfaces\CombinationLogic.cs" />
     <Compile Include="Interfaces\ExecutionMode.cs" />
     <Compile Include="Interfaces\IPropertyBag.cs" />
@@ -65,6 +66,7 @@
     <Compile Include="Interfaces\IAction.cs" />
     <Compile Include="Interfaces\ICondition.cs" />
     <Compile Include="Interfaces\IRule.cs" />
+    <Compile Include="Interfaces\IRuleParser.cs" />
     <Compile Include="Interfaces\IRuleResult.cs" />
     <Compile Include="Interfaces\IRuleListResult.cs" />
     <Compile Include="Interfaces\MatchPattern.cs" />
@@ -77,6 +79,7 @@
     <Compile Include="Rules\Rule.cs" />
     <Compile Include="Utilities\PerformanceTimer.cs" />
     <Compile Include="Utilities\PropertyBag.cs" />
+    <Compile Include="Utilities\UrlRewriteException.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using UrlRewrite.Interfaces;
+using UrlRewrite.Utilities;
 
 namespace UrlRewrite.Conditions
 {
@@ -17,11 +19,15 @@ namespace UrlRewrite.Conditions
             Scope scope, 
             MatchPattern matchPattern,
             string match,
-            bool inverted = false)
+            bool inverted = false,
+            bool ignoreCase = true)
         {
-            _match = match.ToLower();
+            _match = match;
             _scope = scope;
             _matchPattern = matchPattern;
+            _inverted = inverted;
+
+            if (ignoreCase) _match = _match.ToLower();
 
             switch (scope)
             {
@@ -35,25 +41,49 @@ namespace UrlRewrite.Conditions
                     _getValueFunc = request => request.OriginalParametersString.ToLower();
                     break;
                 default:
-                    throw new NotImplementedException("String match does not know how to get " + scope + " from the request");
+                    throw new UrlRewriteException("String match does not know how to get " + scope + " from the request");
             }
 
             switch (matchPattern)
             {
                 case MatchPattern.Contains:
-                    _testFunc = (ruleResult, text) => text.Contains(_match);
+                    if (ignoreCase)
+                        _testFunc = (ruleResult, text) => text.ToLower().Contains(_match);
+                    else
+                        _testFunc = (ruleResult, text) => text.Contains(_match);
                     break;
                 case MatchPattern.StartsWith:
-                    _testFunc = (ruleResult, text) => text.StartsWith(_match);
+                    if (ignoreCase)
+                        _testFunc = (ruleResult, text) => text.ToLower().StartsWith(_match);
+                    else
+                        _testFunc = (ruleResult, text) => text.StartsWith(_match);
                     break;
                 case MatchPattern.EndsWith:
-                    _testFunc = (ruleResult, text) => text.EndsWith(_match);
+                    if (ignoreCase)
+                        _testFunc = (ruleResult, text) => text.ToLower().EndsWith(_match);
+                    else
+                        _testFunc = (ruleResult, text) => text.EndsWith(_match);
                     break;
                 case MatchPattern.Equals:
-                    _testFunc = (ruleResult, text) => text.Equals(_match);
+                    if (ignoreCase)
+                        _testFunc = (ruleResult, text) => text.ToLower().Equals(_match);
+                    else
+                        _testFunc = (ruleResult, text) => text.Equals(_match);
                     break;
+                case MatchPattern.MatchRegex:
+                {
+                    var options = RegexOptions.Compiled | RegexOptions.ECMAScript;
+                    if (ignoreCase) options |= RegexOptions.IgnoreCase;
+                    var regex = new Regex(match, options);
+                    _testFunc = (ruleResult, text) =>
+                    {
+                        // TODO: store match groups in ruleResult.Properties
+                        return regex.IsMatch(text);
+                    };
+                    break;
+                }
                 default:
-                    throw new NotImplementedException("String match does not know how to match using " + matchPattern);
+                    throw new UrlRewriteException("String match does not know how to match using " + matchPattern);
             }
         }
 

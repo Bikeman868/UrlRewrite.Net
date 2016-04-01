@@ -6,6 +6,7 @@ namespace UrlRewrite.Interfaces
     {
         /// <summary>
         /// Performs the redirection, rewrite or whatever action is required
+        /// when the rule matches the incomming request
         /// </summary>
         void PerformAction(
             IRequestInfo request, 
