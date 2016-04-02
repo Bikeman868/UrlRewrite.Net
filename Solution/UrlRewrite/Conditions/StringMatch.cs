@@ -6,16 +6,16 @@ using UrlRewrite.Utilities;
 
 namespace UrlRewrite.Conditions
 {
-    internal class StringMatch: ICondition
+    internal class StringMatch: IStringMatch
     {
-        private readonly string _match;
-        private readonly IValueGetter _valueGetter;
-        private readonly CompareOperation _compareOperation;
-        private readonly bool _inverted;
-        private readonly bool _ignoreCase;
-        private readonly Func<IRuleResult, string, bool> _testFunc;
+        private string _match;
+        private IValueGetter _valueGetter;
+        private CompareOperation _compareOperation;
+        private bool _inverted;
+        private bool _ignoreCase;
+        private Func<IRuleResult, string, bool> _testFunc;
 
-        public StringMatch(
+        public IStringMatch Initialize(
             IValueGetter valueGetter, 
             CompareOperation compareOperation,
             string match,
@@ -71,6 +71,7 @@ namespace UrlRewrite.Conditions
                 default:
                     throw new UrlRewriteException("String match does not know how to match using " + compareOperation);
             }
+            return this;
         }
 
         public bool Test(IRequestInfo request, IRuleResult ruleResult)

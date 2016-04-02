@@ -6,11 +6,14 @@ namespace UrlRewrite.Interfaces
 {
     public interface IRequestInfo
     {
+        // Initialization
+        IRequestInfo Initialize(HttpApplication application, ILog log);
+
         // Contextual properties
         HttpApplication Application { get; }
         HttpContext Context { get; }
         IRequestLog Log { get; }
-        ExecutionMode ExecutionMode { get; }
+        ExecutionMode ExecutionMode { get; set; }
         IList<Action<IRequestInfo>> DeferredActions { get; }
 
         // Information parsed from the incomming request
@@ -25,5 +28,9 @@ namespace UrlRewrite.Interfaces
         string NewParametersString { get; }
         List<string> NewPath { get; set; }
         Dictionary<string, List<string>> NewParameters { get; set; }
+
+        void PathChanged();
+        void ParametersChanged();
+        void ExecuteDeferredActions();
     }
 }

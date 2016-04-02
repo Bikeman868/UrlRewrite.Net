@@ -12,13 +12,13 @@ using UrlRewrite.Utilities;
 
 namespace UrlRewrite.Configuration
 {
-    internal class StandardRuleParser: IRuleParser, IFactory
+    internal class StandardRuleParser: IRuleParser
     {
         private readonly IFactory _factory;
 
         public StandardRuleParser(IFactory factory)
         {
-            _factory = factory ?? this;
+            _factory = factory;
         }
 
         public IRuleList Parse(Stream stream)
@@ -195,7 +195,9 @@ namespace UrlRewrite.Configuration
                 }
             }
 
-            return new StringMatch(new ValueGetter(scope, null, ignoreCase), compareOperation, text, inverted, ignoreCase);
+            var valueGetter = _factory.Create<IValueGetter>().Initialize(scope, null, ignoreCase);
+            var stringMatch = _factory.Create<IStringMatch>().Initialize(valueGetter, compareOperation, text, inverted, ignoreCase);
+            return stringMatch;
         }
 
         private ICondition ParseRuleConditions(XElement element)
@@ -213,25 +215,5 @@ namespace UrlRewrite.Configuration
             return null;
         }
 
-        #region Dummy IFactory implementation
-
-        T IFactory.Create<T>()
-        {
-            return (T)((IFactory)this).Create(typeof(T));
-        }
-
-        object IFactory.Create(Type type)
-        {
-            if (type == typeof(IFactory))
-                return this;
-
-            if (type == typeof(ILog))
-                return this;
-
-            var constructor = type.GetConstructor(Type.EmptyTypes);
-            return constructor == null ? null : constructor.Invoke(null);
-        }
-
-        #endregion
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace UrlRewrite.Interfaces
 {
-    internal enum CompareOperation
+    public enum CompareOperation
     {
         StartsWith,
         EndsWith,

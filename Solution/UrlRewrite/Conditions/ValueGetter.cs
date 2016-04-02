@@ -7,12 +7,12 @@ namespace UrlRewrite.Conditions
 {
     internal class ValueGetter: IValueGetter
     {
-        private readonly Scope _scope;
-        private readonly string _scopeIndex;
-        private readonly bool _ignoreCase;
+        private Scope _scope;
+        private string _scopeIndex;
+        private bool _ignoreCase;
         private Func<IRequestInfo, string> _getValueFunc;
 
-        public ValueGetter(
+        public IValueGetter Initialize(
             Scope scope,
             int scopeIndex,
             bool ignoreCase = true)
@@ -22,9 +22,11 @@ namespace UrlRewrite.Conditions
             _ignoreCase = ignoreCase;
 
             SetFunction(scopeIndex);
+
+            return this;
         }
 
-        public ValueGetter(
+        public IValueGetter Initialize(
             Scope scope, 
             string scopeIndex = null,
             bool ignoreCase = true)
@@ -58,6 +60,8 @@ namespace UrlRewrite.Conditions
             _ignoreCase = ignoreCase;
 
             SetFunction(scopeIndexValue);
+
+            return this;
         }
 
         private void SetFunction(int scopeIndexValue)

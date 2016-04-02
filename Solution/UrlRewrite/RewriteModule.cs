@@ -2,11 +2,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Runtime.Remoting.Channels;
-using System.Text;
 using System.Threading;
 using System.Web;
 using UrlRewrite.Configuration;
@@ -15,10 +11,11 @@ using UrlRewrite.Utilities;
 
 namespace UrlRewrite
 {
-    public class RewriteModule: IHttpModule, IDisposable, ILog
+    public class RewriteModule: IHttpModule, IDisposable
     {
         private static IRuleList _rules;
         private static ILog _log;
+        private static IFactory _factory;
 
 #if !TRACE_ALL
         private static SortedList<string, string> _requestUrlsToTrace;
@@ -56,10 +53,17 @@ namespace UrlRewrite
             Stream ruleStream = null,
             IRuleParser ruleParser = null)
         {
+            if (_factory == null)
+            {
+                if (factory == null)
+                    factory = new DefaultFactory();
+                _factory = factory;
+            }
+
             if (_log == null)
             {
-                if (log == null && factory != null)
-                    log = factory.Create<ILog>();
+                if (log == null)
+                    log = _factory.Create<ILog>();
                 _log = log;
             }
 
@@ -68,8 +72,8 @@ namespace UrlRewrite
                 var filePath = HttpContext.Current.Server.MapPath("RewriteRules.config");
                 ruleStream = File.Open(filePath, FileMode.Open, FileAccess.Read);
             }
-         
-            var parser = ruleParser ?? new StandardRuleParser(factory);
+
+            var parser = ruleParser ?? new StandardRuleParser(_factory);
             _rules = parser.Parse(ruleStream);
             ruleStream.Close();
 
@@ -108,11 +112,9 @@ namespace UrlRewrite
             var rules = _rules;
             if (rules == null) return;
 
-            var log = _log ?? this;
-
             var application = (HttpApplication) source;
             var context = application.Context;
-            var requestInfo = new RequestInfo(application, log);
+            var requestInfo = _factory.Create<IRequestInfo>().Initialize(application, _log);
 
             try
             {
@@ -164,399 +166,9 @@ namespace UrlRewrite
             }
             catch (Exception ex)
             {
-                log.LogException(requestInfo, ex);
+                _log.LogException(requestInfo, ex);
             }
         }
         
-        #region Dummy ILog implementation
-
-        void ILog.LogException(IRequestInfo request, Exception ex)
-        {
-            Trace.WriteLine("Exception in rewriter module: " + ex.Message);
-        }
-
-        IRequestLog ILog.GetRequestLog(HttpApplication application, HttpContext context)
-        {
-            return null;
-        }
-
-        #endregion
-
-        private class RequestInfo : IRequestInfo
-        {
-            public HttpApplication Application { get; private set; }
-            public HttpContext Context { get; private set; }
-            public ExecutionMode ExecutionMode { get; set; }
-
-            private readonly ILog _log;
-            private IRequestLog _requestLog;
-
-            public IRequestLog Log
-            {
-                get
-                {
-                    if (ReferenceEquals(_requestLog, null))
-                        _requestLog = _log.GetRequestLog(Application, Context) ?? new RequestLog();
-                    return _requestLog;
-                }
-            }
-
-            private IList<System.Action<IRequestInfo>> _deferredActions;
-
-            public IList<System.Action<IRequestInfo>> DeferredActions
-            {
-                get
-                {
-                    if (ReferenceEquals(_deferredActions, null))
-                        _deferredActions = new List<System.Action<IRequestInfo>>();
-                    return _deferredActions;
-                }
-            }
-
-            private int? _queryPos;
-
-            public int QueryPos
-            {
-                get
-                {
-                    if (!_queryPos.HasValue)
-                    {
-                        var request = Context.Request;
-                        _queryPos = request.RawUrl.IndexOf('?');
-                    }
-                    return _queryPos.Value;
-                }
-            }
-
-            private string _originalPathString;
-
-            public string OriginalPathString
-            {
-                get
-                {
-                    if (ReferenceEquals(_originalPathString, null))
-                    {
-                        _originalPathString = QueryPos < 0
-                            ? Context.Request.RawUrl
-                            : Context.Request.RawUrl.Substring(0, QueryPos);
-                    }
-                    return _originalPathString;
-                }
-            }
-
-            private List<string> _originalPath;
-
-            public List<string> OriginalPath
-            {
-                get
-                {
-                    if (ReferenceEquals(_originalPath, null))
-                    {
-                        _originalPath = OriginalPathString
-                            .Split('/')
-                            .Where(e => !string.IsNullOrEmpty(e))
-                            .ToList();
-                        if (OriginalPathString.StartsWith("/"))
-                            _originalPath.Insert(0, "");
-                    }
-                    return _originalPath;
-                }
-            }
-
-            private List<string> _newPath;
-
-            public List<string> NewPath
-            {
-                get
-                {
-                    if (ReferenceEquals(_newPath, null))
-                        _newPath = OriginalPath.ToList();
-                    return _newPath;
-                }
-                set { _newPath = value; }
-            }
-
-            private string _originalParametersString;
-
-            public string OriginalParametersString
-            {
-                get
-                {
-                    if (ReferenceEquals(_originalParametersString, null))
-                    {
-                        _originalParametersString = QueryPos < 0
-                            ? ""
-                            : Context.Request.RawUrl.Substring(QueryPos + 1);
-                    }
-                    return _originalParametersString;
-                }
-            }
-
-            private Dictionary<string, List<string>> _originalParameters;
-            private Dictionary<string, List<string>> _newParameters;
-
-            private void ParseParameters()
-            {
-                var parameters = OriginalParametersString
-                    .Split('&')
-                    .Where(p => !string.IsNullOrEmpty(p))
-                    .ToList();
-
-                var originalParameters = new Dictionary<string, List<string>>();
-                var newParameters = new Dictionary<string, List<string>>();
-
-                foreach (var parameter in parameters)
-                {
-                    string key;
-                    string value = null;
-                    var equalsPos = parameter.IndexOf('=');
-                    if (equalsPos < 0)
-                    {
-                        key = parameter.ToLower();
-                    }
-                    else
-                    {
-                        key = parameter.Substring(0, equalsPos).ToLower();
-                        value = parameter.Substring(equalsPos + 1);
-                    }
-
-                    List<string> values;
-                    if (originalParameters.TryGetValue(key, out values))
-                    {
-                        values.Add(value);
-                        newParameters[key].Add(value);
-                    }
-                    else
-                    {
-                        originalParameters.Add(key, new List<string> {value});
-                        newParameters.Add(key, new List<string> {value});
-                    }
-                }
-
-                _originalParameters = originalParameters;
-                _newParameters = newParameters;
-            }
-
-            public Dictionary<string, List<string>> OriginalParameters
-            {
-                get
-                {
-                    if (ReferenceEquals(_originalParameters, null))
-                        ParseParameters();
-                    return _originalParameters;
-                }
-            }
-
-            public Dictionary<string, List<string>> NewParameters
-            {
-                get
-                {
-                    if (ReferenceEquals(_newParameters, null))
-                        ParseParameters();
-                    return _newParameters;
-                }
-                set { _newParameters = value; }
-            }
-
-            public RequestInfo(
-                HttpApplication application,
-                ILog log)
-            {
-                Application = application;
-                Context = application.Context;
-                _log = log;
-                ExecutionMode = ExecutionMode.ExecuteOnly;
-            }
-
-            public void ExecuteDeferredActions()
-            {
-                if (ReferenceEquals(_deferredActions, null)) return;
-                foreach (var action in _deferredActions)
-                    action(this);
-            }
-
-            public string NewUrlString
-            {
-                get
-                {
-                    var path = NewPathString;
-                    var query = NewParametersString;
-                    if (string.IsNullOrEmpty(query))
-                        return path;
-                    return path + "?" + query;
-                }
-            }
-
-            private string _newPathString;
-
-            public string NewPathString
-            {
-                get 
-                {
-                    if (_newPathString == null)
-                    {
-                        var sb = new StringBuilder(1024);
-
-                        if (NewPath != null && NewPath.Count > 0)
-                        {
-                            var first = true;
-                            foreach (var pathElement in NewPath)
-                            {
-                                if (first)
-                                    first = false;
-                                else
-                                    sb.Append('/');
-                                sb.Append(pathElement);
-                            }
-                        }
-                        else
-                        {
-                            sb.Append('/');
-                        }
-                        _newPathString = sb.ToString();
-                    }
-                    return _newPathString;
-                }
-            }
-
-            private string _newParametersString;
-
-            public string NewParametersString
-            {
-                get 
-                {
-                    if (_newParametersString == null)
-                    {
-                        if (NewParameters == null || NewParameters.Count == 0)
-                        {
-                            _newParametersString = string.Empty;
-                        }
-                        else
-                        {
-                            var sb = new StringBuilder(1024);
-                            var first = true;
-                            foreach (var param in NewParameters)
-                            {
-                                if (param.Value != null && param.Value.Count > 0)
-                                {
-                                    foreach (var value in param.Value)
-                                    {
-                                        if (!first) sb.Append('&');
-                                        sb.Append(param.Key);
-                                        sb.Append('=');
-                                        sb.Append(value);
-                                        first = false;
-                                    }
-                                }
-                            }
-                            _newParametersString = sb.ToString();
-                        }
-                    }
-                    return _newParametersString;
-                }
-            }
-        }
-
-        private class RequestLog: IRequestLog
-        {
-            private readonly PerformanceTimer _timer = new PerformanceTimer();
-            private readonly List<string> _output = new List<string>();
-
-            private void Output(params string[] message)
-            {
-                var line = string.Format("Rewrite: {0,6}mS {1}",
-                    _timer.ElapsedMilliSeconds.ToString("F1"),
-                    string.Join(" ", message));
-                _output.Add(line);
-            }
-         
-            void IRequestLog.LogException(IRequestInfo request, Exception ex)
-            {
-                Output("Exception", ex.Message);
-            }
-
-            void IRequestLog.LogWarning(IRequestInfo request, string message)
-            {
-                Output("Warning", message);
-            }
-
-            void IRequestLog.TraceRequestBegin(IRequestInfo request)
-            {
-                Output("rewriting URL", request.Context.Request.RawUrl);
-                _timer.Start();
-            }
-
-            public void TraceRequestEnd(IRequestInfo request)
-            {
-                _timer.Stop();
-                Output("finished URL", request.Context.Request.RawUrl);
-
-                Trace.WriteLine("--");
-                foreach (var line in _output) Trace.WriteLine(line);
-            }
-
-            void IRequestLog.TraceRuleListBegin(IRequestInfo request, IRuleList ruleList)
-            {
-                Output("begin", ruleList.ToString(request));
-            }
-
-            void IRequestLog.TraceRuleListEnd(IRequestInfo request, IRuleList ruleList, bool matched, IRuleListResult ruleListResult)
-            {
-                Output(
-                    ruleList.ToString(request),
-                    (matched ? "was executed." : "does not match this request."),
-                    (ruleListResult.RuleResults != null && ruleListResult.RuleResults.Count > 0 ? ruleListResult.RuleResults.Count + " rules evaluated." : ""),
-                    (ruleListResult.StopProcessing ? "Stop processing." : ""),
-                    (ruleListResult.EndRequest ? "End request." : ""));
-            }
-
-            void IRequestLog.TraceRuleBegin(IRequestInfo request, IRule rule)
-            {
-                Output("begin " + rule.ToString(request));
-            }
-
-            void IRequestLog.TraceRuleEnd(IRequestInfo request, IRule rule, bool matched, IRuleResult ruleResult)
-            {
-                Output(
-                    rule.ToString(request),
-                    (matched ? "was executed." : "does not match this request."),
-                    (ruleResult.StopProcessing ? "Stop processing." : ""),
-                    (ruleResult.EndRequest ? "End request." : ""));
-            }
-
-            void IRequestLog.TraceConditionListBegin(IRequestInfo request, CombinationLogic logic)
-            {
-                Output("list of conditions where " + logic);
-            }
-
-            void IRequestLog.TraceConditionListEnd(IRequestInfo request, bool conditionsMet)
-            {
-                Output("list of conditions evaluated to " + conditionsMet);
-            }
-
-            void IRequestLog.TraceCondition(IRequestInfo request, ICondition condition, bool isTrue)
-            {
-                Output(
-                    "contition",
-                    condition.ToString(request),
-                    (isTrue ? "is true" : "is false"));
-            }
-
-            void IRequestLog.TraceAction(IRequestInfo request, IAction action, bool endRequest, bool stopProcessing)
-            {
-                Output("action", action.ToString(request));
-            }
-
-            void IRequestLog.TraceActionListBegin(IRequestInfo request, IAction actionList)
-            {
-                Output("start", actionList.ToString(request));
-            }
-
-            void IRequestLog.TraceActionListEnd(IRequestInfo request, bool stopProcessing)
-            {
-                Output("finished list of actions.", (stopProcessing ? "Stop processing" : ""));
-            }
-        }
-
     }
 }
