@@ -12,6 +12,7 @@ namespace UrlRewrite.Conditions
         private readonly Scope _scope;
         private readonly MatchPattern _matchPattern;
         private readonly bool _inverted;
+        private readonly bool _ignoreCase;
         private readonly Func<IRequestInfo, string> _getValueFunc;
         private readonly Func<IRuleResult, string, bool> _testFunc;
 
@@ -26,19 +27,29 @@ namespace UrlRewrite.Conditions
             _scope = scope;
             _matchPattern = matchPattern;
             _inverted = inverted;
+            _ignoreCase = ignoreCase;
 
             if (ignoreCase) _match = _match.ToLower();
 
             switch (scope)
             {
                 case Scope.Url:
-                    _getValueFunc = request => request.Context.Request.RawUrl.ToLower();
+                    if (ignoreCase)
+                        _getValueFunc = request => request.Context.Request.RawUrl.ToLower();
+                    else
+                        _getValueFunc = request => request.Context.Request.RawUrl;
                     break;
                 case Scope.Path:
-                    _getValueFunc = request => request.OriginalPathString.ToLower();
+                    if (ignoreCase)
+                        _getValueFunc = request => request.OriginalPathString.ToLower();
+                    else
+                        _getValueFunc = request => request.OriginalPathString;
                     break;
                 case Scope.QueryString:
-                    _getValueFunc = request => request.OriginalParametersString.ToLower();
+                    if (ignoreCase)
+                        _getValueFunc = request => request.OriginalParametersString.ToLower();
+                    else
+                        _getValueFunc = request => request.OriginalParametersString;
                     break;
                 default:
                     throw new UrlRewriteException("String match does not know how to get " + scope + " from the request");
@@ -96,7 +107,10 @@ namespace UrlRewrite.Conditions
 
         public override string ToString()
         {
-            return "request " + _scope + " " + _matchPattern + " '" + _match + "'";
+            var description = "request " + _scope;
+            description += (_inverted ? " not" : "") + " " + _matchPattern + " '" + _match + "'";
+            description += _ignoreCase ? " (ignore case)" : " (case sensitive)";
+            return description;
         }
 
         public void Initialize(XElement configuration)
