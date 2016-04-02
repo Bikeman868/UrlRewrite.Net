@@ -1,14 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace UrlRewrite.Interfaces
+﻿namespace UrlRewrite.Interfaces
 {
     public enum Scope
     {
-        Url,
-        Path,
-        QueryString
+        OriginalUrl,
+        OriginalPath,
+        OriginalQueryString,
+        OriginalPathElement,
+        OriginalParameter,
+        NewUrl,
+        NewPath,
+        NewQueryString,
+        NewPathElement,
+        NewParameter
     }
 }

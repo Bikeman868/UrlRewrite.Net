@@ -15,7 +15,7 @@ namespace UrlRewrite.Configuration
             root.Add(
                 new Rule(
                     "Exclude browser link",
-                    new StringMatch(Scope.Path, MatchPattern.StartsWith, "/__browserLink"),
+                    new StringMatch(new ValueGetter(Scope.OriginalPathElement, 1), CompareOperation.StartsWith, "__browserLink"),
                     null,
                     true)
                 );
@@ -24,10 +24,10 @@ namespace UrlRewrite.Configuration
                 new Rule(
                     "Rule 1", 
                     new ConditionList(CombinationLogic.AllTrue)
-                        .Add(new StringMatch(Scope.Path, MatchPattern.Contains, "1"))
-                        .Add(new StringMatch(Scope.Path, MatchPattern.EndsWith, ".aspx")), 
+                        .Add(new StringMatch(new ValueGetter(Scope.OriginalPathElement, -1), CompareOperation.Contains, "1"))
+                        .Add(new StringMatch(new ValueGetter(Scope.OriginalPathElement, -1), CompareOperation.EndsWith, ".aspx")), 
                     new ActionList(true)
-                        .Add(new Replace(Scope.Path, "/rewriteOne.aspx"))
+                        .Add(new Replace(Scope.NewPath, "/rewriteOne.aspx"))
                         .Add(new Rewrite()),
                         true
                     ));
@@ -35,9 +35,9 @@ namespace UrlRewrite.Configuration
             root.Add(
                 new Rule(
                     "Rule 2",
-                    new StringMatch(Scope.Path, MatchPattern.Contains, "2"),
+                    new StringMatch(new ValueGetter(Scope.OriginalPathElement, -1), CompareOperation.Contains, "2"),
                     new ActionList(true)
-                        .Add(new Replace(Scope.Path, "/rewriteTwo.aspx"))
+                        .Add(new Replace(Scope.NewPath, "/rewriteTwo.aspx"))
                         .Add(new TemporaryRedirect()),
                         true
                     ));
@@ -45,9 +45,9 @@ namespace UrlRewrite.Configuration
             root.Add(
                 new Rule(
                     "Rule 3",
-                    new StringMatch(Scope.Path, MatchPattern.Contains, "3"),
+                    new StringMatch(new ValueGetter(Scope.OriginalPathElement, -1), CompareOperation.Contains, "3"),
                     new ActionList(true)
-                        .Add(new Replace(Scope.Path, "rewriteThree.aspx"))
+                        .Add(new Replace(Scope.NewPath, "rewriteThree.aspx"))
                         .Add(new PermenantRedirect()),
                         true
                     ));

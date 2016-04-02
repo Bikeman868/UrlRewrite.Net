@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.Remoting.Channels;
+using System.Text;
 using System.Threading;
 using System.Web;
 using UrlRewrite.Configuration;
@@ -372,6 +373,87 @@ namespace UrlRewrite
                 if (ReferenceEquals(_deferredActions, null)) return;
                 foreach (var action in _deferredActions)
                     action(this);
+            }
+
+            public string NewUrlString
+            {
+                get
+                {
+                    var path = NewPathString;
+                    var query = NewParametersString;
+                    if (string.IsNullOrEmpty(query))
+                        return path;
+                    return path + "?" + query;
+                }
+            }
+
+            private string _newPathString;
+
+            public string NewPathString
+            {
+                get 
+                {
+                    if (_newPathString == null)
+                    {
+                        var sb = new StringBuilder(1024);
+
+                        if (NewPath != null && NewPath.Count > 0)
+                        {
+                            var first = true;
+                            foreach (var pathElement in NewPath)
+                            {
+                                if (first)
+                                    first = false;
+                                else
+                                    sb.Append('/');
+                                sb.Append(pathElement);
+                            }
+                        }
+                        else
+                        {
+                            sb.Append('/');
+                        }
+                        _newPathString = sb.ToString();
+                    }
+                    return _newPathString;
+                }
+            }
+
+            private string _newParametersString;
+
+            public string NewParametersString
+            {
+                get 
+                {
+                    if (_newParametersString == null)
+                    {
+                        if (NewParameters == null || NewParameters.Count == 0)
+                        {
+                            _newParametersString = string.Empty;
+                        }
+                        else
+                        {
+                            var sb = new StringBuilder(1024);
+                            var first = true;
+                            foreach (var param in NewParameters)
+                            {
+                                if (param.Value != null && param.Value.Count > 0)
+                                {
+                                    foreach (var value in param.Value)
+                                    {
+                                        if (!first) sb.Append('&');
+                                        sb.Append(param.Key);
+                                        sb.Append('=');
+                                        sb.Append(value);
+                                        first = false;
+                                    }
+                                }
+                            }
+                            _newParametersString = sb.ToString();
+                        }
+                    }
+                    return _newParametersString;
+                }
             }
         }
 

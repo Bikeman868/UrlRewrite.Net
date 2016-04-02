@@ -20,6 +20,9 @@ namespace UrlRewrite.Interfaces
         Dictionary<string, List<string>> OriginalParameters { get; }
 
         // Control over the rewritten/redirected URL
+        string NewUrlString { get; }
+        string NewPathString { get; }
+        string NewParametersString { get; }
         List<string> NewPath { get; set; }
         Dictionary<string, List<string>> NewParameters { get; set; }
     }

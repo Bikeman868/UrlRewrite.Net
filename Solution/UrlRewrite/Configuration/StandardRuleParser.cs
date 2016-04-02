@@ -163,8 +163,8 @@ namespace UrlRewrite.Configuration
 
         private ICondition ParseRuleMatch(XElement element)
         {
-            var scope = Scope.Url;
-            var matchPattern = MatchPattern.MatchRegex;
+            var scope = Scope.NewUrl;
+            var compareOperation = CompareOperation.MatchRegex;
             var inverted = false;
             var ignoreCase = true;
             var text = ".*";
@@ -177,13 +177,13 @@ namespace UrlRewrite.Configuration
                     {
                         case "url":
                             text = attribute.Value;
-                            scope = Scope.Path;
+                            scope = Scope.NewPath;
                             break;
                         case "patternSyntax":
                             if (attribute.Value == "ECMAScript")
-                                matchPattern = MatchPattern.MatchRegex;
+                                compareOperation = CompareOperation.MatchRegex;
                             else if (attribute.Value == "Wildcard ")
-                                matchPattern = MatchPattern.MatchWildcard;
+                                compareOperation = CompareOperation.MatchWildcard;
                             break;
                         case "negate":
                             inverted = attribute.Value.ToLower() == "true";
@@ -195,7 +195,7 @@ namespace UrlRewrite.Configuration
                 }
             }
 
-            return new StringMatch(scope, matchPattern, text, inverted, ignoreCase);
+            return new StringMatch(new ValueGetter(scope, null, ignoreCase), compareOperation, text, inverted, ignoreCase);
         }
 
         private ICondition ParseRuleConditions(XElement element)
