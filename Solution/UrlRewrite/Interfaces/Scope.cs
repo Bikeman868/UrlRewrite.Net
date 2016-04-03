@@ -7,10 +7,15 @@
         OriginalQueryString,
         OriginalPathElement,
         OriginalParameter,
-        NewUrl,
-        NewPath,
-        NewQueryString,
-        NewPathElement,
-        NewParameter
+        OriginalHeader,
+
+        Url,
+        Path,
+        QueryString,
+        PathElement,
+        Parameter,
+        Header,
+
+        ServerVariable
     }
 }

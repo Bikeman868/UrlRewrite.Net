@@ -27,14 +27,14 @@ namespace UrlRewrite.Actions
 
             switch (_scope)
             {
-                case Scope.NewUrl:
+                case Scope.Url:
                     requestInfo.NewPath = path;
                     requestInfo.NewParameters = queryString;
                     break;
-                case Scope.NewPath:
+                case Scope.Path:
                     requestInfo.NewPath = path;
                     break;
-                case Scope.NewQueryString:
+                case Scope.QueryString:
                     requestInfo.NewParameters = queryString;
                     break;
             }

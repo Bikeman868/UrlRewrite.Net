@@ -40,9 +40,9 @@ namespace UrlRewrite.Conditions
             if (scopeIndex == null)
             {
                 if (scope == Scope.OriginalPathElement) scope = Scope.OriginalPath;
-                if (scope == Scope.NewPathElement) scope = Scope.NewPath;
+                if (scope == Scope.PathElement) scope = Scope.Path;
                 if (scope == Scope.OriginalParameter) scope = Scope.OriginalQueryString;
-                if (scope == Scope.NewParameter) scope = Scope.NewQueryString;
+                if (scope == Scope.Parameter) scope = Scope.QueryString;
             }
             else
             {
@@ -52,7 +52,7 @@ namespace UrlRewrite.Conditions
             if (!scopeIndexIsNumber)
             {
                 if (scope == Scope.OriginalPathElement) scope = Scope.OriginalPath;
-                if (scope == Scope.NewPathElement) scope = Scope.NewPath;
+                if (scope == Scope.PathElement) scope = Scope.Path;
             }
          
             _scope = scope;
@@ -111,19 +111,19 @@ namespace UrlRewrite.Conditions
                     };
                     break;
 
-                case Scope.NewUrl:
+                case Scope.Url:
                     _getValueFunc = request => request.NewUrlString;
                     break;
 
-                case Scope.NewPath:
+                case Scope.Path:
                     _getValueFunc = request => request.NewPathString;
                     break;
 
-                case Scope.NewQueryString:
+                case Scope.QueryString:
                     _getValueFunc = request => request.NewParametersString;
                     break;
 
-                case Scope.NewPathElement:
+                case Scope.PathElement:
                     if (scopeIndexValue >= 0)
                     {
                         _getValueFunc = request => 
@@ -144,7 +144,7 @@ namespace UrlRewrite.Conditions
                     }
                     break;
 
-                case Scope.NewParameter:
+                case Scope.Parameter:
                     _getValueFunc = request =>
                     {
                         IList<string> values;

@@ -40,7 +40,7 @@ namespace UrlRewrite.Configuration
                                 CompareOperation.EndsWith, 
                                 ".aspx")), 
                     new ActionList(true)
-                        .Add(new Replace(Scope.NewPath, "/rewriteOne.aspx"))
+                        .Add(new Replace(Scope.Path, "/rewriteOne.aspx"))
                         .Add(new Rewrite()),
                         true
                     ));
@@ -54,7 +54,7 @@ namespace UrlRewrite.Configuration
                             CompareOperation.Contains, 
                             "2"),
                     new ActionList(true)
-                        .Add(new Replace(Scope.NewPath, "/rewriteTwo.aspx"))
+                        .Add(new Replace(Scope.Path, "/rewriteTwo.aspx"))
                         .Add(new TemporaryRedirect()),
                         true
                     ));
@@ -68,7 +68,7 @@ namespace UrlRewrite.Configuration
                             CompareOperation.Contains, 
                             "3"),
                     new ActionList(true)
-                        .Add(new Replace(Scope.NewPath, "rewriteThree.aspx"))
+                        .Add(new Replace(Scope.Path, "rewriteThree.aspx"))
                         .Add(new PermenantRedirect()),
                         true
                     ));

@@ -45,7 +45,7 @@ namespace UnitTests
             Assert.AreEqual(_request2.OriginalUrlString, _valueGetter.GetString(_request2));
             Assert.AreEqual(_request3.OriginalUrlString, _valueGetter.GetString(_request3));
 
-            _valueGetter.Initialize(Scope.NewUrl);
+            _valueGetter.Initialize(Scope.Url);
             Assert.AreEqual(_request1.NewUrlString, _valueGetter.GetString(_request1));
             Assert.AreEqual(_request2.NewUrlString, _valueGetter.GetString(_request2));
             Assert.AreEqual(_request3.NewUrlString, _valueGetter.GetString(_request3));
@@ -55,7 +55,7 @@ namespace UnitTests
             Assert.AreEqual(_request2.OriginalPathString, _valueGetter.GetString(_request2));
             Assert.AreEqual(_request3.OriginalPathString, _valueGetter.GetString(_request3));
 
-            _valueGetter.Initialize(Scope.NewPath);
+            _valueGetter.Initialize(Scope.Path);
             Assert.AreEqual(_request1.NewPathString, _valueGetter.GetString(_request1));
             Assert.AreEqual(_request2.NewPathString, _valueGetter.GetString(_request2));
             Assert.AreEqual(_request3.NewPathString, _valueGetter.GetString(_request3));
@@ -65,7 +65,7 @@ namespace UnitTests
             Assert.AreEqual(_request2.OriginalParametersString, _valueGetter.GetString(_request2));
             Assert.AreEqual(_request3.OriginalParametersString, _valueGetter.GetString(_request3));
 
-            _valueGetter.Initialize(Scope.NewQueryString);
+            _valueGetter.Initialize(Scope.QueryString);
             Assert.AreEqual(_request1.NewParametersString, _valueGetter.GetString(_request1));
             Assert.AreEqual(_request2.NewParametersString, _valueGetter.GetString(_request2));
             Assert.AreEqual(_request3.NewParametersString, _valueGetter.GetString(_request3));
@@ -80,12 +80,12 @@ namespace UnitTests
             Assert.AreEqual("path2", _valueGetter.GetString(_request2));
             Assert.AreEqual("path2", _valueGetter.GetString(_request3));
 
-            _valueGetter.Initialize(Scope.NewPathElement, 1);
+            _valueGetter.Initialize(Scope.PathElement, 1);
             Assert.AreEqual(_request1.NewPath[1], _valueGetter.GetString(_request1));
             Assert.AreEqual(_request2.NewPath[1], _valueGetter.GetString(_request2));
             Assert.AreEqual(_request3.NewPath[1], _valueGetter.GetString(_request3));
 
-            _valueGetter.Initialize(Scope.NewPathElement, -1);
+            _valueGetter.Initialize(Scope.PathElement, -1);
             Assert.AreEqual("path2", _valueGetter.GetString(_request1));
             Assert.AreEqual("changed2", _valueGetter.GetString(_request2));
             Assert.AreEqual("changed2", _valueGetter.GetString(_request3));
@@ -95,7 +95,7 @@ namespace UnitTests
             Assert.AreEqual("", _valueGetter.GetString(_request2));
             Assert.AreEqual("", _valueGetter.GetString(_request3));
 
-            _valueGetter.Initialize(Scope.NewParameter, "param");
+            _valueGetter.Initialize(Scope.Parameter, "param");
             Assert.AreEqual("changed", _valueGetter.GetString(_request1));
             Assert.AreEqual("", _valueGetter.GetString(_request2));
             Assert.AreEqual("added", _valueGetter.GetString(_request3));
@@ -115,16 +115,16 @@ namespace UnitTests
             _valueGetter.Initialize(Scope.OriginalPathElement, 2);
             Assert.AreEqual(2, _valueGetter.GetInt(request, 0));
 
-            _valueGetter.Initialize(Scope.NewPathElement, 1);
+            _valueGetter.Initialize(Scope.PathElement, 1);
             Assert.AreEqual(6, _valueGetter.GetInt(request, 0));
 
-            _valueGetter.Initialize(Scope.NewPathElement, 2);
+            _valueGetter.Initialize(Scope.PathElement, 2);
             Assert.AreEqual(2, _valueGetter.GetInt(request, 0));
 
-            _valueGetter.Initialize(Scope.NewPathElement, -1);
+            _valueGetter.Initialize(Scope.PathElement, -1);
             Assert.AreEqual(2, _valueGetter.GetInt(request, 0));
 
-            _valueGetter.Initialize(Scope.NewPathElement, -2);
+            _valueGetter.Initialize(Scope.PathElement, -2);
             Assert.AreEqual(6, _valueGetter.GetInt(request, 0));
 
             _valueGetter.Initialize(Scope.OriginalParameter, "param1");
@@ -136,16 +136,16 @@ namespace UnitTests
             _valueGetter.Initialize(Scope.OriginalParameter, "param3");
             Assert.AreEqual(0, _valueGetter.GetInt(request, 0));
 
-            _valueGetter.Initialize(Scope.NewParameter, "param1");
+            _valueGetter.Initialize(Scope.Parameter, "param1");
             Assert.AreEqual(3, _valueGetter.GetInt(request, 0));
 
-            _valueGetter.Initialize(Scope.NewParameter, "param2");
+            _valueGetter.Initialize(Scope.Parameter, "param2");
             Assert.AreEqual(4, _valueGetter.GetInt(request, 0));
 
-            _valueGetter.Initialize(Scope.NewParameter, "param3");
+            _valueGetter.Initialize(Scope.Parameter, "param3");
             Assert.AreEqual(7, _valueGetter.GetInt(request, 0));
 
-            _valueGetter.Initialize(Scope.NewParameter, "param4");
+            _valueGetter.Initialize(Scope.Parameter, "param4");
             Assert.AreEqual(0, _valueGetter.GetInt(request, 0));
         }
 
@@ -163,10 +163,10 @@ namespace UnitTests
             _valueGetter.Initialize(Scope.OriginalPathElement, -4);
             Assert.AreEqual(888, _valueGetter.GetInt(request, 888));
 
-            _valueGetter.Initialize(Scope.NewPathElement, 3);
+            _valueGetter.Initialize(Scope.PathElement, 3);
             Assert.AreEqual(777, _valueGetter.GetInt(request, 777));
 
-            _valueGetter.Initialize(Scope.NewPathElement, -5);
+            _valueGetter.Initialize(Scope.PathElement, -5);
             Assert.AreEqual(666, _valueGetter.GetInt(request, 666));
 
             _valueGetter.Initialize(Scope.OriginalParameter, "nonexistant");
@@ -187,10 +187,10 @@ namespace UnitTests
             _valueGetter.Initialize(Scope.OriginalPathElement, -4);
             Assert.AreEqual("", _valueGetter.GetString(request));
 
-            _valueGetter.Initialize(Scope.NewPathElement, 3);
+            _valueGetter.Initialize(Scope.PathElement, 3);
             Assert.AreEqual("", _valueGetter.GetString(request));
 
-            _valueGetter.Initialize(Scope.NewPathElement, -5);
+            _valueGetter.Initialize(Scope.PathElement, -5);
             Assert.AreEqual("", _valueGetter.GetString(request));
 
             _valueGetter.Initialize(Scope.OriginalParameter, "nonexistant");

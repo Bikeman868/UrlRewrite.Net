@@ -26,7 +26,7 @@ namespace UrlRewrite.Actions
             _value = value;
             switch (scope)
             {
-                case Scope.NewUrl:
+                case Scope.Url:
                     {
                         var query = value == null ? -1 : value.IndexOf('?');
                         if (query < 0)
@@ -41,10 +41,10 @@ namespace UrlRewrite.Actions
                         }
                     }
                     break;
-                case Scope.NewPath:
+                case Scope.Path:
                     _path = ParsePath(value);
                     break;
-                case Scope.NewQueryString:
+                case Scope.QueryString:
                     _queryString = ParseQueryString(value);
                     break;
             }

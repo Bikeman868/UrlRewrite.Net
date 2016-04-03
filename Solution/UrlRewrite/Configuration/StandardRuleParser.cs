@@ -163,7 +163,7 @@ namespace UrlRewrite.Configuration
 
         private ICondition ParseRuleMatch(XElement element)
         {
-            var scope = Scope.NewUrl;
+            var scope = Scope.Url;
             var compareOperation = CompareOperation.MatchRegex;
             var inverted = false;
             var ignoreCase = true;
@@ -177,7 +177,7 @@ namespace UrlRewrite.Configuration
                     {
                         case "url":
                             text = attribute.Value;
-                            scope = Scope.NewPath;
+                            scope = Scope.Path;
                             break;
                         case "patternSyntax":
                             if (attribute.Value == "ECMAScript")

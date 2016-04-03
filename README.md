@@ -178,60 +178,143 @@ This shows the overall structure of the rules file:
 Notes:
 * The root element of your XML must be `<rules>`. The file must be well formed, valid XML.
 * The `<clear />` element is ignored by this Rewrite Module and can safely be deleted.
-* The elements inside each rule can appear in any order. The `<action>` elements execute in the order that they appear inside the rule but only after all `<match>` and `<conditions>` elements have been evaluated even if the `<action>` is above the `<conditions>`.
+* The elements inside each rule can appear in any order. The `<action>` elements execute in the order 
+that they appear inside the rule but only after all `<match>` and `<conditions>` elements have been 
+evaluated even if the `<action>` is above the `<conditions>`.
 * You can only have one `<match>` and it is usually the first element inside the `<rule>`.
 
 ### The `<rule>` element
+Defines a rule. Rules are executed in order until a rule matches and has `stopProcessing` set to true, or
+the end of the rule list is reached. If the `<match>` and `<conditions>` match the incomming request 
+then the `<action>` elements are executed otherwise they are skipped.
+
 Attributes:
 * `name` is useful in trace output to identify the rule that was being executed.
 * 'stopProcessing' when true, if this rule matches the incomming request no further rules will be evaluated.
 
 ### The `<match>` element
+This is mostly for backward compatibility with the Microsoft rewriter V1.0 which did not have the `<conditions>` 
+element. If this element matches the incomming request then the `<conditions>` are evaluated. If both `<match>` 
+and `<conditions>` match the request, then the rule's `<action>` elements are executed.
+
 Attributes:
-* 'url' contains the pattern you are looking for in the URL. If the request URL has been modified by a prior rule, this rule will try tp match the modified request not the original request.
-* 'patternSyntax' can be one of `ECMAScript` or `Wildcard `. The default is `ECMAScript` which is a flavour of Regular Expression.
+* 'url' contains the pattern you are looking for in the URL. If the request URL has been modified by a 
+prior rule, this rule will try tp match the modified request not the original request.
+* 'patternSyntax' can be one of `ECMAScript` or `Wildcard `. The default is `ECMAScript` which 
+is a flavour of Regular Expression. Wildcard uses the same wildcard scheme as the Windows file system.
 * 'negate' when true inverts the logic so the rule matches the request when the url is not a match
 
 ### The `<conditions>` element
+Defines additional conditions that have to be met for the rule to match the incomming request. This element
+is optional because it was not present in V1.0 of the Microsoft IIS Rewrite module. This element can contain
+`<add>` elements to add conditions. You can set the `<conditions>` element to have `AND` or `OR` logic between
+the conditions.
+
 Attributes:
 * `logicalGrouping` can be `MatchAll` or `MatchAny`.
 
 ### The `<add>` elements inside of `<conditions>`
+Adds a contition that must be met for the rule to match the incomming request.
+
 Attributes:
-* `input` specifies what should be compared. Note that this support curly brace replacements.
-* `matchType` can be one of `isFile`, `isDirectory`, `pattern`. The default value is `pattern`.
-* `pattern` only applies when the `matchType` is `Pattern`.
-* `ignoreCase` only applies when the `matchType` is `Pattern`.
-* `negate` when `true` invets the result.
+* `input` specifies what should be compared. Note that this supports curly brace replacements.
+* `matchType` can be one of `isFile`, `isDirectory` or `pattern`. The default value is `pattern`.
+* `pattern` only applies when the `matchType` is `pattern`. Contains a Regular Expression.
+* `ignoreCase` only applies when the `matchType` is `pattern`.
+* `negate` when `true` inverts the result.
 
 ### The `<action>` element
+Defines an action to take if the rule matches the request. The rule can contain multiple actions, so for example
+you can modify the path and add a query string parameter in two separate actions and they will both be acted upon.
+
+Note that `Redirect`, `CustomResponse` and `AbortRequest` actions all stop any further rule processing and
+return a response back to the client even if the `stopProcessing` attribute of the rule is `false`.
+
 Attributes:
 * `type`can be one of `Rewrite`, `Redirect`, `CustomResponse`, `AbortRequest` or `None`.
-* `url` the URL to redirect, rewrite etc as defined by the `type` attribute.
-* `statusLine` only applies when `type` is `CustomResponse`.
-* `responseLine` only applies when `type` is `CustomResponse`.
+* `url` the URL to redirect or rewrite.
+* `statusLine` only applies when `type` is `CustomResponse`. Sets the status line of the response so that you can return 503 or 204 or whatever.
+* `responseLine` only applies when `type` is `CustomResponse`. Sets the body of the response.
 
 ### Curly braces
-Anything inside curly braces is replaced. This provides a way to includeh information from the request and to invoke build-in functions.
-This applies to the `url` attribute of the `<match>` and `<action>` elements and the `input` attribute of conditions.
+Anything inside curly braces is replaced with information from elsewhere. This provides a way to include 
+information from the request and to invoke build-in functions. This applies to the `url` attribute of the 
+`<match>` and `<action>` elements and the `input` attribute of conditions.
 
 The things you can put inside curly braces are:
-* `{URL}` the request path and query string as modified by the rewriter rules.
-* `{REQUEST_FILENAME}`.
-* `{QUERY_STRING}`.
-* `{HTTP_xxx}` the value of an http header in the request, for example `{HTTP_USER_AGENT}`.
-* `{C:n}` inserts a back reference the condition that matched where `n` is the index of the back reference 0-9. Index 0 is the whole matched string and 1..9 are the capture groups.
-* `{R:n}` inserts a back reference to the match pattern where `n` is the index of the back reference 0-9. Index 0 is the whole matched string and 1..9 are the capture groups.
-* `{ToLower:}` converts the text after the colon to lower case.
+* The name of a server variable for example `{URL}`. For a complete list see http://www.w3schools.com/asp/coll_servervariables.asp
+* A header from the request prefixed with `HTTP_`, for example `{HTTP_USER_AGENT}`.
+* `{C:n}` inserts a back reference the last condition that matched where `n` is the index of the back reference. 
+Index 0 is the whole matched string and 1..9 are the capture groups.
+* `{R:n}` inserts a back reference to the match pattern where `n` is the index of the back reference. 
+Index 0 is the whole matched string and 1..9 are the capture groups.
+* `{ToLower:}` converts the text after the colon to lower case. You can nest curly braces after the color, eg `{ToLower:{URL}}`
 * `{UrlEncode:}` converts the text after the colon to its URL encoded form.
 * `{UrlDecode:}` converts the text after the colon to its URL decoded form.
 
 ## New functionallity
-This section defines how the standard rewriter rule syntax was extended to include new features.
+This section defines how the standard Microsoft rewriter rule syntax was extended to include the new features
+available in this Rewrite Module.
 
 ### Rules within rules
+This Rewrite Module allows you to put another `<rules>` element inside of a `<rule>` element. If the rule does not
+match the request then all of the rules inside the `<rules>` element are skipped. Use this feature to group similar 
+rules together and make the path through the rules as short as possible.
+
+The recommended best practice is to profile traffic to your site and prioritize requests by frequency, then devise a
+rule list heirachy that minimizes the rule processing for the most frequently occurring requests.
+
+There is no limit to how deep the nest rule lists within rules.
+
+Example:
+```
+    <rules name="Root">
+
+	  <rule name="Image" stopProcessing="true">
+		<conditions logicalGrouping="MatchAny">
+		  <condition scope="OriginalPathElement" index="-1" test="EndsWith" value=".bmp"/>
+		  <condition scope="OriginalPathElement" index="-1" test="EndsWith" value=".jpg"/>
+		  <condition scope="OriginalPathElement" index="-1" test="EndsWith" value=".png"/>
+		  <condition scope="OriginalPathElement" index="-1" test="EndsWith" value=".svg"/>
+		</conditions>
+		<rules name="Image rules">
+			<rule />
+			<rule />
+		</rules>
+	  </rule>
+
+	  <rule name="Style" stopProcessing="true">
+		<condition scope="OriginalPathElement" index="-1" test="EndsWith" value=".css"/>
+		<rules name="Style rules">
+		  <rule name="Old version">
+  		    <conditions logicalGrouping="MatchAny">
+			  <condition scope="PathElement" index="-2" test="Equals" value="v1" />
+			  <condition scope="PathElement" index="-2" test="Equals" value="v2" />
+			</conditions>
+			<action type="Rewrite" scope="PathElement" index="-2" value="v3"/>
+		  </rule>
+		</rules>
+	  </rule>
+
+	  <rule name="Form" stopProcessing="true">
+		<condition scope="OriginalPathElement" index="-1" test="EndsWith" value=".aspx"/>
+		<rules name="Form rules">
+		  <rule name="Upper case" stopProcessing="true">
+			<condition scope="OriginalPath" test="MatchRegex" value=".*[A-Z].*" ignoreCase="false" />
+			<action type="RedirectPermenant" scope="Url">
+				<value scope="OriginalUrl" operation="LowerCase" />
+			</action>
+		  </rule>
+		</rules>
+	  </rule>
+
+    </rules>
+```
+In this example the expensive regular expression to detect upper case in the path is only executed for aspx pages.
 
 ### Efficiently accessing different parts of the request
+
+### More complex and/or condition support
 
 ### Selectively modifying the request
 
