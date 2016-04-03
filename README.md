@@ -301,9 +301,8 @@ Example:
 		<rules name="Form rules">
 		  <rule name="Upper case" stopProcessing="true">
 			<condition scope="OriginalPath" test="MatchRegex" value=".*[A-Z].*" ignoreCase="false" />
-			<action type="RedirectPermenant" scope="Url">
-				<value scope="OriginalUrl" operation="LowerCase" />
-			</action>
+			<action type="Rewrite" to="Path" from="OriginalPath" operation="LowerCase"/>
+			<action type="RedirectPermenant" />
 		  </rule>
 		</rules>
 	  </rule>
