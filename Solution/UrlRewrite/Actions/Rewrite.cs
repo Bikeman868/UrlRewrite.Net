@@ -19,7 +19,7 @@ namespace UrlRewrite.Actions
             out bool endRequest)
         {
             if (requestInfo.ExecutionMode != ExecutionMode.TraceOnly)
-                requestInfo.Context.RewritePath(BuildNewUrl(requestInfo));
+                requestInfo.Context.RewritePath(requestInfo.NewUrlString);
 
             stopProcessing = _stopProcessing;
             endRequest = _endRequest;
@@ -34,10 +34,9 @@ namespace UrlRewrite.Actions
         {
         }
 
-        public string ToString(IRequestInfo request)
+        public string ToString(IRequestInfo requestInfo)
         {
-            var url = BuildNewUrl(request);
-            return "rewrite the request URL to '" + url + "'";
+            return "rewrite the request URL to '" + requestInfo.NewUrlString + "'";
         }
     }
 }

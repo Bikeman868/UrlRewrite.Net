@@ -17,17 +17,18 @@ namespace UrlRewrite.Interfaces
         IList<Action<IRequestInfo>> DeferredActions { get; }
 
         // Information parsed from the incomming request
+        string OriginalUrlString { get; }
         string OriginalPathString { get; }
-        List<string> OriginalPath { get; }
+        IList<string> OriginalPath { get; }
         string OriginalParametersString { get; }
-        Dictionary<string, List<string>> OriginalParameters { get; }
+        IDictionary<string, IList<string>> OriginalParameters { get; }
 
         // Control over the rewritten/redirected URL
-        string NewUrlString { get; }
-        string NewPathString { get; }
-        string NewParametersString { get; }
-        List<string> NewPath { get; set; }
-        Dictionary<string, List<string>> NewParameters { get; set; }
+        string NewUrlString { get; set; }
+        string NewPathString { get; set; }
+        string NewParametersString { get; set; }
+        IList<string> NewPath { get; set; }
+        IDictionary<string, IList<string>> NewParameters { get; set; }
 
         void PathChanged();
         void ParametersChanged();

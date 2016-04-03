@@ -29,8 +29,8 @@ namespace UrlRewrite.Actions
         protected override void GetValues(
             IRequestInfo request, 
             Scope scope, 
-            out List<string> path, 
-            out Dictionary<string, List<string>> queryString)
+            out IList<string> path, 
+            out IDictionary<string, IList<string>> queryString)
         {
             var value = _getValue(request);
 
@@ -69,10 +69,6 @@ namespace UrlRewrite.Actions
         public override string ToString()
         {
             return "Replace " + _scope + " by evaluating a function";
-        }
-
-        public void Initialize(XElement configuration)
-        {
         }
 
         public string ToString(IRequestInfo request)

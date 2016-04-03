@@ -20,7 +20,7 @@ namespace UrlRewrite.Actions
         {
             if (requestInfo.ExecutionMode != ExecutionMode.TraceOnly)
             {
-                var url = BuildNewUrl(requestInfo);
+                var url = requestInfo.NewUrlString;
                 requestInfo.DeferredActions.Add(ri => ri.Context.Response.RedirectPermanent(url));
             }
 
@@ -33,14 +33,9 @@ namespace UrlRewrite.Actions
             return "Permenently redirect to new URL";
         }
 
-        public void Initialize(XElement configuration)
-        {
-        }
-
         public string ToString(IRequestInfo requestInfo)
         {
-            var url = BuildNewUrl(requestInfo);
-            return "permenant redirect to '" + url + "'";
+            return "permenant redirect to '" + requestInfo.NewUrlString + "'";
         }
     }
 }

@@ -69,7 +69,7 @@ namespace UrlRewrite.Conditions
             switch (_scope)
             {
                 case Scope.OriginalUrl:
-                    _getValueFunc = request => request.Context.Request.RawUrl;
+                    _getValueFunc = request => request.OriginalUrlString;
                     break;
 
                 case Scope.OriginalPath:
@@ -93,7 +93,8 @@ namespace UrlRewrite.Conditions
                         _getValueFunc = request =>
                         {
                             var i = request.OriginalPath.Count + scopeIndexValue;
-                            return i < request.OriginalPath.Count
+                            if (string.IsNullOrEmpty(request.OriginalPath[request.OriginalPath.Count - 1])) i--;
+                            return i > 0
                                 ? request.OriginalPath[i]
                                 : string.Empty;
                         };
@@ -103,7 +104,7 @@ namespace UrlRewrite.Conditions
                 case Scope.OriginalParameter:
                     _getValueFunc = request =>
                     {
-                        List<string> values;
+                        IList<string> values;
                         if (request.OriginalParameters.TryGetValue(_scopeIndex, out values))
                             return values.Count > 0 ? values[0] : string.Empty;
                         return string.Empty;
@@ -135,7 +136,8 @@ namespace UrlRewrite.Conditions
                         _getValueFunc = request =>
                         {
                             var i = request.NewPath.Count + scopeIndexValue;
-                            return i < request.NewPath.Count
+                            if (string.IsNullOrEmpty(request.NewPath[request.NewPath.Count - 1])) i--;
+                            return i > 0
                                 ? request.NewPath[i]
                                 : string.Empty;
                         };
@@ -145,7 +147,7 @@ namespace UrlRewrite.Conditions
                 case Scope.NewParameter:
                     _getValueFunc = request =>
                     {
-                        List<string> values;
+                        IList<string> values;
                         if (request.NewParameters.TryGetValue(_scopeIndex, out values))
                             return values.Count > 0 ? values[0] : string.Empty;
                         return string.Empty;

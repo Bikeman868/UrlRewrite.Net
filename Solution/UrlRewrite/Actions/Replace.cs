@@ -13,8 +13,8 @@ namespace UrlRewrite.Actions
     internal class Replace : ReplaceBase, IAction
     {
         private readonly string _value;
-        private readonly List<string> _path;
-        private readonly Dictionary<string, List<string>> _queryString;
+        private readonly IList<string> _path;
+        private readonly IDictionary<string, IList<string>> _queryString;
 
         /// <summary>
         /// Constructs a new URL replacement action
@@ -53,8 +53,8 @@ namespace UrlRewrite.Actions
         protected override void GetValues(
             IRequestInfo request, 
             Scope scope, 
-            out List<string> path, 
-            out Dictionary<string, List<string>> queryString)
+            out IList<string> path, 
+            out IDictionary<string, IList<string>> queryString)
         {
             path = _path;
             queryString = _queryString;
@@ -63,10 +63,6 @@ namespace UrlRewrite.Actions
         public override string ToString()
         {
             return "replace " + _scope + " with '" + _value + "'";
-        }
-
-        public void Initialize(XElement configuration)
-        {
         }
 
         public string ToString(IRequestInfo requestInfo)

@@ -21,8 +21,8 @@ namespace UrlRewrite.Actions
             out bool stopProcessing,
             out bool endRequest)
         {
-            List<string> path;
-            Dictionary<string, List<string>> queryString;
+            IList<string> path;
+            IDictionary<string, IList<string>> queryString;
             GetValues(requestInfo, _scope, out path, out queryString);
 
             switch (_scope)
@@ -46,15 +46,15 @@ namespace UrlRewrite.Actions
         protected abstract void GetValues(
             IRequestInfo request,
             Scope scope,
-            out List<string> path,
-            out Dictionary<string, List<string>> queryString);
+            out IList<string> path,
+            out IDictionary<string, IList<string>> queryString);
 
-        protected List<string> ParsePath(string path)
+        protected IList<string> ParsePath(string path)
         {
             return string.IsNullOrEmpty(path) ? null : path.Split('/').ToList();
         }
 
-        protected Dictionary<string, List<string>> ParseQueryString(string queryString)
+        protected IDictionary<string, IList<string>> ParseQueryString(string queryString)
         {
             if (string.IsNullOrEmpty(queryString))
                 return null;

@@ -37,10 +37,6 @@ namespace UrlRewrite.Actions
             return "Truncate the URL path to a maximum depth of " + _maximumDepth;
         }
 
-        public void Initialize(XElement configuration)
-        {
-        }
-
         public string ToString(IRequestInfo request)
         {
             return "truncate the URL path to a maximum depth of " + _maximumDepth;

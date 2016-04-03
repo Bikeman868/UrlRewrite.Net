@@ -39,18 +39,29 @@ namespace UrlRewrite.Request
             }
         }
 
-        private int? _queryPos;
+        private string _originalUrlString;
 
-        public int QueryPos
+        public string OriginalUrlString
         {
             get
             {
-                if (!_queryPos.HasValue)
+                if (ReferenceEquals(_originalPathString, null))
+                    _originalUrlString = Context.Request.RawUrl;
+                return _originalUrlString;
+            }
+        }
+
+        private int? _originalQueryPos;
+
+        public int OriginalQueryPos
+        {
+            get
+            {
+                if (!_originalQueryPos.HasValue)
                 {
-                    var request = Context.Request;
-                    _queryPos = request.RawUrl.IndexOf('?');
+                    _originalQueryPos = OriginalUrlString.IndexOf('?');
                 }
-                return _queryPos.Value;
+                return _originalQueryPos.Value;
             }
         }
 
@@ -62,17 +73,17 @@ namespace UrlRewrite.Request
             {
                 if (ReferenceEquals(_originalPathString, null))
                 {
-                    _originalPathString = QueryPos < 0
-                        ? Context.Request.RawUrl
-                        : Context.Request.RawUrl.Substring(0, QueryPos);
+                    _originalPathString = OriginalQueryPos < 0
+                        ? OriginalUrlString
+                        : OriginalUrlString.Substring(0, OriginalQueryPos);
                 }
                 return _originalPathString;
             }
         }
 
-        private List<string> _originalPath;
+        private IList<string> _originalPath;
 
-        public List<string> OriginalPath
+        public IList<string> OriginalPath
         {
             get
             {
@@ -89,9 +100,9 @@ namespace UrlRewrite.Request
             }
         }
 
-        private List<string> _newPath;
+        private IList<string> _newPath;
 
-        public List<string> NewPath
+        public IList<string> NewPath
         {
             get
             {
@@ -99,7 +110,11 @@ namespace UrlRewrite.Request
                     _newPath = OriginalPath.ToList();
                 return _newPath;
             }
-            set { _newPath = value; }
+            set 
+            { 
+                _newPath = value;
+                _newPathString = null;
+            }
         }
 
         private string _originalParametersString;
@@ -110,16 +125,16 @@ namespace UrlRewrite.Request
             {
                 if (ReferenceEquals(_originalParametersString, null))
                 {
-                    _originalParametersString = QueryPos < 0
+                    _originalParametersString = OriginalQueryPos < 0
                         ? ""
-                        : Context.Request.RawUrl.Substring(QueryPos + 1);
+                        : Context.Request.RawUrl.Substring(OriginalQueryPos + 1);
                 }
                 return _originalParametersString;
             }
         }
 
-        private Dictionary<string, List<string>> _originalParameters;
-        private Dictionary<string, List<string>> _newParameters;
+        private IDictionary<string, IList<string>> _originalParameters;
+        private IDictionary<string, IList<string>> _newParameters;
 
         private void ParseParameters()
         {
@@ -128,8 +143,8 @@ namespace UrlRewrite.Request
                 .Where(p => !string.IsNullOrEmpty(p))
                 .ToList();
 
-            var originalParameters = new Dictionary<string, List<string>>();
-            var newParameters = new Dictionary<string, List<string>>();
+            var originalParameters = new Dictionary<string, IList<string>>();
+            var newParameters = new Dictionary<string, IList<string>>();
 
             foreach (var parameter in parameters)
             {
@@ -142,11 +157,11 @@ namespace UrlRewrite.Request
                 }
                 else
                 {
-                    key = parameter.Substring(0, equalsPos).ToLower();
-                    value = parameter.Substring(equalsPos + 1);
+                    key = parameter.Substring(0, equalsPos).Trim().ToLower();
+                    value = parameter.Substring(equalsPos + 1).Trim();
                 }
 
-                List<string> values;
+                IList<string> values;
                 if (originalParameters.TryGetValue(key, out values))
                 {
                     values.Add(value);
@@ -163,7 +178,7 @@ namespace UrlRewrite.Request
             _newParameters = newParameters;
         }
 
-        public Dictionary<string, List<string>> OriginalParameters
+        public IDictionary<string, IList<string>> OriginalParameters
         {
             get
             {
@@ -173,7 +188,7 @@ namespace UrlRewrite.Request
             }
         }
 
-        public Dictionary<string, List<string>> NewParameters
+        public IDictionary<string, IList<string>> NewParameters
         {
             get
             {
@@ -181,7 +196,11 @@ namespace UrlRewrite.Request
                     ParseParameters();
                 return _newParameters;
             }
-            set { _newParameters = value; }
+            set 
+            { 
+                _newParameters = value;
+                _newParametersString = null;
+            }
         }
 
         public IRequestInfo Initialize(
@@ -211,6 +230,20 @@ namespace UrlRewrite.Request
                 if (string.IsNullOrEmpty(query))
                     return path;
                 return path + "?" + query;
+            }
+            set 
+            { 
+                var queryPos = value.IndexOf('?');
+                if (queryPos < 0)
+                {
+                    NewPathString = value;
+                    NewParametersString = string.Empty;
+                }
+                else
+                {
+                    NewPathString = value.Substring(0, queryPos);
+                    NewParametersString = value.Substring(queryPos + 1);
+                }
             }
         }
 
@@ -243,6 +276,16 @@ namespace UrlRewrite.Request
                     _newPathString = sb.ToString();
                 }
                 return _newPathString;
+            }
+            set 
+            { 
+                _newPathString = value;
+                _newPath = value
+                    .Split('/')
+                    .Where(e => !string.IsNullOrEmpty(e))
+                    .ToList();
+                if (value.StartsWith("/"))
+                    _originalPath.Insert(0, "");
             }
         }
 
@@ -285,6 +328,40 @@ namespace UrlRewrite.Request
                     }
                 }
                 return _newParametersString;
+            }
+            set 
+            { 
+                _newParametersString = value ?? string.Empty;
+                var parameters = value
+                    .Split('&')
+                    .Where(p => !string.IsNullOrEmpty(p))
+                    .ToList();
+                _newParameters = new Dictionary<string, IList<string>>();
+                foreach (var parameter in parameters)
+                {
+                    string key;
+                    string parameterValue = null;
+                    var equalsPos = parameter.IndexOf('=');
+                    if (equalsPos < 0)
+                    {
+                        key = parameter.ToLower();
+                    }
+                    else
+                    {
+                        key = parameter.Substring(0, equalsPos).Trim().ToLower();
+                        parameterValue = parameter.Substring(equalsPos + 1).Trim();
+                    }
+
+                    IList<string> values;
+                    if (_newParameters.TryGetValue(key, out values))
+                    {
+                        values.Add(parameterValue);
+                    }
+                    else
+                    {
+                        _newParameters.Add(key, new List<string> { parameterValue });
+                    }
+                }
             }
         }
 
