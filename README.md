@@ -1,12 +1,12 @@
 # UrlRewrite.Net
 Drop in replacement for the IIS Url Rewriter that fixes all the limitations in the Microsoft implementation
 
-# Why use this?
+## Why use this?
 * Backward compatible with your existing IIS Rewriter module rules.
 * Fixes all the limitations of the standard Microsoft rewriter module - see features below.
 * Order of magnitude faster than the standard Microsoft rewriter module because it is written to be very efficient, allows lists of rules to be inside a parent rule, and it supports faster comparison methods than RegEx.
 
-# Features
+## Features
 * All the capabilities of the standard Microsoft IIS rewriter module. See http://www.iis.net/learn/extensions/url-rewrite-module/using-the-url-rewrite-module
 * Heirachical rules, ie rules within rules. This allows you to short circuit rule evaluation.
 * Regex is supported for backward compatibility and much faster alternatives are also supported.
@@ -19,12 +19,12 @@ Drop in replacement for the IIS Url Rewriter that fixes all the limitations in t
 * Provides a mechanism similar to the Microsoft Failed Request Trace module to trace rule execution.
 * Unless rules are set to 'Dynamic' the results of rule evaluation will be cached for subsequent requests.
 
-# Current status
+## Current status
 This project is in the design phase at the moment. If you want to get involved and make a contribution please contact the author. If you are 
 looking for this kind of functionallity for your website then you will need to wait a few months untill the tireless men and women of the
 open source community have worked their magic.
 
-# Roadmap
+## Roadmap
 Estimated completion date for version 1.0 is July 2016.
 
 # Getting started
@@ -201,7 +201,7 @@ Attributes:
 * `input` specifies what should be compared. Note that this support curly brace replacements.
 * `matchType` can be one of `isFile`, `isDirectory`, `pattern`. The default value is `pattern`.
 * `pattern` only applies when the `matchType` is `Pattern`.
-* 'ignoreCase' only applies when the `matchType` is `Pattern`.
+* `ignoreCase` only applies when the `matchType` is `Pattern`.
 * `negate` when `true` invets the result.
 
 ### The `<action>` element
@@ -220,8 +220,8 @@ The things you can put inside curly braces are:
 * `{REQUEST_FILENAME}`.
 * `{QUERY_STRING}`.
 * `{HTTP_xxx}` the value of an http header in the request, for example `{HTTP_USER_AGENT}`.
-* '{C:n}' inserts a back reference the condition that matched where `n` is the index of the back reference 0-9. Index 0 is the whole matched string and 1..9 are the capture groups.
-* '{R:n}' inserts a back reference to the match pattern where `n` is the index of the back reference 0-9. Index 0 is the whole matched string and 1..9 are the capture groups.
+* `{C:n}` inserts a back reference the condition that matched where `n` is the index of the back reference 0-9. Index 0 is the whole matched string and 1..9 are the capture groups.
+* `{R:n}` inserts a back reference to the match pattern where `n` is the index of the back reference 0-9. Index 0 is the whole matched string and 1..9 are the capture groups.
 * `{ToLower:}` converts the text after the colon to lower case.
 * `{UrlEncode:}` converts the text after the colon to its URL encoded form.
 * `{UrlDecode:}` converts the text after the colon to its URL decoded form.
