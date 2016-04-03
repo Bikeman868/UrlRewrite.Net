@@ -152,3 +152,89 @@ a structured database.
 
 When the Rewrite Module initializes, it passes the rule stream to the parser which produces an IRuleList. Since you can
 pass in both the stream and the parser, you can take complete control over the generation of the rule list.
+
+# Rule Syntax
+
+## Backward Compatibility
+For backward compatibility the Rewrite Module supports all of the syntax that is defined for the Microsoft IIS Rewriter module.
+This symtax is summarized below for convenience and also documented by Microsoft here 
+http://www.iis.net/learn/extensions/url-rewrite-module/url-rewrite-module-configuration-reference.
+
+### Example file
+This shows the overall structure of the rules file:
+```
+    <rules>
+      <clear />
+      <rule name="LowerCaseRule" stopProcessing="true">
+        <match url=".*[A-Z].*" ignoreCase="false" />
+        <action type="Redirect" url="{ToLower:{URL}}" />
+        <conditions>
+          <add input="{URL}" pattern="^b/" negate="true" />
+        </conditions>
+      </rule>
+    </rules>
+```
+
+Notes:
+* The root element of your XML must be `<rules>`. The file must be well formed, valid XML.
+* The `<clear />` element is ignored by this Rewrite Module and can safely be deleted.
+* The elements inside each rule can appear in any order. The `<action>` elements execute in the order that they appear inside the rule but only after all `<match>` and `<conditions>` elements have been evaluated even if the `<action>` is above the `<conditions>`.
+* You can only have one `<match>` and it is usually the first element inside the `<rule>`.
+
+### The `<rule>` element
+Attributes:
+* `name` is useful in trace output to identify the rule that was being executed.
+* 'stopProcessing' when true, if this rule matches the incomming request no further rules will be evaluated.
+
+### The `<match>` element
+Attributes:
+* 'url' contains the pattern you are looking for in the URL. If the request URL has been modified by a prior rule, this rule will try tp match the modified request not the original request.
+* 'patternSyntax' can be one of `ECMAScript` or `Wildcard `. The default is `ECMAScript` which is a flavour of Regular Expression.
+* 'negate' when true inverts the logic so the rule matches the request when the url is not a match
+
+### The `<conditions>` element
+Attributes:
+* `logicalGrouping` can be `MatchAll` or `MatchAny`.
+
+### The `<add>` elements inside of `<conditions>`
+Attributes:
+* `input` specifies what should be compared. Note that this support curly brace replacements.
+* `matchType` can be one of `isFile`, `isDirectory`, `pattern`. The default value is `pattern`.
+* `pattern` only applies when the `matchType` is `Pattern`.
+* 'ignoreCase' only applies when the `matchType` is `Pattern`.
+* `negate` when `true` invets the result.
+
+### The `<action>` element
+Attributes:
+* `type`can be one of `Rewrite`, `Redirect`, `CustomResponse`, `AbortRequest` or `None`.
+* `url` the URL to redirect, rewrite etc as defined by the `type` attribute.
+* `statusLine` only applies when `type` is `CustomResponse`.
+* `responseLine` only applies when `type` is `CustomResponse`.
+
+### Curly braces
+Anything inside curly braces is replaced. This provides a way to includeh information from the request and to invoke build-in functions.
+This applies to the `url` attribute of the `<match>` and `<action>` elements and the `input` attribute of conditions.
+
+The things you can put inside curly braces are:
+* `{URL}` the request path and query string as modified by the rewriter rules.
+* `{REQUEST_FILENAME}`.
+* `{QUERY_STRING}`.
+* `{HTTP_xxx}` the value of an http header in the request, for example `{HTTP_USER_AGENT}`.
+* '{C:n}' inserts a back reference the condition that matched where `n` is the index of the back reference 0-9. Index 0 is the whole matched string and 1..9 are the capture groups.
+* '{R:n}' inserts a back reference to the match pattern where `n` is the index of the back reference 0-9. Index 0 is the whole matched string and 1..9 are the capture groups.
+* `{ToLower:}` converts the text after the colon to lower case.
+* `{UrlEncode:}` converts the text after the colon to its URL encoded form.
+* `{UrlDecode:}` converts the text after the colon to its URL decoded form.
+
+## New functionallity
+This section defines how the standard rewriter rule syntax was extended to include new features.
+
+### Rules within rules
+
+### Efficiently accessing different parts of the request
+
+### Selectively modifying the request
+
+### Matching the original incomming request rather than the rewritten one
+
+### Register your own custom conditions and actions
