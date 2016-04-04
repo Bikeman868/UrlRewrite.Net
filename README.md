@@ -413,7 +413,7 @@ The `<rewrite>` element can have the following attributes:
 * `to` specifies the scope of where to update the request. See the description of the `scope` attribute of the `<condition>`
 element above for a full definition. For this attribute you can not specify any of the Original.. scopes (you can't change
 the request that was received) and you can't change the values of server variables.
-* 'toIndex' specified the index where this is applicable. For example you can overwrite a specific element in the request 
+* `toIndex` specified the index where this is applicable. For example you can overwrite a specific element in the request 
 path without having to be concerned with the rest of the path, or modify a specific parameter in the query string leaving
 all other query string parameters untouched.
 * `from` specifies the scope to get the new value from.
@@ -422,7 +422,7 @@ all other query string parameters untouched.
 to the `to` scope. Possible values are `LowerCase`, `UpperCase`, `UrlEncode`, `UrlDecode`. You can also register your own
 custom operations - see below.
 
-This Rewrite module also provides a `<delete>` element for rempving parts of the request and a `<keep>` element to delete
+This Rewrite module also provides a `<delete>` element for removing parts of the request and a `<keep>` element to delete
 all except certain parts of the request. These elements allow you to remove unwanted query string parameters, shorten
 paths etc
 
@@ -430,25 +430,29 @@ The `<delete>` element has the following attributes:
 * `scope` identifies which part of the url to delete as `Url`, `Path`, `QueryString`, `PathElement`, `Parameter`, 'Header'.
 * `index` specifies the scope index if appropriate for the scope.
 
-The '<keep>' element has the following attributes:
-* `scope` identifies which part of the url to modify as `Path`, `QueryString`, 'Header'.
+The `<keep>` element has the following attributes:
+* `scope` identifies which part of the url to modify as `Path`, `QueryString`, `Header`.
 * `index` specifies the depth to trim the path to if scope is `Path` for example passing `"2"` will remove path elements 3 onwards.
 * `index` is a comma separated list of parameter names if the scope is `QueryString`. All other parameters will be deleted.
 * `index` is a comma separated list of header names if the scope is `Header`. All other headers will be deleted.
 
 An example of a rule that makes lots of changes to the request follows:
 ```
-    <rule name="Form" stopProcessing="true">
+    <rule name="Flatten forms permenantly" stopProcessing="true">
       <condition scope="OriginalPathElement" index="-1" test="EndsWith" value=".aspx" />
+      <condition scope="OriginalPathElement" index="3" test="Equals" value="" negate="true" />
       <rewrite to="Path" from="OriginalPath" operation="LowerCase" />
-      <rewrite to="PathElement" toIndex="2" from="PathElement" fromIndex="3" />
+      <rewrite to="PathElement" toIndex="2" from="PathElement" fromIndex="-1" />
       <keep scope="Path" index="2" />
       <keep scope="QueryString" index="page" />
       <action type="RedirectPermenant" />
     </rule>
 ```
 If this rule was run against http://mydomain.com/Companies/Quote/MyCompany.aspx?order=date&Page=3&id=99 
-the request would be permenantly redirected to http://mydomain.com/companies/mycompany.aspx?Page=3
+the request would be permenantly redirected to http://mydomain.com/companies/mycompany.aspx?Page=3 because it
+matches any request where the path is 3 or more deep and where the last element of the path ends in .aspx, then
+it makes the path part of the url all lower case, and copies the last element of the path to the second element
+and deletes all subsequent elements in the path. It also removes all query string parameters except for `page`.
 
 ### Register your own custom conditions, operations and actions
 The features provided by this Rewrite Module can be extended by writing your own conditions, operations and actions. In each 
