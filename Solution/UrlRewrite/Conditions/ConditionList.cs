@@ -20,16 +20,16 @@ namespace UrlRewrite.Conditions
 
             switch (logic)
             {
-                case CombinationLogic.AllFalse:
+                case CombinationLogic.MatchNone:
                     _testFunc = (ri, rr) => All(ri, rr, false);
                     break;
-                case CombinationLogic.AllTrue:
+                case CombinationLogic.MatchAll:
                     _testFunc = (ri, rr) => All(ri, rr, true);
                     break;
-                case CombinationLogic.AnyFalse:
+                case CombinationLogic.MatchNotAny:
                     _testFunc = (ri, rr) => Any(ri, rr, false);
                     break;
-                case CombinationLogic.AnyTrue:
+                case CombinationLogic.MatchAny:
                     _testFunc = (ri, rr) => Any(ri, rr, true);
                     break;
                 default:

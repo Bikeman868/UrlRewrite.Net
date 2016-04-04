@@ -117,7 +117,7 @@ namespace UrlRewrite.Configuration
                 var conditionList = c1 as ConditionList;
                 if (conditionList == null)
                 {
-                    conditionList = new ConditionList(CombinationLogic.AllTrue);
+                    conditionList = new ConditionList(CombinationLogic.MatchAll);
                     conditionList.Add(c1);
                 }
                 conditionList.Add(c2);

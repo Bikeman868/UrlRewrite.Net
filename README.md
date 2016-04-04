@@ -190,7 +190,7 @@ then the `<action>` elements are executed otherwise they are skipped.
 
 Attributes:
 * `name` is useful in trace output to identify the rule that was being executed.
-* 'stopProcessing' when true, if this rule matches the incomming request no further rules will be evaluated.
+* `stopProcessing` when true, if this rule matches the incomming request no further rules will be evaluated.
 
 ### The `<match>` element
 This is mostly for backward compatibility with the Microsoft rewriter V1.0 which did not have the `<conditions>` 
@@ -198,11 +198,11 @@ element. If this element matches the incomming request then the `<conditions>` a
 and `<conditions>` match the request, then the rule's `<action>` elements are executed.
 
 Attributes:
-* 'url' contains the pattern you are looking for in the URL. If the request URL has been modified by a 
+* `url` contains the pattern you are looking for in the URL. If the request URL has been modified by a 
 prior rule, this rule will try tp match the modified request not the original request.
-* 'patternSyntax' can be one of `ECMAScript` or `Wildcard `. The default is `ECMAScript` which 
+* `patternSyntax` can be one of `ECMAScript` or `Wildcard `. The default is `ECMAScript` which 
 is a flavour of Regular Expression. Wildcard uses the same wildcard scheme as the Windows file system.
-* 'negate' when true inverts the logic so the rule matches the request when the url is not a match
+* `negate` when true inverts the logic so the rule matches the request when the url is not a match
 
 ### The `<conditions>` element
 Defines additional conditions that have to be met for the rule to match the incomming request. This element
@@ -291,7 +291,7 @@ Example:
 			  <condition scope="PathElement" index="-2" test="Equals" value="v1" />
 			  <condition scope="PathElement" index="-2" test="Equals" value="v2" />
 			</conditions>
-			<action type="Rewrite" scope="PathElement" index="-2" value="v3"/>
+			<rewrite to="PathElement" toIndex="-2" from="literal" fromIndex="v3"/>
 		  </rule>
 		</rules>
 	  </rule>
@@ -301,7 +301,7 @@ Example:
 		<rules name="Form rules">
 		  <rule name="Upper case" stopProcessing="true">
 			<condition scope="OriginalPath" test="MatchRegex" value=".*[A-Z].*" ignoreCase="false" />
-			<action type="Rewrite" to="Path" from="OriginalPath" operation="LowerCase"/>
+			<rewrite to="Path" from="OriginalPath" operation="LowerCase"/>
 			<action type="RedirectPermenant" />
 		  </rule>
 		</rules>
@@ -312,11 +312,187 @@ Example:
 In this example the expensive regular expression to detect upper case in the path is only executed for aspx pages.
 
 ### Efficiently accessing different parts of the request
+The Microsoft IIS Rewrite module uses regular expressions to test if the request matches the rule. This uses the
+entire path by default, and can be configured to compare the query string or the entire url, but either way the
+regular expressions to pick out specific parts of the url are quite complex, difficult to read, and expensive
+at runtime.
 
-### More complex and/or condition support
+This Rewrite Module takes a different approach, it parses the path into a list of strings, and parses the query 
+string into a dictionary. It does this lazily on demand, so that the lists and discioranries only get created if
+they are required to evaluate the rules.
 
+Because the original incomming request and the rewritten version are structures that can be accessed very quickly,
+it allows the rules to be written in a way that is much more readable, and execute much faster.
+
+Note that all of the original syntax from the Microsoft implementation is fully supported, this is an extension to
+that syntax.
+
+This functionallity can be accessed by adding the new `<condition>` element to you rules. These elements can be
+placed inside of `<rule>` elements and inside of `<conditions>` element. When placed inside `<conditions>`
+elements the logic used to combine the conditions can be specified with the `logicalGrouping` attribute. When
+`<condition>` elements are placed directly inside the `<rule>`, all conditions must be true for the rule to be
+applied to the request.
+
+The `<condition>` element can have the following attributes:
+* `scope` specifies what part of the request to compare. See below.
+* `index` for path element scope this is the numeric index of the path element. Index 0 returns the entire path.
+Index 1 is the first element of the path, index 2 the second element etc. If you pass an idex thats larger than the number
+of path elements then an empty string is returned for comparison. For example if the request is 
+`http://mydomain.com/path1/path2` then path1 is index position 1 amd path2 ia index position 2. You can also set 
+the `index` attribute to a negative number to count path elements from right to left. In the previous example index 
+-1 returns path2 and -2 returns path1. Larger negative values will return a blank string for comparison.
+* `index` for parameter scope this is the name of the parameter. For example if the url is 
+`http://mydomain.com/path1/path2?p1=one&p2=two` you can test the value of query string parameter p2 by setting the 
+`index` attribute to `"p2"`.
+* 'index' for header scope is the name of the header, for example 'user-agent'.
+* 'index' for server variable scope is the name of the server variable, for example 'REQUEST_METHOD'.
+* `test` specified how to compare the `scope` to the `value`. The possible values are: `StartsWith`, `EndsWith`, `Contains`,
+`Equals`,  `MatchWildcard`, `MatchRegex`, `Greater`, `Less`.
+* `value` specifies the value to compare with the scope.
+* `ignoreCase` defaults to `true` but can be set to `false` for case sensitivity.
+
+The values of the `scope` attribute can be:
+* `OriginalUrl` the full url of the original request regrdless of any rewrite actions that have executed.
+* `OriginalPath` just the path part of the original request.
+* `OriginalQueryString` just the query string part of the original request.
+* `OriginalPathElement` one element from the path part of the original request. Pass a number in the `index` 
+attribute to specify the position within the path, or pass 0 as the index to compare the entire path.
+* `OriginalParameter` the value of one parameter from the query string part of the original request. Pass a paremater 
+name in the `index` attribute to specify the name of the parameter to compare.
+* `OriginalHeader` one of the headers from the original request. Pass the name of the header in the `index` attribute.
+* `Url` the full url as modified by any rewrite actions that have executed.
+* `Path` just the path part of the rewritten url.
+* `QueryString` just the query string part of the rewrtten url.
+* `PathElement` one element from the path part of the rewritten url. Pass a number in the `index` 
+attribute to specify the position within the path, or pass 0 as the index to compare the entire path.
+* `Parameter` the value of one parameter from the query string part of the rewritten url. Pass a paremater 
+name in the `index` attribute to specify the name of the parameter to compare.
+* `Header` one of the headers from the rewritten response. Pass the name of the header in the `index` attribute.
+* `ServerVariable` one of the IIS server variables. Pass the name of the variable in the `index` parameter.
+* `literal` compares a hard coded value contained in the `index` attribute. This is mostly useful in the `<rewrite>` element.
+
+### More complex and/or condition support and simplified conditions too
+The original version of the IIS Rewrite Module only had the `<match>` element. Version 2 introduced the optional
+`<conditions><add /></conditions>` syntax but the `<match>` element is still required. In this Rewrite Module the
+`<match>` element is optional and I recommend that you only use it to port existing rewrite rules. For any new rules
+the new syntax is more readable and executes much faster.
+
+There is a new `<condition>` element. Element of this type can be placed directly inside the `<rule>` element or grouped
+inside a `<conditions>` element. Furthermore `<conditions>` elements can be nested inside of other `<conditions>` elements
+to implement more complex and/or logic.
+
+For example you can define two groups of conditions where either group must be true, but within each group all the
+conditions must be true. This example would be organized as follows:
+```
+    <conditions logicalGrouping="MatchAny">
+      <conditions logicalGrouping="MatchAll">
+        <condition />
+        <condition />
+	  </conditions>
+      <conditions logicalGrouping="MatchAll">
+        <condition />
+        <condition />
+	  </conditions>
+    </conditions>
+```
+
+The `<conditions>` element has the following attributes:
+* `logicalGrouping` can be any of `MatchAll`, `MatchAny`, `MatchNone` or `MatchNotAny`.
+ 
 ### Selectively modifying the request
+In the Microsoft Rewrite module when you define a rewrite action you have to pass the entire URL which means
+that you have to use Regex back references to pick up the parts of the request you don't want to modify, and
+this complicates the original Regex as well as making the whole rule syntex much less readable.
 
-### Matching the original incomming request rather than the rewritten one
+In this Rewrite Module you can specify exactly which part of the url you want to modify, you can add multiple
+`<rewrite>` elements to the `<rule>` element to make multiple modifications, then you don't need to specify the url in the
+`<action>` element. You can still specify the url in the `<action>` if you like for backwards compatibility. If
+you do this then the `<rewrite>` elements become ineffective.
 
-### Register your own custom conditions and actions
+The `<rewrite>` element can have the following attributes:
+* `to` specifies the scope of where to update the request. See the description of the `scope` attribute of the `<condition>`
+element above for a full definition. For this attribute you can not specify any of the Original.. scopes (you can't change
+the request that was received) and you can't change the values of server variables.
+* 'toIndex' specified the index where this is applicable. For example you can overwrite a specific element in the request 
+path without having to be concerned with the rest of the path, or modify a specific parameter in the query string leaving
+all other query string parameters untouched.
+* `from` specifies the scope to get the new value from.
+* `fromIndex` specifies the the index within this scope to get the value from.
+* `operation` specifes an operation to perform on the value after reading it from the `from` scope and before writing it
+to the `to` scope. Possible values are `LowerCase`, `UpperCase`, `UrlEncode`, `UrlDecode`. You can also register your own
+custom operations - see below.
+
+This Rewrite module also provides a `<delete>` element for rempving parts of the request and a `<keep>` element to delete
+all except certain parts of the request. These elements allow you to remove unwanted query string parameters, shorten
+paths etc
+
+The `<delete>` element has the following attributes:
+* `scope` identifies which part of the url to delete as `Url`, `Path`, `QueryString`, `PathElement`, `Parameter`, 'Header'.
+* `index` specifies the scope index if appropriate for the scope.
+
+The '<keep>' element has the following attributes:
+* `scope` identifies which part of the url to modify as `Path`, `QueryString`, 'Header'.
+* `index` specifies the depth to trim the path to if scope is `Path` for example passing `"2"` will remove path elements 3 onwards.
+* `index` is a comma separated list of parameter names if the scope is `QueryString`. All other parameters will be deleted.
+* `index` is a comma separated list of header names if the scope is `Header`. All other headers will be deleted.
+
+An example of a rule that makes lots of changes to the request follows:
+```
+    <rule name="Form" stopProcessing="true">
+      <condition scope="OriginalPathElement" index="-1" test="EndsWith" value=".aspx" />
+      <rewrite to="Path" from="OriginalPath" operation="LowerCase" />
+      <rewrite to="PathElement" toIndex="2" from="PathElement" fromIndex="3" />
+      <keep scope="Path" index="2" />
+      <keep scope="QueryString" index="page" />
+      <action type="RedirectPermenant" />
+    </rule>
+```
+If this rule was run against http://mydomain.com/Companies/Quote/MyCompany.aspx?order=date&Page=3&id=99 
+the request would be permenantly redirected to http://mydomain.com/companies/mycompany.aspx?Page=3
+
+### Register your own custom conditions, operations and actions
+The features provided by this Rewrite Module can be extended by writing your own conditions, operations and actions. In each 
+case you need to register your class first with a unique name and you class needs to implement a specific interface, then
+you reference the registered name of your class in the rewrite rules.
+
+Note that this allows you to write rules that hit databases and call external services, but this should be done with
+extreme caution. Remember thay every request to your site goes through the Rewrite Module, even requests for images, Javascript
+files, css files etc. You can alleviate some of these performance concerns by nesting your rules inside other rules that
+pre-qualifies the request.
+
+You can register your custom class by adding an <assembly> element inside a `<rules>` element. Assemblies must be 
+registered before they are referenced, I recommend that you put them at the very top of your rule file.
+
+The `<assembly>` element has the following attributes:
+* `fileName` is the name of the assembly file without the DLL extension. Make sure this DLL is present in the `bin` folder of your web site.
+
+The `<assembly>` element can contain any number of `<class>` attributes. These define your extensions. The `<class>` element 
+has the following attributes:
+* `className` contains the full namespace qualified name of the class. For example `MyCompany.Rewrite.Conditions.IsCustomer`.
+* `type` is one of `condition`, `action` or `operation`. Your class must implement the corresponsing interface 
+`UrlRewrite.Interfaces.IConditon`, `UrlRewrite.Interfaces.IAction` or `UrlRewrite.Interfaces.IOperation`.
+* `name` is the name of your extension. This is the name you will refer to in your Rewrite Module rules.
+
+This example aborts all requests that do not come from a customer:
+```
+    <rules name="root">
+	  <assembly fileName="MyCompany.Rewrite">
+	    <class name="isCustomer" type="condition" className="MyCompany.Rewrite.Conditions.IsCustomer" />
+	  </assembly>
+
+	  <rule>
+		<condition scope="parameter" index="userId" test="isCustomer" negate="true" />
+	    <action type="AbortRequest" />
+	  </rule>
+	<rules>
+```
+
+For custom conditions pass the name of your condition in the `test` attribute of the `<condition>` element. In this case the
+`scope` and `index` attributes will be used to extract part of the original or rewritten request, and this will be passed
+into your custom condition which should then return a boolean result.
+
+For custom actions pass the name of your action to the `type` attribute of the `<action>` element. Your action will be passed
+an interface containing details of the request being processed.
+
+For custom operations pass the name of your operation to the `operation` attribute of the `<rewrite>` element. It will be
+passed a string and should return a modified version of that string.

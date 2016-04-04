@@ -7,9 +7,9 @@ namespace UrlRewrite.Interfaces
 {
     public enum CombinationLogic
     {
-        AllTrue,
-        AllFalse,
-        AnyTrue,
-        AnyFalse
+        MatchAll,
+        MatchNone,
+        MatchAny,
+        MatchNotAny
     }
 }
