@@ -103,6 +103,8 @@ Permenantly redirects `/company/financials/page2.aspx?date=now` to `/entity/fina
 Does not redirect `/company/history/page1.aspx`
 
 Does not redirect `/company/quote/page1`
+
+For any path like `/company/.../*.aspx` if the session belongs to a customer appends `?customer=true` to the url
 ```
     <rules name="root">
       <assembly>
@@ -122,6 +124,10 @@ Does not redirect `/company/quote/page1`
             <rewrite to="pathElement" toIndex="1" from=="literal" fromIndex="entity" />
             <action type="redirectPermenant" />
     	  </rule>
+		  <rule name="flag customers">
+			<condition test="isCustomer" />
+			<rewrite to="parameter" toIndex="customer" from="literal" fromIndex="true" />
+		  </rule>
         </rules>
       </rule
     
@@ -139,6 +145,10 @@ Rewrites `/company/quote/123/march/2/2016` to `/company/quote/123`
 
 ## Example of a rule that removes part of the path and turns in into a query string parameter
 Rewrites `/company/123` to `/company?id=123`
+
+Rewrites `/company/123/profile.aspx` to `/company/profile.aspx?id=123`
+
+Does not rewrite `/company` or `/company/`
 ```
     <rule name="move id to querystring">
       <condition scope="pathElement" index="1" test="equals" value="company" />
@@ -307,8 +317,11 @@ Note that `Redirect`, `CustomResponse` and `AbortRequest` actions all stop any f
 return a response back to the client even if the `stopProcessing` attribute of the rule is `false`.
 
 Attributes:
-* `type`can be one of `Rewrite`, `Redirect`, `CustomResponse`, `AbortRequest` or `None`.
-* `url` the URL to redirect or rewrite.
+* `type` must be one of `Rewrite`, `Redirect`, `CustomResponse`, `AbortRequest` or `None`. Note that `None` is
+supported in this Rewrite Module for backward compatibility only, you can achieve the same result by ommitting the `<action>` element. 
+Note that this Rewrite Module adds a new action type of `RedirectPermenant` and also allows you to write your own custom action types.
+Note that this Rewrite Module depreciates the `Rewrite` action type in favor of a more powerful `<rewrite>` element.
+* `url` the URL to redirect or rewrite. If this is not provided the last rewrite action will define the url to redirect to.
 * `statusLine` only applies when `type` is `CustomResponse`. Sets the status line of the response so that you can return 503 or 204 or whatever.
 * `responseLine` only applies when `type` is `CustomResponse`. Sets the body of the response.
 
