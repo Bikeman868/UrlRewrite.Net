@@ -1,0 +1,110 @@
+
+<match patternSyntax="Wildcard" />
+
+<conditions>
+  <add input="{URL}" matchType="pattern" pattern=".*[A-Z].*" />
+</conditions>
+
+<conditions>
+  <add matchType="isDirectory" />
+</conditions>
+
+<conditions>
+  <add matchType="isFile" />
+</conditions>
+
+<conditions>
+  <conditions>
+    <condition />
+    <condition />
+    <condition />
+  </conditions>
+  <conditions>
+    <condition />
+    <condition />
+    <condition />
+  </conditions>
+  <condition />
+</conditions>
+
+<match>
+  <condition />
+  <condition />
+  <condition />
+</match>
+
+<condition scope="OriginalUrl" />
+<condition scope="OriginalPath" />
+<condition scope="OriginalQueryString" />
+<condition scope="OriginalPathElement" value="-1" />
+<condition scope="OriginalParameter" value="param1" />
+<condition scope="Url" />
+<condition scope="Path" />
+<condition scope="QueryString" />
+<condition scope="PathElement" value="2" />
+<condition scope="Parameter" value="param1" />
+<condition scope="Header" value="USER_AGENT" />
+<condition scope="ServerVariable" value="URL" />
+<condition scope="Literal" value="Hello/world" />
+
+<condition scope="Path" test="StartsWith" "/company/" />
+<condition scope="Path" test="EndsWith" value=".aspx" />
+<condition scope="Path" test="Contains" value="company"/>
+<condition scope="Path" test="Equals" value="/company/quote"/>
+<condition scope="Path" test="MatchWildcard" value="*.aspx" />
+<condition scope="Path" test="MatchRegex" value=".*/.*.aspx"/>
+<condition scope="Path" test="Greater" value="5" />
+<condition scope="Path" test="Less" value="15" />
+
+<condition ignoreCase="false" />
+
+<conditions logicalGrouping="MatchNone" />
+<conditions logicalGrouping="MatchNotAny" />
+
+<action 
+	type="CustomResponse" 
+	statusLine="HTTP/1.1 404 Not Found" 
+	responseLine="The requested resource was not found on this server." />
+
+<action type="AbortRequest" />
+
+<action type="None" />
+
+<action type="<custom action name>" />
+
+<match url="{HTTP_USER_AGENT}" />
+
+<action url="{HTTP_USER_AGENT}" />
+
+<conditions><add input="{HTTP_PORT}" /></conditions>
+
+{C:n}
+
+{R:n}
+
+{ToLower:{}}
+{UrlEncode:{}}
+{UrlDecode:{}}
+
+<rule>
+  <rules>
+  </rules>
+</rule>
+
+<rewrite to="<scope>" toIndex="<index>" from="<scope>" fromIndex="<index>" operation="" />
+
+<rewrite operation="LowerCase" />
+<rewrite operation="UpperCase" />
+<rewrite operation="UrlDecode" />
+<rewrite operation="UrlEncode" />
+
+<rewrite operation="<custom operation name>" />
+
+<delete scope="<scope>" index="<index>" />
+
+<keep scope="<scope>" index="<index>" />
+
+<assembly fileName="">
+  <class name="MyOperation" type="operation" className="MyCompany.Rewrite.Operations.IsCustomer" />
+</assembly>
+

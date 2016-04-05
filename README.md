@@ -369,7 +369,7 @@ attribute to specify the position within the path, or pass 0 as the index to com
 name in the `index` attribute to specify the name of the parameter to compare.
 * `Header` one of the headers from the rewritten response. Pass the name of the header in the `index` attribute.
 * `ServerVariable` one of the IIS server variables. Pass the name of the variable in the `index` parameter.
-* `literal` compares a hard coded value contained in the `index` attribute. This is mostly useful in the `<rewrite>` element.
+* `Literal` compares a hard coded value contained in the `index` attribute. This is mostly useful in the `<rewrite>` element.
 
 ### More complex and/or condition support and simplified conditions too
 The original version of the IIS Rewrite Module only had the `<match>` element. Version 2 introduced the optional
