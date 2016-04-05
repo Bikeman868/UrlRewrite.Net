@@ -94,66 +94,76 @@ Note that these examples use made up random data. Your rules must be written to 
 your web site receives.
 
 ## Example of a rules file that uses all of the most common syntax
-Permenantly redirects `/company/quote/123?date=now` to `/entity/quote/123?date=now`
-Permenantly redirects `/company/profile/123?date=now` to `/entity/profile/123?date=now`
-Permenantly redirects `/company/financials/123?date=now` to `/entity/financials/123?date=now`
-Does not redirect `/company/history/123`
+Permenantly redirects `/company/quote/page3.aspx?date=now` to `/entity/quote/page3.aspx?date=now`
 
-<rules name="root">
-  <assembly>
-    <class name="isCustomer" type="condition" className="MyCompany.Rewrite.Conditions.IsCustomer" />
-  </assembly>
+Permenantly redirects `/company/profile/page1.aspx?date=now` to `/entity/profile/page1.aspx?date=now`
 
-  <rule name="is a company page">
-	<condition scope="pathElement" index="1" test="equals" value="company" />
-	<condition scope="pathElement" index="-1" test="endsWith" value=".aspx" />
-	<rules name="company page rules>
-	  <rule name="permenantly redirect urls from v1 site">
-		<conditions logicalGrouping="matchAny">
-          <condition scope="path" test="equals" value="/company/quote" />
-          <condition scope="path" test="equals" value="/company/profile" />
-          <condition scope="path" test="equals" value="/company/financials" />
-		</conditions>
-		<rewrite to="pathElement" toIndex="1" from=="literal" fromIndex="entity" />
-		<action type="redirectPermenant" />
-	  </rule>
-	</rules>
-  </rule
+Permenantly redirects `/company/financials/page2.aspx?date=now` to `/entity/financials/page2.aspx?date=now`
 
-</rules>
+Does not redirect `/company/history/page1.aspx`
+
+Does not redirect `/company/quote/page1`
+```
+    <rules name="root">
+      <assembly>
+        <class name="isCustomer" type="condition" className="MyCompany.Rewrite.Conditions.IsCustomer" />
+      </assembly>
+    
+      <rule name="is a company page">
+        <condition scope="pathElement" index="1" test="equals" value="company" />
+        <condition scope="pathElement" index="-1" test="endsWith" value=".aspx" />
+        <rules name="company page rules>
+          <rule name="permenantly redirect urls from v1 site">
+            <conditions logicalGrouping="matchAny">
+              <condition scope="pathElement" index="2" test="equals" value="quote" />
+              <condition scope="pathElement" index="2" test="equals" value="profile" />
+              <condition scope="pathElement" index="2" test="equals" value="financials" />
+            </conditions>
+            <rewrite to="pathElement" toIndex="1" from=="literal" fromIndex="entity" />
+            <action type="redirectPermenant" />
+    	  </rule>
+        </rules>
+      </rule
+    
+    </rules>
+```
 
 ## Example of a rule that truncates any path deeper than 3 levels
 Rewrites `/company/quote/123/march/2/2016` to `/company/quote/123`
-
-<rule name="truncate paths deeper than 3 levels">
-  <condition scope="pathElement" index="4" test="equals" value="" negate="true" />
-  <keep scope="path" index="3" />
-</rule
+```
+    <rule name="truncate paths deeper than 3 levels">
+      <condition scope="pathElement" index="4" test="equals" value="" negate="true" />
+      <keep scope="path" index="3" />
+    </rule
+```
 
 ## Example of a rule that removes part of the path and turns in into a query string parameter
 Rewrites `/company/123` to `/company?id=123`
-
-<rule name="move id to querystring">
-  <condition scope="pathElement" index="1" test="equals" value="company" />
-  <condition scope="pathElement" index="2" test="equals" value="" negate="true"/>
-  <rewrite to="parameter" toIndex="id" from="pathElement" fromIndex="2" />
-  <delete scope="pathElement" index="2" />
-</rule
+```
+    <rule name="move id to querystring">
+      <condition scope="pathElement" index="1" test="equals" value="company" />
+      <condition scope="pathElement" index="2" test="equals" value="" negate="true"/>
+      <rewrite to="parameter" toIndex="id" from="pathElement" fromIndex="2" />
+      <delete scope="pathElement" index="2" />
+    </rule
+```
 
 ## Example of a rule that changes all PUT requests into POST requests
-
-<rule name="treat all PUT as POST">
-  <condition scope="serverVariable" index="REQUEST_METHOD" test="equals" value="PUT" />
-  <rewrite to="serverVariable" toIndex="REQUEST_METHOD" from="literal" fromIndex="POST" />
-</rule
+```
+    <rule name="treat all PUT as POST">
+      <condition scope="serverVariable" index="REQUEST_METHOD" test="equals" value="PUT" />
+      <rewrite to="serverVariable" toIndex="REQUEST_METHOD" from="literal" fromIndex="POST" />
+    </rule
+```
 
 ## Example of a rule that aborts any request for the `/secure/` part of the site unless it was made over HTTPS
-
-<rule name="ensure security">
-  <condition scope="serverVariable" index="HTTPS" test="equals" value="false" />
-  <condition scope="pathElement" index="1" test="equals" value="secure" />
-  <action type="abortRequest" />
-</rule
+```
+    <rule name="ensure security">
+      <condition scope="serverVariable" index="HTTPS" test="equals" value="false" />
+      <condition scope="pathElement" index="1" test="equals" value="secure" />
+      <action type="abortRequest" />
+    </rule
+```
 
 # Integrating your IoC container
 
