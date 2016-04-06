@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Xml.Linq;
 using UrlRewrite.Interfaces;
 
@@ -9,12 +7,12 @@ namespace UrlRewrite.Conditions
 {
     internal class ConditionList : ICondition
     {
-        private readonly CombinationLogic _logic;
+        private CombinationLogic _logic;
 
         private List<ICondition> _conditions;
         private Func<IRequestInfo, IRuleResult, bool> _testFunc;
 
-        public ConditionList(CombinationLogic logic)
+        public ConditionList Initialize(CombinationLogic logic)
         {
             _logic = logic;
 
@@ -36,6 +34,7 @@ namespace UrlRewrite.Conditions
                     _testFunc = (rq, rr) => false;
                     throw new NotImplementedException("Condition list does not know how to combine conditions using " + logic + " logic");
             }
+            return this;
         }
 
         public ConditionList Add(ICondition condition)

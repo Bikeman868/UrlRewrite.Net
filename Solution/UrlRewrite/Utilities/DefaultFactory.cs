@@ -28,6 +28,9 @@ namespace UrlRewrite.Utilities
             if (type == typeof(IStringMatch))
                 return new StringMatch();
 
+            if (type == typeof(INumberMatch))
+                return new NumberMatch();
+
             if (type == typeof(IRequestInfo))
                 return new RequestInfo();
 

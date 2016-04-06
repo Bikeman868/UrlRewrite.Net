@@ -14,12 +14,10 @@ namespace UrlRewrite.Conditions
 
         public IValueGetter Initialize(
             Scope scope,
-            int scopeIndex,
-            bool ignoreCase = true)
+            int scopeIndex)
         {
             _scope = scope;
             _scopeIndex = scopeIndex.ToString();
-            _ignoreCase = ignoreCase;
 
             SetFunction(scopeIndex);
 
@@ -28,10 +26,10 @@ namespace UrlRewrite.Conditions
 
         public IValueGetter Initialize(
             Scope scope, 
-            string scopeIndex = null,
-            bool ignoreCase = true)
+            string scopeIndex,
+            bool ignoreCase)
         {
-            if (scopeIndex != null && string.IsNullOrWhiteSpace(_scopeIndex))
+            if (scopeIndex != null && string.IsNullOrWhiteSpace(scopeIndex))
                 scopeIndex = null;
 
             var scopeIndexValue = 0;

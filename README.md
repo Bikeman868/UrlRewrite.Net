@@ -439,6 +439,7 @@ the `index` attribute to a negative number to count path elements from right to 
 `Equals`,  `MatchWildcard`, `MatchRegex`, `Greater`, `Less`.
 * `value` specifies the value to compare with the scope.
 * `ignoreCase` defaults to `true` but can be set to `false` for case sensitivity.
+* 'negate' defaults to `false` but can be set to `true` to invert the result of the test.
 
 The values of the `scope` attribute can be:
 * `OriginalUrl` the full url of the original request regrdless of any rewrite actions that have executed.

@@ -27,7 +27,7 @@ namespace UrlRewrite.Configuration
             root.Add(
                 new Rule(
                     "Rule 1", 
-                    new ConditionList(CombinationLogic.MatchAll)
+                    new ConditionList().Initialize(CombinationLogic.MatchAll)
                         .Add(new StringMatch()
                             .Initialize(
                                 new ValueGetter().Initialize(Scope.OriginalPathElement, 
