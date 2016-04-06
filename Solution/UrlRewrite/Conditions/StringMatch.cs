@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using UrlRewrite.Interfaces;
@@ -61,17 +62,39 @@ namespace UrlRewrite.Conditions
                     var options = RegexOptions.Compiled | RegexOptions.ECMAScript;
                     if (ignoreCase) options |= RegexOptions.IgnoreCase;
                     var regex = new Regex(match, options);
-                    _testFunc = (ruleResult, text) =>
-                    {
-                        // TODO: store match groups in ruleResult.Properties
-                        return regex.IsMatch(text);
-                    };
+                    _testFunc = GetFunc(regex);
+                    break;
+                }
+                case CompareOperation.MatchWildcard:
+                {
+                    var regularExpression = "^" + Regex.Escape(match).Replace("\\*", "(.*)").Replace("\\?", ".") + "$";
+                    var options = RegexOptions.Compiled | RegexOptions.Singleline;
+                    if (ignoreCase) options |= RegexOptions.IgnoreCase;
+                    var regex = new Regex(regularExpression, options);
+                    _testFunc = GetFunc(regex);
                     break;
                 }
                 default:
                     throw new UrlRewriteException("String match does not know how to match using " + compareOperation);
             }
             return this;
+        }
+
+        private Func<IRuleResult, string, bool> GetFunc(Regex regex)
+        {
+            return (ruleResult, text) =>
+            {
+                var m = regex.Match(text);
+                if (m.Success)
+                {
+                    var matchGroups = new List<string>();
+                    foreach (var group in m.Groups)
+                        matchGroups.Add(group.ToString());
+                    ruleResult.Properties.Set<IList<string>>(matchGroups);
+                    return true;
+                }
+                return false;
+            };
         }
 
         public bool Test(IRequestInfo request, IRuleResult ruleResult)

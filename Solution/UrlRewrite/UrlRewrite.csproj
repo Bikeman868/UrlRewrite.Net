@@ -51,6 +51,7 @@
     <Compile Include="Actions\Rewrite.cs" />
     <Compile Include="Actions\Truncate.cs" />
     <Compile Include="Conditions\ConditionList.cs" />
+    <Compile Include="Conditions\NumberMatch.cs" />
     <Compile Include="Conditions\ValueGetter.cs" />
     <Compile Include="Conditions\StringMatch.cs" />
     <Compile Include="Configuration\StandardRuleParser.cs" />
@@ -71,6 +72,7 @@
     <Compile Include="Interfaces\IRuleResult.cs" />
     <Compile Include="Interfaces\IRuleListResult.cs" />
     <Compile Include="Interfaces\CompareOperation.cs" />
+    <Compile Include="Interfaces\INumberMatch.cs" />
     <Compile Include="Interfaces\IStringMatch.cs" />
     <Compile Include="Interfaces\IValueGetter.cs" />
     <Compile Include="Interfaces\Scope.cs" />

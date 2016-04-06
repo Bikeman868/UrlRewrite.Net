@@ -1,6 +1,3 @@
-
-<match patternSyntax="Wildcard" />
-
 <conditions>
   <add input="{URL}" matchType="pattern" pattern=".*[A-Z].*" />
 </conditions>

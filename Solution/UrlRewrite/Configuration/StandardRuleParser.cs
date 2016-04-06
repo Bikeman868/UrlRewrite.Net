@@ -179,10 +179,10 @@ namespace UrlRewrite.Configuration
                             text = attribute.Value;
                             scope = Scope.Path;
                             break;
-                        case "patternSyntax":
+                        case "patternsyntax":
                             if (attribute.Value == "ECMAScript")
                                 compareOperation = CompareOperation.MatchRegex;
-                            else if (attribute.Value == "Wildcard ")
+                            else if (attribute.Value == "Wildcard")
                                 compareOperation = CompareOperation.MatchWildcard;
                             break;
                         case "negate":

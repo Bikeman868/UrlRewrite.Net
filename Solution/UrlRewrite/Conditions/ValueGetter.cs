@@ -37,6 +37,10 @@ namespace UrlRewrite.Conditions
             var scopeIndexValue = 0;
             var scopeIndexIsNumber = false;
 
+            var hasNumericIndex =
+                scope == Scope.OriginalPathElement ||
+                scope == Scope.PathElement;
+
             if (scopeIndex == null)
             {
                 if (scope == Scope.OriginalPathElement) scope = Scope.OriginalPath;
@@ -46,40 +50,38 @@ namespace UrlRewrite.Conditions
             }
             else
             {
-                scopeIndexIsNumber = int.TryParse(scopeIndex, out scopeIndexValue);
+                if (hasNumericIndex)
+                {
+                    scopeIndexIsNumber = int.TryParse(scopeIndex, out scopeIndexValue);
+                    if (!scopeIndexIsNumber)
+                    {
+                        if (scope == Scope.OriginalPathElement) scope = Scope.OriginalPath;
+                        if (scope == Scope.PathElement) scope = Scope.Path;
+                    }
+                }
             }
 
-            if (!scopeIndexIsNumber)
-            {
-                if (scope == Scope.OriginalPathElement) scope = Scope.OriginalPath;
-                if (scope == Scope.PathElement) scope = Scope.Path;
-            }
-         
             _scope = scope;
             _scopeIndex = scopeIndex;
             _ignoreCase = ignoreCase;
 
-            SetFunction(scopeIndexValue);
+            if (scopeIndexIsNumber)
+                SetFunction(scopeIndexValue);
+            else if (scopeIndex != null)
+                SetFunction(scopeIndex);
+            else
+                SetFunction();
 
             return this;
         }
 
+        /// <summary>
+        /// Sets the function that will retrieve the value when the index is a number
+        /// </summary>
         private void SetFunction(int scopeIndexValue)
         {
             switch (_scope)
             {
-                case Scope.OriginalUrl:
-                    _getValueFunc = request => request.OriginalUrlString;
-                    break;
-
-                case Scope.OriginalPath:
-                    _getValueFunc = request => request.OriginalPathString;
-                    break;
-
-                case Scope.OriginalQueryString:
-                    _getValueFunc = request => request.OriginalParametersString;
-                    break;
-
                 case Scope.OriginalPathElement:
                     if (scopeIndexValue >= 0)
                     {
@@ -99,28 +101,6 @@ namespace UrlRewrite.Conditions
                                 : string.Empty;
                         };
                     }
-                    break;
-
-                case Scope.OriginalParameter:
-                    _getValueFunc = request =>
-                    {
-                        IList<string> values;
-                        if (request.OriginalParameters.TryGetValue(_scopeIndex, out values))
-                            return values.Count > 0 ? values[0] : string.Empty;
-                        return string.Empty;
-                    };
-                    break;
-
-                case Scope.Url:
-                    _getValueFunc = request => request.NewUrlString;
-                    break;
-
-                case Scope.Path:
-                    _getValueFunc = request => request.NewPathString;
-                    break;
-
-                case Scope.QueryString:
-                    _getValueFunc = request => request.NewParametersString;
                     break;
 
                 case Scope.PathElement:
@@ -144,14 +124,89 @@ namespace UrlRewrite.Conditions
                     }
                     break;
 
+                default:
+                    throw new UrlRewriteException("ValueGetter does not know how to get " + _scope + "[" + scopeIndexValue + "] from the request");
+            }
+        }
+
+        /// <summary>
+        /// Sets the function that will retrieve the value when the index is a string
+        /// </summary>
+        private void SetFunction(string scopeIndex)
+        {
+            switch (_scope)
+            {
+                case Scope.OriginalParameter:
+                    _getValueFunc = request =>
+                    {
+                        IList<string> values;
+                        if (request.OriginalParameters.TryGetValue(scopeIndex, out values))
+                            return values.Count > 0 ? values[0] : string.Empty;
+                        return string.Empty;
+                    };
+                    break;
+
                 case Scope.Parameter:
                     _getValueFunc = request =>
                     {
                         IList<string> values;
-                        if (request.NewParameters.TryGetValue(_scopeIndex, out values))
+                        if (request.NewParameters.TryGetValue(scopeIndex, out values))
                             return values.Count > 0 ? values[0] : string.Empty;
                         return string.Empty;
                     };
+                    break;
+
+                case Scope.ServerVariable:
+                    _getValueFunc = request => request.Context.Request.ServerVariables[scopeIndex];
+                    break;
+
+                case Scope.OriginalHeader:
+                    _getValueFunc = request => request.Context.Request.Headers[scopeIndex];
+                    break;
+
+                case Scope.Header:
+                    // TODO: research how to rewrite the headers
+                    _getValueFunc = request => request.Context.Request.Headers[scopeIndex];
+                    break;
+
+                case Scope.Literal:
+                    _getValueFunc = request => scopeIndex;
+                    break;
+
+                default:
+                    throw new UrlRewriteException("ValueGetter does not know how to get " + _scope + "[\"" + scopeIndex + "\"] from the request");
+            }
+        }
+
+        /// <summary>
+        /// Sets the function that will retrieve the value when there is no index
+        /// </summary>
+        private void SetFunction()
+        {
+            switch (_scope)
+            {
+                case Scope.OriginalUrl:
+                    _getValueFunc = request => request.OriginalUrlString;
+                    break;
+
+                case Scope.OriginalPath:
+                    _getValueFunc = request => request.OriginalPathString;
+                    break;
+
+                case Scope.OriginalQueryString:
+                    _getValueFunc = request => request.OriginalParametersString;
+                    break;
+
+                case Scope.Url:
+                    _getValueFunc = request => request.NewUrlString;
+                    break;
+
+                case Scope.Path:
+                    _getValueFunc = request => request.NewPathString;
+                    break;
+
+                case Scope.QueryString:
+                    _getValueFunc = request => request.NewParametersString;
                     break;
 
                 default:
