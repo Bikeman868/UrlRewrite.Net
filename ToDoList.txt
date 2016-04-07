@@ -9,9 +9,7 @@
 
 <action type="<custom action name>" />
 
-<match url="{HTTP_USER_AGENT}" />
-
-<action url="{HTTP_USER_AGENT}" />
+<action url="{URL}" />
 
 <conditions><add input="{HTTP_PORT}" /></conditions>
 

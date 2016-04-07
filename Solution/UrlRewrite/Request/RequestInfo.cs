@@ -370,5 +370,57 @@ namespace UrlRewrite.Request
             _newParametersString = null;
         }
 
+        private IDictionary<string, string> _originalServerVraiables;
+        private IDictionary<string, string> _originalHeaders;
+
+        public string GetOriginalServerVariable(string name)
+        {
+            if (ReferenceEquals(_originalServerVraiables, null))
+                return Context.Request.ServerVariables[name];
+
+            string value;
+            return _originalServerVraiables.TryGetValue(name, out value) ? value : string.Empty;
+        }
+
+        public string GetOriginalHeader(string name)
+        {
+            if (ReferenceEquals(_originalHeaders, null))
+                return Context.Request.Headers[name];
+
+            string value;
+            return _originalHeaders.TryGetValue(name, out value) ? value : string.Empty;
+        }
+
+        public string GetServerVariable(string name)
+        {
+            return Context.Request.ServerVariables[name];
+        }
+
+        public string GetHeader(string name)
+        {
+            return Context.Request.Headers[name];
+        }
+
+        public void SetServerVariable(string name, string value)
+        {
+            if (ReferenceEquals(_originalServerVraiables, null))
+            {
+                _originalServerVraiables = new Dictionary<string, string>();
+                foreach (string serverVariable in Context.Request.ServerVariables)
+                    _originalServerVraiables[serverVariable] = Context.Request.ServerVariables[serverVariable];
+            }
+            Context.Request.ServerVariables[name] = value;
+        }
+
+        public void SetHeader(string name, string value)
+        {
+            if (ReferenceEquals(_originalHeaders, null))
+            {
+                _originalHeaders = new Dictionary<string, string>();
+                foreach (string header in Context.Request.Headers)
+                    _originalHeaders[header] = Context.Request.Headers[header];
+            }
+            Context.Request.Headers[name] = value;
+        }
     }
 }

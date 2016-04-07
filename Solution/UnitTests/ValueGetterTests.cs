@@ -18,16 +18,20 @@ namespace UnitTests
         [TestInitialize]
         public void Initialize()
         {
-            _request1 = new MockRequestInfo("/path1/path2?param=value");
-            _request2 = new MockRequestInfo("/path1/path2");
-            _request3 = new MockRequestInfo("/path1/path2/");
+            _request1 = new MockRequestInfo("/path1/path2?param=value", "http", "test.com", 80);
+            _request2 = new MockRequestInfo("/path1/path2", "https", "secure.test.com", 443);
+            _request3 = new MockRequestInfo("/path1/path2/", "http", "test.com", 80);
 
             _request1.NewPath[1] = "changed1";
             _request1.NewParameters["param"] = new List<string> {"changed"};
             _request1.PathChanged();
+            _request1.SetServerVariable("PATH_INFO", "/company/news/");
+            _request1.SetHeader("HOST", "www.mysite.com");
 
             _request2.NewPath[2] = "changed2";
             _request2.PathChanged();
+            _request2.SetServerVariable("SERVER_PORT", "443");
+            _request2.SetHeader("USER_AGENT", "blah blah blah");
 
             _request3.NewUrlString = "/changed1/changed2/";
             _request3.NewParameters["param"] = new List<string> { "added" };
@@ -99,13 +103,40 @@ namespace UnitTests
             Assert.AreEqual("changed", _valueGetter.GetString(_request1));
             Assert.AreEqual("", _valueGetter.GetString(_request2));
             Assert.AreEqual("added", _valueGetter.GetString(_request3));
+
+            _valueGetter.Initialize(Scope.Header, "HOST", false);
+            Assert.AreEqual(_request1.GetHeader("HOST"), _valueGetter.GetString(_request1));
+            Assert.AreEqual(_request2.GetHeader("HOST"), _valueGetter.GetString(_request2));
+            Assert.AreEqual(_request3.GetHeader("HOST"), _valueGetter.GetString(_request3));
+
+            _valueGetter.Initialize(Scope.OriginalHeader, "USER_AGENT", false);
+            Assert.AreEqual(_request1.GetOriginalHeader("USER_AGENT"), _valueGetter.GetString(_request1));
+            Assert.AreEqual(_request2.GetOriginalHeader("USER_AGENT"), _valueGetter.GetString(_request2));
+            Assert.AreEqual(_request3.GetOriginalHeader("USER_AGENT"), _valueGetter.GetString(_request3));
+
+            _valueGetter.Initialize(Scope.ServerVariable, "URL", false);
+            Assert.AreEqual(_request1.GetServerVariable("URL"), _valueGetter.GetString(_request1));
+            Assert.AreEqual(_request2.GetServerVariable("URL"), _valueGetter.GetString(_request2));
+            Assert.AreEqual(_request3.GetServerVariable("URL"), _valueGetter.GetString(_request3));
+
+            _valueGetter.Initialize(Scope.OriginalServerVariable, "SERVER_PORT", false);
+            Assert.AreEqual(_request1.GetOriginalServerVariable("SERVER_PORT"), _valueGetter.GetString(_request1));
+            Assert.AreEqual(_request2.GetOriginalServerVariable("SERVER_PORT"), _valueGetter.GetString(_request2));
+            Assert.AreEqual(_request3.GetOriginalServerVariable("SERVER_PORT"), _valueGetter.GetString(_request3));
         }
        
         [TestMethod]
         public void ShouldGetVariousScopesAsNumbers()
         {
-            var request = new MockRequestInfo("/1/2?param1=3&param2=4&param1=5");
+            var request = new MockRequestInfo(
+                "/1/2?param1=3&param2=4&param1=5",
+                "http",
+                "www.test.com",
+                80);
+
             request.NewPath[1] = "6";
+            request.PathChanged();
+
             request.NewParameters.Add("param3", new List<string>{"7"});
             request.ParametersChanged();
 
@@ -147,6 +178,9 @@ namespace UnitTests
 
             _valueGetter.Initialize(Scope.Parameter, "param4");
             Assert.AreEqual(0, _valueGetter.GetInt(request, 0));
+
+            _valueGetter.Initialize(Scope.ServerVariable, "SERVER_PORT");
+            Assert.AreEqual(80, _valueGetter.GetInt(request, 0));
         }
 
         [TestMethod]

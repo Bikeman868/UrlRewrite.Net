@@ -154,17 +154,20 @@ namespace UrlRewrite.Conditions
                     };
                     break;
 
+                case Scope.OriginalServerVariable:
+                    _getValueFunc = request => request.GetOriginalServerVariable(scopeIndex);
+                    break;
+
                 case Scope.ServerVariable:
-                    _getValueFunc = request => request.Context.Request.ServerVariables[scopeIndex];
+                    _getValueFunc = request => request.GetServerVariable(scopeIndex);
                     break;
 
                 case Scope.OriginalHeader:
-                    _getValueFunc = request => request.Context.Request.Headers[scopeIndex];
+                    _getValueFunc = request => request.GetOriginalHeader(scopeIndex);
                     break;
 
                 case Scope.Header:
-                    // TODO: research how to rewrite the headers
-                    _getValueFunc = request => request.Context.Request.Headers[scopeIndex];
+                    _getValueFunc = request => request.GetHeader(scopeIndex);
                     break;
 
                 case Scope.Literal:

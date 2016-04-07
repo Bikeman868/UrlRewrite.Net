@@ -16,6 +16,7 @@
         Parameter,
         Header,
 
+        OriginalServerVariable,
         ServerVariable,
         Literal
     }

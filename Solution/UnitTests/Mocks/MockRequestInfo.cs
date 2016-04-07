@@ -13,17 +13,41 @@ namespace UnitTests.Mocks
         private System.Web.HttpApplication _application;
         private ILog _log;
 
-        private readonly string _url;
-        private readonly string _scheme;
-        private readonly int _port;
+        private IDictionary<string, string> _originalServerVariables;
+        private IDictionary<string, string> _serverVariables;
+        private IDictionary<string, string> _originalHeaders;
+        private IDictionary<string, string> _headers;
 
-        public MockRequestInfo(string url, string scheme = "http", int port = 80)
+        private readonly string _url;
+
+        public MockRequestInfo(
+            string url, 
+            string scheme = "http", 
+            string host = "test.com",
+            int port = 80,
+            IDictionary<string, string> serverVariables = null,
+            IDictionary<string, string> headers = null)
         {
             _url = url;
-            _scheme = scheme;
-            _port = port;
-
             NewUrlString = url;
+
+            _serverVariables = serverVariables ?? new Dictionary<string, string>();
+
+            _serverVariables["URL"] = url;
+            _serverVariables["PATH_INFO"] = NewPathString;
+            _serverVariables["QUERY_STRING"] = NewParametersString;
+            _serverVariables["SERVER_PORT"] = port.ToString();
+            _serverVariables["SERVER_PORT_SECURE"] = scheme == "https" ? "1" : "0";
+
+            _headers = headers ?? new Dictionary<string, string>();
+
+            _headers["HOST"] = host;
+            _headers["USER_AGENT"] = "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US)";
+            _headers["CONNECTION"] = "Keep-Alive";
+
+            _originalServerVariables = _serverVariables.ToDictionary(e => e.Key, e => e.Value);
+            _originalHeaders = _headers.ToDictionary(e => e.Key, e => e.Value);
+
         }
 
         public IRequestInfo Initialize(System.Web.HttpApplication application, ILog log)
@@ -235,6 +259,40 @@ namespace UnitTests.Mocks
 
         public void ExecuteDeferredActions()
         {
+        }
+
+        public string GetOriginalServerVariable(string name)
+        {
+            string value;
+            return _originalServerVariables.TryGetValue(name, out value) ? value : string.Empty;
+        }
+
+        public string GetOriginalHeader(string name)
+        {
+            string value;
+            return _originalHeaders.TryGetValue(name, out value) ? value : string.Empty;
+        }
+
+        public string GetServerVariable(string name)
+        {
+            string value;
+            return _serverVariables.TryGetValue(name, out value) ? value : string.Empty;
+        }
+
+        public string GetHeader(string name)
+        {
+            string value;
+            return _headers.TryGetValue(name, out value) ? value : string.Empty;
+        }
+
+        public void SetServerVariable(string name, string value)
+        {
+            _serverVariables[name] = value;
+        }
+
+        public void SetHeader(string name, string value)
+        {
+            _headers[name] = value;
         }
     }
 }

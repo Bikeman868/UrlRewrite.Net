@@ -30,8 +30,17 @@ namespace UrlRewrite.Interfaces
         IList<string> NewPath { get; set; }
         IDictionary<string, IList<string>> NewParameters { get; set; }
 
+        // Change notification
         void PathChanged();
         void ParametersChanged();
         void ExecuteDeferredActions();
+
+        // Interaction with the request - these are here to enable unit testing
+        string GetOriginalServerVariable(string name);
+        string GetOriginalHeader(string name);
+        string GetServerVariable(string name);
+        string GetHeader(string name);
+        void SetServerVariable(string name, string value);
+        void SetHeader(string name, string value);
     }
 }
