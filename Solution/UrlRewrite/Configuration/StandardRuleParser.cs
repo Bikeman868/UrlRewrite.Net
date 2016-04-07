@@ -169,7 +169,7 @@ namespace UrlRewrite.Configuration
             }
 
             var valueGetter = _factory.Create<IValueGetter>().Initialize(scope, null, ignoreCase);
-            var stringMatch = _factory.Create<IStringMatch>().Initialize(valueGetter, compareOperation, text, inverted, ignoreCase);
+            var stringMatch = _factory.Create<IStringMatch>().Initialize(valueGetter, compareOperation, text, inverted, ignoreCase, "R");
             return stringMatch;
         }
 
@@ -373,7 +373,7 @@ namespace UrlRewrite.Configuration
                 var colonIndex = input.IndexOf(':');
                 if (colonIndex > 0)
                 {
-                    operationName = input.Substring(1, colonIndex - 1);
+                    operationName = input.Substring(1, colonIndex - 1).ToLower();
                     input = input.Substring(colonIndex + 1, input.Length - colonIndex - 4);
                 }
                 else
@@ -381,12 +381,22 @@ namespace UrlRewrite.Configuration
                     operationName = null;
                 }
 
-                if (input.StartsWith("{") && input.EndsWith("}"))
+                if (operationName == "c") 
+                {
+                    scope = Scope.ConditionGroup;
+                    scopeIndex = input;
+                }
+                else if (operationName == "r")
+                {
+                    scope = Scope.MatchGroup;
+                    scopeIndex = input;
+                }
+                else if (input.StartsWith("{") && input.EndsWith("}"))
                 {
                     input = input.ToUpper();
                     if (input.StartsWith("{HTTP_"))
                     {
-                        scope = Scope.OriginalHeader;
+                        scope = Scope.Header;
                         scopeIndex = input.Substring(6, input.Length - 7);
                     }
                     else

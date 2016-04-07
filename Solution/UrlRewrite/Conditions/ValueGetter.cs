@@ -10,7 +10,7 @@ namespace UrlRewrite.Conditions
         private Scope _scope;
         private string _scopeIndex;
         private bool _ignoreCase;
-        private Func<IRequestInfo, string> _getValueFunc;
+        private Func<IRequestInfo, IRuleResult, string> _getValueFunc;
 
         public IValueGetter Initialize(
             Scope scope,
@@ -37,7 +37,9 @@ namespace UrlRewrite.Conditions
 
             var hasNumericIndex =
                 scope == Scope.OriginalPathElement ||
-                scope == Scope.PathElement;
+                scope == Scope.PathElement ||
+                scope == Scope.ConditionGroup ||
+                scope == Scope.MatchGroup;
 
             if (scopeIndex == null)
             {
@@ -55,6 +57,16 @@ namespace UrlRewrite.Conditions
                     {
                         if (scope == Scope.OriginalPathElement) scope = Scope.OriginalPath;
                         if (scope == Scope.PathElement) scope = Scope.Path;
+                        if (scope == Scope.ConditionGroup)
+                        {
+                            scopeIndexValue = 0;
+                            scopeIndexIsNumber = true;
+                        }
+                        if (scope == Scope.MatchGroup)
+                        {
+                            scopeIndexValue = 0;
+                            scopeIndexIsNumber = true;
+                        }
                     }
                 }
             }
@@ -83,14 +95,14 @@ namespace UrlRewrite.Conditions
                 case Scope.OriginalPathElement:
                     if (scopeIndexValue >= 0)
                     {
-                        _getValueFunc = request => 
+                        _getValueFunc = (request, ruleResult) => 
                             scopeIndexValue < request.OriginalPath.Count
                             ? request.OriginalPath[scopeIndexValue]
                             : string.Empty;
                     }
                     else
                     {
-                        _getValueFunc = request =>
+                        _getValueFunc = (request, ruleResult) =>
                         {
                             var i = request.OriginalPath.Count + scopeIndexValue;
                             if (string.IsNullOrEmpty(request.OriginalPath[request.OriginalPath.Count - 1])) i--;
@@ -104,14 +116,14 @@ namespace UrlRewrite.Conditions
                 case Scope.PathElement:
                     if (scopeIndexValue >= 0)
                     {
-                        _getValueFunc = request => 
+                        _getValueFunc = (request, ruleResult) => 
                             scopeIndexValue < request.NewPath.Count
                             ? request.NewPath[scopeIndexValue]
                             : string.Empty;
                     }
                     else
                     {
-                        _getValueFunc = request =>
+                        _getValueFunc = (request, ruleResult) =>
                         {
                             var i = request.NewPath.Count + scopeIndexValue;
                             if (string.IsNullOrEmpty(request.NewPath[request.NewPath.Count - 1])) i--;
@@ -120,6 +132,26 @@ namespace UrlRewrite.Conditions
                                 : string.Empty;
                         };
                     }
+                    break;
+
+                case Scope.MatchGroup:
+                    _getValueFunc = (request, ruleResult) =>
+                    {
+                        var matchGroups = ruleResult.Properties.Get<IList<string>>("R");
+                        if (matchGroups == null || matchGroups.Count < scopeIndexValue + 1)
+                            return string.Empty;
+                        return matchGroups[scopeIndexValue];
+                    };
+                    break;
+
+                case Scope.ConditionGroup:
+                    _getValueFunc = (request, ruleResult) =>
+                    {
+                        var matchGroups = ruleResult.Properties.Get<IList<string>>("C");
+                        if (matchGroups == null || matchGroups.Count < scopeIndexValue + 1)
+                            return string.Empty;
+                        return matchGroups[scopeIndexValue];
+                    };
                     break;
 
                 default:
@@ -135,7 +167,7 @@ namespace UrlRewrite.Conditions
             switch (_scope)
             {
                 case Scope.OriginalParameter:
-                    _getValueFunc = request =>
+                    _getValueFunc = (request, ruleResult) =>
                     {
                         IList<string> values;
                         if (request.OriginalParameters.TryGetValue(scopeIndex, out values))
@@ -145,7 +177,7 @@ namespace UrlRewrite.Conditions
                     break;
 
                 case Scope.Parameter:
-                    _getValueFunc = request =>
+                    _getValueFunc = (request, ruleResult) =>
                     {
                         IList<string> values;
                         if (request.NewParameters.TryGetValue(scopeIndex, out values))
@@ -155,23 +187,23 @@ namespace UrlRewrite.Conditions
                     break;
 
                 case Scope.OriginalServerVariable:
-                    _getValueFunc = request => request.GetOriginalServerVariable(scopeIndex);
+                    _getValueFunc = (request, ruleResult) => request.GetOriginalServerVariable(scopeIndex);
                     break;
 
                 case Scope.ServerVariable:
-                    _getValueFunc = request => request.GetServerVariable(scopeIndex);
+                    _getValueFunc = (request, ruleResult) => request.GetServerVariable(scopeIndex);
                     break;
 
                 case Scope.OriginalHeader:
-                    _getValueFunc = request => request.GetOriginalHeader(scopeIndex);
+                    _getValueFunc = (request, ruleResult) => request.GetOriginalHeader(scopeIndex);
                     break;
 
                 case Scope.Header:
-                    _getValueFunc = request => request.GetHeader(scopeIndex);
+                    _getValueFunc = (request, ruleResult) => request.GetHeader(scopeIndex);
                     break;
 
                 case Scope.Literal:
-                    _getValueFunc = request => scopeIndex;
+                    _getValueFunc = (request, ruleResult) => scopeIndex;
                     break;
 
                 default:
@@ -187,27 +219,27 @@ namespace UrlRewrite.Conditions
             switch (_scope)
             {
                 case Scope.OriginalUrl:
-                    _getValueFunc = request => request.OriginalUrlString;
+                    _getValueFunc = (request, ruleResult) => request.OriginalUrlString;
                     break;
 
                 case Scope.OriginalPath:
-                    _getValueFunc = request => request.OriginalPathString;
+                    _getValueFunc = (request, ruleResult) => request.OriginalPathString;
                     break;
 
                 case Scope.OriginalQueryString:
-                    _getValueFunc = request => request.OriginalParametersString;
+                    _getValueFunc = (request, ruleResult) => request.OriginalParametersString;
                     break;
 
                 case Scope.Url:
-                    _getValueFunc = request => request.NewUrlString;
+                    _getValueFunc = (request, ruleResult) => request.NewUrlString;
                     break;
 
                 case Scope.Path:
-                    _getValueFunc = request => request.NewPathString;
+                    _getValueFunc = (request, ruleResult) => request.NewPathString;
                     break;
 
                 case Scope.QueryString:
-                    _getValueFunc = request => request.NewParametersString;
+                    _getValueFunc = (request, ruleResult) => request.NewParametersString;
                     break;
 
                 default:
@@ -224,16 +256,16 @@ namespace UrlRewrite.Conditions
             return description;
         }
 
-        public string GetString(IRequestInfo requestInfo)
+        public string GetString(IRequestInfo requestInfo, IRuleResult ruleResult)
         {
-            var value = _getValueFunc(requestInfo);
+            var value = _getValueFunc(requestInfo, ruleResult);
             return _ignoreCase ? value.ToLower() : value;
         }
 
-        public int GetInt(IRequestInfo requestInfo, int defaultValue)
+        public int GetInt(IRequestInfo requestInfo, IRuleResult ruleResult, int defaultValue)
         {
             int value;
-            if (int.TryParse(_getValueFunc(requestInfo), out value))
+            if (int.TryParse(_getValueFunc(requestInfo, ruleResult), out value))
                 return value;
             return defaultValue;
         }

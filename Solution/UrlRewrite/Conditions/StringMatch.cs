@@ -21,7 +21,8 @@ namespace UrlRewrite.Conditions
             CompareOperation compareOperation,
             string match,
             bool inverted = false,
-            bool ignoreCase = true)
+            bool ignoreCase = true,
+            string matchGroupsName = "C")
         {
             _match = match;
             _valueGetter = valueGetter;
@@ -62,7 +63,7 @@ namespace UrlRewrite.Conditions
                     var options = RegexOptions.Compiled | RegexOptions.ECMAScript;
                     if (ignoreCase) options |= RegexOptions.IgnoreCase;
                     var regex = new Regex(match, options);
-                    _testFunc = GetFunc(regex);
+                    _testFunc = GetFunc(regex, matchGroupsName);
                     break;
                 }
                 case CompareOperation.MatchWildcard:
@@ -71,7 +72,7 @@ namespace UrlRewrite.Conditions
                     var options = RegexOptions.Compiled | RegexOptions.Singleline;
                     if (ignoreCase) options |= RegexOptions.IgnoreCase;
                     var regex = new Regex(regularExpression, options);
-                    _testFunc = GetFunc(regex);
+                    _testFunc = GetFunc(regex, matchGroupsName);
                     break;
                 }
                 default:
@@ -80,7 +81,7 @@ namespace UrlRewrite.Conditions
             return this;
         }
 
-        private Func<IRuleResult, string, bool> GetFunc(Regex regex)
+        private Func<IRuleResult, string, bool> GetFunc(Regex regex, string name)
         {
             return (ruleResult, text) =>
             {
@@ -90,7 +91,7 @@ namespace UrlRewrite.Conditions
                     var matchGroups = new List<string>();
                     foreach (var group in m.Groups)
                         matchGroups.Add(group.ToString());
-                    ruleResult.Properties.Set<IList<string>>(matchGroups);
+                    ruleResult.Properties.Set<IList<string>>(matchGroups, name);
                     return true;
                 }
                 return false;
@@ -100,8 +101,8 @@ namespace UrlRewrite.Conditions
         public bool Test(IRequestInfo request, IRuleResult ruleResult)
         {
             return _inverted
-                ? !_testFunc(ruleResult, _valueGetter.GetString(request))
-                : _testFunc(ruleResult, _valueGetter.GetString(request));
+                ? !_testFunc(ruleResult, _valueGetter.GetString(request, ruleResult))
+                : _testFunc(ruleResult, _valueGetter.GetString(request, ruleResult));
         }
 
         public override string ToString()

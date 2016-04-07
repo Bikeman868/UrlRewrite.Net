@@ -5,7 +5,7 @@
         IValueGetter Initialize(Scope scope, string scopeIndex = null, bool ignoreCase = true);
         IValueGetter Initialize(Scope scope, int scopeIndex);
 
-        string GetString(IRequestInfo requestInfo);
-        int GetInt(IRequestInfo requestInfo, int defaultValue);
+        string GetString(IRequestInfo requestInfo, IRuleResult ruleResult);
+        int GetInt(IRequestInfo requestInfo, IRuleResult ruleResult, int defaultValue);
     }
 }

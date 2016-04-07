@@ -47,8 +47,8 @@ namespace UrlRewrite.Conditions
         public bool Test(IRequestInfo request, IRuleResult ruleResult)
         {
             return _inverted
-                ? !_testFunc(ruleResult, _valueGetter.GetInt(request, _defaultValue))
-                : _testFunc(ruleResult, _valueGetter.GetInt(request, _defaultValue));
+                ? !_testFunc(ruleResult, _valueGetter.GetInt(request, ruleResult, _defaultValue))
+                : _testFunc(ruleResult, _valueGetter.GetInt(request, ruleResult, _defaultValue));
         }
 
         public override string ToString()

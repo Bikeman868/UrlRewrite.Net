@@ -194,6 +194,7 @@ The Rewrite Module needs to be able to resolve the following interfaces via the 
 * `UrlRewrite.Interfaces.IStringMatch`
 * `UrlRewrite.Interfaces.INumberMatch`
 * `UrlRewrite.Interfaces.IRequestInfo`
+* `UrlRewrite.Interfaces.IRuleResult`
 
 # Initializing the Rewrite Module
 You must call the Rewrite Module static `Initialize()` method once only when your application starts up. You can do this
@@ -458,8 +459,11 @@ attribute to specify the position within the path, or pass 0 as the index to com
 * `Parameter` the value of one parameter from the query string part of the rewritten url. Pass a paremater 
 name in the `index` attribute to specify the name of the parameter to compare.
 * `Header` one of the headers from the rewritten response. Pass the name of the header in the `index` attribute.
-* `ServerVariable` one of the IIS server variables. Pass the name of the variable in the `index` parameter.
+* `OriginalServerVariable` original value one of the IIS server variables. Pass the name of the variable in the `index` parameter.
+* `ServerVariable` rewritten value of one of the IIS server variables. Pass the name of the variable in the `index` parameter.
 * `Literal` compares a hard coded value contained in the `index` attribute. This is mostly useful in the `<rewrite>` element.
+* `MatchGroup` one of the groups from the last `<match>` element that matched the request. Index 0 is the whole match, index 1 is group 1 etc.
+* `ConditionGroup` one of the groups from the last `<condition>` element that matched the request. Index 0 is the whole match, index 1 is group 1 etc.
 
 ### More complex and/or condition support and simplified conditions too
 The original version of the IIS Rewrite Module only had the `<match>` element. Version 2 introduced the optional

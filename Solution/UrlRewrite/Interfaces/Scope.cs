@@ -18,6 +18,9 @@
 
         OriginalServerVariable,
         ServerVariable,
-        Literal
+        Literal,
+
+        ConditionGroup,
+        MatchGroup
     }
 }

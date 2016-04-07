@@ -4,6 +4,7 @@ using System.Web;
 using UrlRewrite.Conditions;
 using UrlRewrite.Interfaces;
 using UrlRewrite.Request;
+using UrlRewrite.Rules;
 
 namespace UrlRewrite.Utilities
 {
@@ -33,6 +34,9 @@ namespace UrlRewrite.Utilities
 
             if (type == typeof(IRequestInfo))
                 return new RequestInfo();
+
+            if (type == typeof(IRuleResult))
+                return new RuleResult();
 
             var constructor = type.GetConstructor(Type.EmptyTypes);
             return constructor == null ? null : constructor.Invoke(null);
