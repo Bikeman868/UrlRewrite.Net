@@ -13,10 +13,6 @@
 
 <conditions><add input="{HTTP_PORT}" /></conditions>
 
-{C:n}
-
-{R:n}
-
 {ToLower:{}}
 {UrlEncode:{}}
 {UrlDecode:{}}
