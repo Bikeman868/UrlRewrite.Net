@@ -6,7 +6,9 @@ namespace UrlRewrite.Actions
 {
     internal class PermenantRedirect : Action, IAction
     {
-        public PermenantRedirect(bool stopProcessing = true, bool endRequest = true)
+        public PermenantRedirect() : this(true, true) { }
+
+        public PermenantRedirect(bool stopProcessing, bool endRequest)
         {
             _stopProcessing = stopProcessing;
             _endRequest = endRequest;

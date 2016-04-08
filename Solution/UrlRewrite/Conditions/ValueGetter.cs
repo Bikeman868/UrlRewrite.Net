@@ -9,15 +9,17 @@ namespace UrlRewrite.Conditions
     {
         private Scope _scope;
         private string _scopeIndex;
-        private bool _ignoreCase;
+        private IList<IOperation> _operations;
         private Func<IRequestInfo, IRuleResult, string> _getValueFunc;
 
         public IValueGetter Initialize(
             Scope scope,
-            int scopeIndex)
+            int scopeIndex,
+            IList<IOperation> operations)
         {
             _scope = scope;
             _scopeIndex = scopeIndex.ToString();
+            _operations = operations;
 
             SetFunction(scopeIndex);
 
@@ -25,9 +27,9 @@ namespace UrlRewrite.Conditions
         }
 
         public IValueGetter Initialize(
-            Scope scope, 
+            Scope scope,
             string scopeIndex,
-            bool ignoreCase)
+            IList<IOperation> operations)
         {
             if (scopeIndex != null && string.IsNullOrWhiteSpace(scopeIndex))
                 scopeIndex = null;
@@ -73,7 +75,7 @@ namespace UrlRewrite.Conditions
 
             _scope = scope;
             _scopeIndex = scopeIndex;
-            _ignoreCase = ignoreCase;
+            _operations = operations;
 
             if (scopeIndexIsNumber)
                 SetFunction(scopeIndexValue);
@@ -249,25 +251,32 @@ namespace UrlRewrite.Conditions
 
         public override string ToString()
         {
-            var description = _ignoreCase ? "lower case " : "";
-            description += _scope.ToString();
+            var description = _scope.ToString();
+
             if (_scopeIndex != null)
                 description += "[" + _scopeIndex + "]";
+
+            if (_operations != null)
+                foreach (var operation in _operations)
+                    description += "." + operation;
+
             return description;
         }
 
         public string GetString(IRequestInfo requestInfo, IRuleResult ruleResult)
         {
             var value = _getValueFunc(requestInfo, ruleResult);
-            return _ignoreCase ? value.ToLower() : value;
+            if (_operations != null)
+                foreach (var operation in _operations)
+                    value = operation.Execute(value);
+            return value;
         }
 
         public int GetInt(IRequestInfo requestInfo, IRuleResult ruleResult, int defaultValue)
         {
-            int value;
-            if (int.TryParse(_getValueFunc(requestInfo, ruleResult), out value))
-                return value;
-            return defaultValue;
+            var value = GetString(requestInfo, ruleResult);
+            int intValue;
+            return int.TryParse(value, out intValue) ? intValue : defaultValue;
         }
     }
 }

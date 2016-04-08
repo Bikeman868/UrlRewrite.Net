@@ -17,7 +17,7 @@ namespace UrlRewrite.Configuration
                     "Exclude browser link",
                     new StringMatch()
                         .Initialize(
-                            new ValueGetter().Initialize(Scope.OriginalPathElement, 1), 
+                            new ValueGetter().Initialize(Scope.OriginalPathElement, 1, null), 
                             CompareOperation.StartsWith, 
                             "__browserLink"),
                     null,
@@ -30,17 +30,16 @@ namespace UrlRewrite.Configuration
                     new ConditionList().Initialize(CombinationLogic.MatchAll)
                         .Add(new StringMatch()
                             .Initialize(
-                                new ValueGetter().Initialize(Scope.OriginalPathElement, 
-                                -1), 
+                                new ValueGetter().Initialize(Scope.OriginalPathElement, -1, null), 
                                 CompareOperation.Contains, 
                                 "1"))
                         .Add(new StringMatch()
                             .Initialize(
-                                new ValueGetter().Initialize(Scope.OriginalPathElement, -1), 
+                                new ValueGetter().Initialize(Scope.OriginalPathElement, -1, null), 
                                 CompareOperation.EndsWith, 
                                 ".aspx")), 
                     new ActionList(true)
-                        .Add(new Replace(Scope.Path, "/rewriteOne.aspx"))
+                        .Add(new Replace(Scope.Path, null, new ValueGetter().Initialize(Scope.Literal, "/rewriteOne.aspx", null)))
                         .Add(new Rewrite()),
                         true
                     ));
@@ -50,11 +49,11 @@ namespace UrlRewrite.Configuration
                     "Rule 2",
                     new StringMatch()
                         .Initialize(
-                            new ValueGetter().Initialize(Scope.OriginalPathElement, -1), 
+                            new ValueGetter().Initialize(Scope.OriginalPathElement, -1, null), 
                             CompareOperation.Contains, 
                             "2"),
                     new ActionList(true)
-                        .Add(new Replace(Scope.Path, "/rewriteTwo.aspx"))
+                        .Add(new Replace(Scope.Path, null, new ValueGetter().Initialize(Scope.Literal, "/rewriteTwo.aspx", null)))
                         .Add(new TemporaryRedirect()),
                         true
                     ));
@@ -64,11 +63,11 @@ namespace UrlRewrite.Configuration
                     "Rule 3",
                     new StringMatch()
                         .Initialize(
-                            new ValueGetter().Initialize(Scope.OriginalPathElement, -1), 
+                            new ValueGetter().Initialize(Scope.OriginalPathElement, -1, null), 
                             CompareOperation.Contains, 
                             "3"),
                     new ActionList(true)
-                        .Add(new Replace(Scope.Path, "rewriteThree.aspx"))
+                        .Add(new Replace(Scope.Path, null, new ValueGetter().Initialize(Scope.Literal, "rewriteThree.aspx", null)))
                         .Add(new PermenantRedirect()),
                         true
                     ));

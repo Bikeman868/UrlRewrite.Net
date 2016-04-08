@@ -6,7 +6,9 @@ namespace UrlRewrite.Actions
 {
     internal class TemporaryRedirect : Action, IAction
     {
-        public TemporaryRedirect(bool stopProcessing = true, bool endRequest = true)
+        public TemporaryRedirect() : this(true, true) { }
+
+        public TemporaryRedirect(bool stopProcessing , bool endRequest)
         {
             _stopProcessing = stopProcessing;
             _endRequest = endRequest;

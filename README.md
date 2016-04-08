@@ -301,7 +301,7 @@ Attributes:
 * `logicalGrouping` can be `MatchAll` or `MatchAny`.
 
 ### The `<add>` elements inside of `<conditions>`
-Adds a contition that must be met for the rule to match the incomming request.
+Adds a condition that must be met for the rule to match the incomming request.
 
 Attributes:
 * `input` specifies what should be compared. Note that this supports curly brace replacements.
@@ -325,6 +325,7 @@ Note that this Rewrite Module depreciates the `Rewrite` action type in favor of 
 * `url` the URL to redirect or rewrite. If this is not provided the last rewrite action will define the url to redirect to.
 * `statusLine` only applies when `type` is `CustomResponse`. Sets the status line of the response so that you can return 503 or 204 or whatever.
 * `responseLine` only applies when `type` is `CustomResponse`. Sets the body of the response.
+* `appendQueryString` adds the original query string to the redirected URL. If false the querystring is stripped off the URL.
 
 ### Curly braces
 Anything inside curly braces is replaced with information from elsewhere. This provides a way to include 

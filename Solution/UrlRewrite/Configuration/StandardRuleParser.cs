@@ -7,6 +7,7 @@ using System.Xml.Linq;
 using UrlRewrite.Actions;
 using UrlRewrite.Conditions;
 using UrlRewrite.Interfaces;
+using UrlRewrite.Operations;
 using UrlRewrite.Rules;
 using UrlRewrite.Utilities;
 
@@ -64,6 +65,13 @@ namespace UrlRewrite.Configuration
             var condition = _factory.Create(type) as ICondition;
             if (condition != null) condition.Initialize(configuration);
             return condition;
+        }
+
+        private IOperation ConstructOperation(Type type, XElement configuration)
+        {
+            var operation = _factory.Create(type) as IOperation;
+            if (operation != null) operation.Initialize(configuration);
+            return operation;
         }
 
         private IList<IRule> ParseRules(XElement element)
@@ -128,6 +136,9 @@ namespace UrlRewrite.Configuration
                     case "action":
                         action = CombineActions(action, ParseRuleAction(child));
                         break;
+                    case "rewrite":
+                        action = CombineActions(action, ParseRewrite(child));
+                        break;
                 }
             }
 
@@ -168,7 +179,7 @@ namespace UrlRewrite.Configuration
                 }
             }
 
-            var valueGetter = _factory.Create<IValueGetter>().Initialize(scope, null, ignoreCase);
+            var valueGetter = _factory.Create<IValueGetter>().Initialize(scope);
             var stringMatch = _factory.Create<IStringMatch>().Initialize(valueGetter, compareOperation, text, inverted, ignoreCase, "R");
             return stringMatch;
         }
@@ -277,7 +288,7 @@ namespace UrlRewrite.Configuration
             if (isNumericIndex)
                  valueGetter.Initialize(scope, scopeIndexInt);
             else
-                valueGetter.Initialize(scope, scopeIndexString, ignoreCase);
+                valueGetter.Initialize(scope, scopeIndexString);
 
             if (isNumericValue)
                 return _factory.Create<INumberMatch>().Initialize(valueGetter, compareOperation, value, inverted, defaultValue);
@@ -292,7 +303,7 @@ namespace UrlRewrite.Configuration
             var inverted = false;
             var ignoreCase = true;
             var text = ".*";
-            string operationName = null;
+            IOperation operation = null;
 
             if (element.HasAttributes)
             {
@@ -301,7 +312,7 @@ namespace UrlRewrite.Configuration
                     switch (attribute.Name.LocalName.ToLower())
                     {
                         case "input":
-                            ParseCurlyBraces(attribute.Value, out scope, out scopeIndex, out operationName);
+                            ParseCurlyBraces(attribute.Value, out scope, out scopeIndex, out operation);
                             break;
                         case "matchType":
                             if (attribute.Value.ToLower() == "isfile")
@@ -334,9 +345,16 @@ namespace UrlRewrite.Configuration
                 }
             }
 
-            var valueGetter = _factory.Create<IValueGetter>().Initialize(scope, scopeIndex, ignoreCase);
+            IList<IOperation> operations = operation == null ? null : new List<IOperation> { operation };
+
+            var valueGetter = _factory.Create<IValueGetter>().Initialize(scope, scopeIndex, operations);
             var stringMatch = _factory.Create<IStringMatch>().Initialize(valueGetter, compareOperation, text, inverted, ignoreCase);
             return stringMatch;
+        }
+
+        private IAction ParseRewrite(XElement element)
+        {
+            return null;
         }
 
         private IRule ParseRewriteMaps(XElement element)
@@ -346,7 +364,51 @@ namespace UrlRewrite.Configuration
 
         private IAction ParseRuleAction(XElement element)
         {
-            return null;
+            var type = typeof(TemporaryRedirect);
+            IValueGetter valueGetter = null;
+            var appendQueryString = false;
+
+            if (element.HasAttributes)
+            {
+                foreach (var attribute in element.Attributes())
+                {
+                    switch (attribute.Name.LocalName.ToLower())
+                    {
+                        case "url":
+                        {
+                            Scope scope;
+                            string scopeIndex;
+                            IOperation operation;
+                            ParseCurlyBraces(attribute.Value, out scope, out scopeIndex, out operation);
+                            IList<IOperation> operations = operation == null ? null : new List<IOperation> { operation };
+                            valueGetter = _factory.Create<IValueGetter>().Initialize(scope, scopeIndex, operations);
+                            break;
+                        }
+                        case "type":
+                            if (attribute.Value.ToLower() == "rewrite") type = typeof (Rewrite);
+                            else if (attribute.Value.ToLower() == "redirect") type = typeof (TemporaryRedirect);
+                            else if (attribute.Value.ToLower() == "redirectpermenant") type = typeof (PermenantRedirect);
+                            else if (attribute.Value.ToLower() == "customresponse") type = typeof(CustomResponse);
+                            else if (attribute.Value.ToLower() == "abortrequest") type = typeof(AbortRequest);
+                            break;
+                        case "appendquerystring":
+                            appendQueryString = attribute.Value.ToLower() == "true";
+                            break;
+                    }
+                }
+            }
+
+            var action = ConstructAction(type, element);
+
+            if (valueGetter != null)
+            {
+                var actionList = new ActionList();
+                if (!appendQueryString) actionList.Add(new Delete(Scope.QueryString));
+                actionList.Add(new Replace(Scope.Path, null, valueGetter));
+                actionList.Add(action);
+                return actionList;
+            }
+            return action;
         }
 
         private ICondition CombineConditions(ICondition c1, ICondition c2)
@@ -365,9 +427,10 @@ namespace UrlRewrite.Configuration
             return conditionList;
         }
 
-        private void ParseCurlyBraces(string input, out Scope scope, out string scopeIndex, out string operationName)
+        private void ParseCurlyBraces(string input, out Scope scope, out string scopeIndex, out IOperation operation)
         {
             input = input.Trim();
+            string operationName;
             if (input.StartsWith("{") && input.EndsWith("}"))
             {
                 var colonIndex = input.IndexOf(':');
@@ -417,6 +480,12 @@ namespace UrlRewrite.Configuration
                 scopeIndex = input;
                 operationName = null;
             }
+
+            if (operationName == "tolower") operation = new LowerCaseOperation();
+            else if (operationName == "toupper") operation = new UpperCaseOperation();
+            else if (operationName == "urlencode") operation = new UrlEncodeOperation();
+            else if (operationName == "urldecode") operation = new UrlDecodeOperation();
+            else operation = null;
         }
 
         private IAction CombineActions(IAction a1, IAction a2)

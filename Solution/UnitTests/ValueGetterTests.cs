@@ -106,22 +106,22 @@ namespace UnitTests
             Assert.AreEqual("", _valueGetter.GetString(_request2, _ruleResult));
             Assert.AreEqual("added", _valueGetter.GetString(_request3, _ruleResult));
 
-            _valueGetter.Initialize(Scope.Header, "HOST", false);
+            _valueGetter.Initialize(Scope.Header, "HOST");
             Assert.AreEqual(_request1.GetHeader("HOST"), _valueGetter.GetString(_request1, _ruleResult));
             Assert.AreEqual(_request2.GetHeader("HOST"), _valueGetter.GetString(_request2, _ruleResult));
             Assert.AreEqual(_request3.GetHeader("HOST"), _valueGetter.GetString(_request3, _ruleResult));
 
-            _valueGetter.Initialize(Scope.OriginalHeader, "USER_AGENT", false);
+            _valueGetter.Initialize(Scope.OriginalHeader, "USER_AGENT");
             Assert.AreEqual(_request1.GetOriginalHeader("USER_AGENT"), _valueGetter.GetString(_request1, _ruleResult));
             Assert.AreEqual(_request2.GetOriginalHeader("USER_AGENT"), _valueGetter.GetString(_request2, _ruleResult));
             Assert.AreEqual(_request3.GetOriginalHeader("USER_AGENT"), _valueGetter.GetString(_request3, _ruleResult));
 
-            _valueGetter.Initialize(Scope.ServerVariable, "URL", false);
+            _valueGetter.Initialize(Scope.ServerVariable, "URL");
             Assert.AreEqual(_request1.GetServerVariable("URL"), _valueGetter.GetString(_request1, _ruleResult));
             Assert.AreEqual(_request2.GetServerVariable("URL"), _valueGetter.GetString(_request2, _ruleResult));
             Assert.AreEqual(_request3.GetServerVariable("URL"), _valueGetter.GetString(_request3, _ruleResult));
 
-            _valueGetter.Initialize(Scope.OriginalServerVariable, "SERVER_PORT", false);
+            _valueGetter.Initialize(Scope.OriginalServerVariable, "SERVER_PORT");
             Assert.AreEqual(_request1.GetOriginalServerVariable("SERVER_PORT"), _valueGetter.GetString(_request1, _ruleResult));
             Assert.AreEqual(_request2.GetOriginalServerVariable("SERVER_PORT"), _valueGetter.GetString(_request2, _ruleResult));
             Assert.AreEqual(_request3.GetOriginalServerVariable("SERVER_PORT"), _valueGetter.GetString(_request3, _ruleResult));

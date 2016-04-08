@@ -31,14 +31,14 @@ namespace UrlRewrite.Request
 
         void IRequestLog.TraceRequestBegin(IRequestInfo request)
         {
-            Output("rewriting URL", request.Context.Request.RawUrl);
+            Output("rewriting URL", request.OriginalUrlString);
             _timer.Start();
         }
 
         public void TraceRequestEnd(IRequestInfo request)
         {
             _timer.Stop();
-            Output("finished URL", request.Context.Request.RawUrl);
+            Output("finished URL", request.NewUrlString);
 
             Trace.WriteLine("--");
             foreach (var line in _output) Trace.WriteLine(line);
@@ -86,7 +86,7 @@ namespace UrlRewrite.Request
         void IRequestLog.TraceCondition(IRequestInfo request, ICondition condition, bool isTrue)
         {
             Output(
-                "contition",
+                "condition",
                 condition.ToString(request),
                 (isTrue ? "is true" : "is false"));
         }

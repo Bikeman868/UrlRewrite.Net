@@ -5,27 +5,23 @@ using UrlRewrite.Utilities;
 
 namespace UrlRewrite.Actions
 {
-    internal class Replace: Action, IAction
+    internal class Delete: Action, IAction
     {
         private readonly Scope _scope;
         private readonly string _scopeIndex;
         private readonly int _scopeIndexValue;
-        private readonly IValueGetter _valueGetter;
 
-        public Replace(Scope scope, string scopeIndex, IValueGetter valueGetter)
+        public Delete(Scope scope, string scopeIndex = null)
         {
             _scope = scope;
             _scopeIndex = scopeIndex;
-            _valueGetter = valueGetter;
 
             if (string.IsNullOrEmpty(scopeIndex))
             {
                 switch (scope)
                 {
                     case Scope.Header:
-                        throw new UrlRewriteException("When replacing the request headers you must specify the name of the header to replace");
-                    case Scope.ServerVariable:
-                        throw new UrlRewriteException("When replacing server variables you must specify the name of the server variable to replace");
+                        throw new UrlRewriteException("When deleting a request header you must specify the name of the header to delete");
                     case Scope.Parameter:
                         _scope = Scope.QueryString;
                         break;
@@ -49,31 +45,29 @@ namespace UrlRewrite.Actions
             out bool stopProcessing,
             out bool endRequest)
         {
-            var value = _valueGetter.GetString(requestInfo, ruleResult);
-
             switch (_scope)
             {
                 case Scope.Url:
-                    requestInfo.NewUrlString = value;
+                    requestInfo.NewUrlString = string.Empty;
                     break;
                 case Scope.Path:
-                    requestInfo.NewPathString = value;
+                    requestInfo.NewPathString = "/";
                     break;
                 case Scope.QueryString:
-                    requestInfo.NewParametersString = value;
+                    requestInfo.NewParametersString = string.Empty;
                     break;
                 case Scope.Header:
-                    requestInfo.SetHeader(_scopeIndex, value);
+                    requestInfo.SetHeader(_scopeIndex, null);
                     break;
                 case Scope.Parameter:
-                    requestInfo.NewParameters[_scopeIndex] = new List<string> { value };
+                    requestInfo.NewParameters.Remove(_scopeIndex);
                     requestInfo.ParametersChanged();
                     break;
                 case Scope.PathElement:
-                    requestInfo.NewPath[_scopeIndexValue] = value;
+                    requestInfo.NewPath.RemoveAt(_scopeIndexValue);
                     break;
                 case Scope.ServerVariable:
-                    requestInfo.SetServerVariable(_scopeIndex, value);
+                    requestInfo.SetServerVariable(_scopeIndex, null);
                     break;
             }
 
@@ -83,19 +77,17 @@ namespace UrlRewrite.Actions
 
         public override string ToString()
         {
-            var text = "Replace " + _scope;
+            var text = "Delete " + _scope;
             if (!string.IsNullOrEmpty(_scopeIndex))
                 text += "[" + _scopeIndex + "]";
-            text += " with " + _valueGetter;
             return text;
         }
 
         public string ToString(IRequestInfo request)
         {
-            var text = "replace " + _scope;
+            var text = "delete " + _scope;
             if (!string.IsNullOrEmpty(_scopeIndex))
                 text += "[" + _scopeIndex + "]";
-            text += " with " + _valueGetter;
             return text;
         }
     }

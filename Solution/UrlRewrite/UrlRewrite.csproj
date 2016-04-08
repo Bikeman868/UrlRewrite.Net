@@ -43,12 +43,14 @@
   <ItemGroup>
     <Compile Include="Actions\Action.cs" />
     <Compile Include="Actions\ActionList.cs" />
-    <Compile Include="Actions\ReplaceDynamic.cs" />
-    <Compile Include="Actions\ReplaceBase.cs" />
+    <Compile Include="Actions\AbortRequest.cs" />
+    <Compile Include="Actions\Delete.cs" />
     <Compile Include="Actions\Replace.cs" />
+    <Compile Include="Actions\CustomResponse.cs" />
     <Compile Include="Actions\TemporaryRedirect.cs" />
     <Compile Include="Actions\PermenantRedirect.cs" />
     <Compile Include="Actions\Rewrite.cs" />
+    <Compile Include="Actions\None.cs" />
     <Compile Include="Actions\Truncate.cs" />
     <Compile Include="Conditions\ConditionList.cs" />
     <Compile Include="Conditions\NumberMatch.cs" />
@@ -73,9 +75,14 @@
     <Compile Include="Interfaces\IRuleListResult.cs" />
     <Compile Include="Interfaces\CompareOperation.cs" />
     <Compile Include="Interfaces\INumberMatch.cs" />
+    <Compile Include="Interfaces\IOperation.cs" />
     <Compile Include="Interfaces\IStringMatch.cs" />
     <Compile Include="Interfaces\IValueGetter.cs" />
     <Compile Include="Interfaces\Scope.cs" />
+    <Compile Include="Operations\UrlDecodeOperation.cs" />
+    <Compile Include="Operations\UrlEncodeOperation.cs" />
+    <Compile Include="Operations\UpperCaseOperation.cs" />
+    <Compile Include="Operations\LowerCaseOperation.cs" />
     <Compile Include="Request\RequestInfo.cs" />
     <Compile Include="RewriteModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

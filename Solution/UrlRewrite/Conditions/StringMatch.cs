@@ -36,25 +36,37 @@ namespace UrlRewrite.Conditions
             {
                 case CompareOperation.Contains:
                     if (ignoreCase)
+                    {
+                        _match = _match.ToLower();
                         _testFunc = (ruleResult, text) => text.ToLower().Contains(_match);
+                    }
                     else
                         _testFunc = (ruleResult, text) => text.Contains(_match);
                     break;
                 case CompareOperation.StartsWith:
                     if (ignoreCase)
+                    {
+                        _match = _match.ToLower();
                         _testFunc = (ruleResult, text) => text.ToLower().StartsWith(_match);
+                    }
                     else
                         _testFunc = (ruleResult, text) => text.StartsWith(_match);
                     break;
                 case CompareOperation.EndsWith:
                     if (ignoreCase)
+                    {
+                        _match = _match.ToLower();
                         _testFunc = (ruleResult, text) => text.ToLower().EndsWith(_match);
+                    }
                     else
                         _testFunc = (ruleResult, text) => text.EndsWith(_match);
                     break;
                 case CompareOperation.Equals:
                     if (ignoreCase)
+                    {
+                        _match = _match.ToLower();
                         _testFunc = (ruleResult, text) => text.ToLower().Equals(_match);
+                    }
                     else
                         _testFunc = (ruleResult, text) => text.Equals(_match);
                     break;

@@ -6,7 +6,9 @@ namespace UrlRewrite.Actions
 {
     internal class Rewrite: Action, IAction
     {
-        public Rewrite(bool stopProcessing = true, bool endRequest = false)
+        public Rewrite() : this(true, false) { }
+
+        public Rewrite(bool stopProcessing, bool endRequest)
         {
             _stopProcessing = stopProcessing;
             _endRequest = endRequest;
@@ -19,7 +21,7 @@ namespace UrlRewrite.Actions
             out bool endRequest)
         {
             if (requestInfo.ExecutionMode != ExecutionMode.TraceOnly)
-                requestInfo.Context.RewritePath(requestInfo.NewUrlString);
+                requestInfo.Context.RewritePath(requestInfo.NewPathString, "", requestInfo.NewParametersString);
 
             stopProcessing = _stopProcessing;
             endRequest = _endRequest;
@@ -28,10 +30,6 @@ namespace UrlRewrite.Actions
         public override string ToString()
         {
             return "Rewrite the URL, resulting in a different page being returned than the one requested";
-        }
-
-        public void Initialize(XElement configuration)
-        {
         }
 
         public string ToString(IRequestInfo requestInfo)
