@@ -437,7 +437,7 @@ namespace UrlRewrite.Configuration
                 if (colonIndex > 0)
                 {
                     operationName = input.Substring(1, colonIndex - 1).ToLower();
-                    input = input.Substring(colonIndex + 1, input.Length - colonIndex - 4);
+                    input = input.Substring(colonIndex + 1, input.Length - colonIndex - 2);
                 }
                 else
                 {

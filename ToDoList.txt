@@ -9,14 +9,6 @@
 
 <action type="<custom action name>" />
 
-<action url="{URL}" />
-
-<conditions><add input="{HTTP_PORT}" /></conditions>
-
-{ToLower:{}}
-{UrlEncode:{}}
-{UrlDecode:{}}
-
 <rule>
   <rules>
   </rules>
