@@ -45,11 +45,10 @@
     <Compile Include="Actions\ActionList.cs" />
     <Compile Include="Actions\AbortRequest.cs" />
     <Compile Include="Actions\Delete.cs" />
-    <Compile Include="Actions\Replace.cs" />
     <Compile Include="Actions\CustomResponse.cs" />
+    <Compile Include="Actions\Replace.cs" />
     <Compile Include="Actions\TemporaryRedirect.cs" />
     <Compile Include="Actions\PermenantRedirect.cs" />
-    <Compile Include="Actions\Rewrite.cs" />
     <Compile Include="Actions\None.cs" />
     <Compile Include="Actions\Truncate.cs" />
     <Compile Include="Conditions\ConditionList.cs" />

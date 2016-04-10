@@ -15,6 +15,7 @@ namespace UrlRewrite.Interfaces
         IRequestLog Log { get; }
         ExecutionMode ExecutionMode { get; set; }
         IList<Action<IRequestInfo>> DeferredActions { get; }
+        bool UrlIsModified { get; }
 
         // Information parsed from the incomming request
         string OriginalUrlString { get; }

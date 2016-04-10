@@ -175,6 +175,14 @@ Does not rewrite `/company` or `/company/`
     </rule
 ```
 
+## Example of a rule that appends the client's IP address to the querystring for all aspx pages'
+```
+    <rule name="ensure security">
+      <condition scope="pathElement" index="-1" test="endsWith" value=".aspx" />
+      <rewrite to="parameter" toIndex="clientIp" from="serverVariable" fromIndex="REMOTE_ADDR"/>
+    </rule
+```
+
 # Integrating your IoC container
 
 You can optionally integrate the Rewrite Module with an IoC container. You might do this if you want to:

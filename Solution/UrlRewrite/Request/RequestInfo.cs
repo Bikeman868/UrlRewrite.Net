@@ -13,6 +13,7 @@ namespace UrlRewrite.Request
         public HttpApplication Application { get; private set; }
         public HttpContext Context { get; private set; }
         public ExecutionMode ExecutionMode { get; set; }
+        public bool UrlIsModified { get; private set; }
 
         private ILog _log;
         private IRequestLog _requestLog;
@@ -114,6 +115,7 @@ namespace UrlRewrite.Request
             { 
                 _newPath = value;
                 _newPathString = null;
+                UrlIsModified = true;
             }
         }
 
@@ -200,6 +202,7 @@ namespace UrlRewrite.Request
             { 
                 _newParameters = value;
                 _newParametersString = null;
+                UrlIsModified = true;
             }
         }
 
@@ -285,13 +288,15 @@ namespace UrlRewrite.Request
                     .Where(e => !string.IsNullOrEmpty(e))
                     .ToList();
                 if (value.StartsWith("/"))
-                    _originalPath.Insert(0, "");
+                    _newPath.Insert(0, "");
+                UrlIsModified = true;
             }
         }
 
         public void PathChanged()
         {
             _newPathString = null;
+            UrlIsModified = true;
         }
 
         private string _newParametersString;
@@ -362,12 +367,14 @@ namespace UrlRewrite.Request
                         _newParameters.Add(key, new List<string> { parameterValue });
                     }
                 }
+                UrlIsModified = true;
             }
         }
 
         public void ParametersChanged()
         {
             _newParametersString = null;
+            UrlIsModified = true;
         }
 
         private IDictionary<string, string> _originalServerVraiables;

@@ -160,6 +160,8 @@ namespace UrlRewrite
 
                 if (ruleListResult.EndRequest)
                     application.CompleteRequest();
+                else if (requestInfo.UrlIsModified)
+                    requestInfo.Context.RewritePath(requestInfo.NewPathString, "", requestInfo.NewParametersString);
             }
             catch (ThreadAbortException)
             {

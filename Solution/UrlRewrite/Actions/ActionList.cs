@@ -21,10 +21,20 @@ namespace UrlRewrite.Actions
 
         public ActionList Add(IAction action)
         {
+            if (action == null)
+                return this;
+
             if (_actions == null)
                 _actions = new List<IAction>();
 
-            _actions.Add(action);
+            var actionList = action as ActionList;
+            if (actionList == null)
+                _actions.Add(action);
+            else
+            {
+                if (actionList._actions != null && actionList._actions.Count > 0)
+                    _actions.AddRange(actionList._actions);
+            }
 
             return this;
         }

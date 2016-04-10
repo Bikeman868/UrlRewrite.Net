@@ -40,7 +40,13 @@ namespace UrlRewrite.Conditions
         public ConditionList Add(ICondition condition)
         {
             if (_conditions == null) _conditions = new List<ICondition>();
-            _conditions.Add(condition);
+
+            var conditionList = condition as ConditionList;
+            if (conditionList == null || conditionList._logic != _logic)
+                _conditions.Add(condition);
+            else
+                _conditions.AddRange(conditionList._conditions);
+
             return this;
         }
 

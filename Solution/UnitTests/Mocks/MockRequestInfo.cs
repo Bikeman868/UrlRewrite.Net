@@ -75,6 +75,7 @@ namespace UnitTests.Mocks
 
         public ExecutionMode ExecutionMode { get; set; }
         public IList<Action<IRequestInfo>> DeferredActions { get; set; }
+        public bool UrlIsModified { get; private set; }
 
         public string OriginalUrlString { get { return _url; } }
 
@@ -174,13 +175,18 @@ namespace UnitTests.Mocks
                     NewPathString = value.Substring(0, q);
                     NewParametersString = value.Substring(q + 1);
                 }
+                UrlIsModified = true;
             }
         }
 
         public string NewPathString 
         { 
             get { return string.Join("/", NewPath); }
-            set { NewPath = value.Split('/').ToList(); }
+            set 
+            { 
+                NewPath = value.Split('/').ToList();
+                UrlIsModified = true;
+            }
         }
 
         public string NewParametersString 
@@ -242,19 +248,41 @@ namespace UnitTests.Mocks
                         }
                     }
                 }
+                UrlIsModified = true;
             } 
         }
 
-        public IList<string> NewPath { get; set; }
+        private IList<string> _newPath;
+        public IList<string> NewPath 
+        {
+            get { return _newPath; }
+            set
+            {
+                _newPath = value;
+                UrlIsModified = true;
+            }
+        }
 
-        public IDictionary<string, IList<string>> NewParameters { get; set; }
+        private IDictionary<string, IList<string>> _newParameters;
+
+        public IDictionary<string, IList<string>> NewParameters
+        {
+            get { return _newParameters; }
+            set
+            {
+                _newParameters = value;
+                UrlIsModified = true;
+            }
+        }
 
         public void PathChanged()
         {
+            UrlIsModified = true;
         }
 
         public void ParametersChanged()
         {
+            UrlIsModified = true;
         }
 
         public void ExecuteDeferredActions()

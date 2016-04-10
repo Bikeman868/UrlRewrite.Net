@@ -55,6 +55,7 @@ namespace UrlRewrite.Configuration
 
         private IAction ConstructAction(Type type, XElement configuration)
         {
+            if (type == null) return null;
             var action = _factory.Create(type) as IAction;
             if (action != null) action.Initialize(configuration);
             return action;
@@ -364,7 +365,7 @@ namespace UrlRewrite.Configuration
 
         private IAction ParseRuleAction(XElement element)
         {
-            var type = typeof(TemporaryRedirect);
+            Type type = null;
             IValueGetter valueGetter = null;
             var appendQueryString = false;
 
@@ -385,11 +386,21 @@ namespace UrlRewrite.Configuration
                             break;
                         }
                         case "type":
-                            if (attribute.Value.ToLower() == "rewrite") type = typeof (Rewrite);
-                            else if (attribute.Value.ToLower() == "redirect") type = typeof (TemporaryRedirect);
-                            else if (attribute.Value.ToLower() == "redirectpermenant") type = typeof (PermenantRedirect);
-                            else if (attribute.Value.ToLower() == "customresponse") type = typeof(CustomResponse);
-                            else if (attribute.Value.ToLower() == "abortrequest") type = typeof(AbortRequest);
+                                 switch (attribute.Value.ToLower())
+                                 {
+                                     case "redirect":
+                                         type = typeof (TemporaryRedirect);
+                                         break;
+                                     case "redirectpermenant":
+                                         type = typeof (PermenantRedirect);
+                                         break;
+                                     case "customresponse":
+                                         type = typeof(CustomResponse);
+                                         break;
+                                     case "abortrequest":
+                                         type = typeof(AbortRequest);
+                                         break;
+                                 }
                             break;
                         case "appendquerystring":
                             appendQueryString = attribute.Value.ToLower() == "true";
@@ -398,17 +409,18 @@ namespace UrlRewrite.Configuration
                 }
             }
 
-            var action = ConstructAction(type, element);
+            var actionList = new ActionList();
+            if (!appendQueryString)
+                actionList.Add(new Delete(Scope.QueryString));
 
             if (valueGetter != null)
-            {
-                var actionList = new ActionList();
-                if (!appendQueryString) actionList.Add(new Delete(Scope.QueryString));
                 actionList.Add(new Replace(Scope.Path, null, valueGetter));
+
+            var action = ConstructAction(type, element);
+            if (action != null)
                 actionList.Add(action);
-                return actionList;
-            }
-            return action;
+
+            return actionList;
         }
 
         private ICondition CombineConditions(ICondition c1, ICondition c2)
@@ -493,14 +505,24 @@ namespace UrlRewrite.Configuration
             if (a2 == null) return a1;
             if (a1 == null) return a2;
 
-            var actionList = a1 as ActionList;
-            if (actionList == null)
+            var actionList1 = a1 as ActionList;
+            var actionList2 = a2 as ActionList;
+
+            if (actionList1 == null)
             {
-                actionList = new ActionList();
-                actionList.Add(a1);
+                if (actionList2 == null)
+                {
+                    var newActionList = new ActionList();
+                    newActionList.Add(a1);
+                    newActionList.Add(a2);
+                    return newActionList;
+                }
+                actionList2.Add(a1);
+                return actionList2;
             }
-            actionList.Add(a2);
-            return actionList;
+
+            actionList1.Add(a2);
+            return actionList1;
         }
 
     }

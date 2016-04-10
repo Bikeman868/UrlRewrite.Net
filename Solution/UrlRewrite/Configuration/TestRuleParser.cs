@@ -39,8 +39,7 @@ namespace UrlRewrite.Configuration
                                 CompareOperation.EndsWith, 
                                 ".aspx")), 
                     new ActionList(true)
-                        .Add(new Replace(Scope.Path, null, new ValueGetter().Initialize(Scope.Literal, "/rewriteOne.aspx", null)))
-                        .Add(new Rewrite()),
+                        .Add(new Replace(Scope.Path, null, new ValueGetter().Initialize(Scope.Literal, "/rewriteOne.aspx", null))),
                         true
                     ));
 
