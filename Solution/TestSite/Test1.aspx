@@ -9,7 +9,10 @@
 <body>
     <form id="form1" runat="server">
     <div>
-        This is test1.aspx
+        <p>This is test1.aspx</p>
+        <p>Raw URL: <%=Request.RawUrl%></p>
+        <p>Path: <%=Request.Path%></p>
+        <p>QueryString: <%=Request.QueryString%></p>
     </div>
     </form>
 </body>

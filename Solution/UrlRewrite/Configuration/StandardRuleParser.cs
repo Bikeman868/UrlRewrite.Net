@@ -473,11 +473,11 @@ namespace UrlRewrite.Configuration
 
             var actionList = new ActionList();
 
-            if (!appendQueryString)
-                actionList.Add(new Delete(Scope.QueryString));
-
             if (valueGetter != null)
-                actionList.Add(new Replace(Scope.Path, null, valueGetter));
+                actionList.Add(new Replace(Scope.Url, null, valueGetter));
+
+            if (appendQueryString)
+                actionList.Add(new Append(Scope.QueryString, null, _factory.Create<IValueGetter>().Initialize(Scope.OriginalQueryString)));
 
             if (action != null)
                 actionList.Add(action);

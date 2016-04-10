@@ -10,9 +10,9 @@
     <form id="form1" runat="server">
     <div>
         <p>This is rewriteThree.aspx</p>
-        <p><%=Request.RawUrl%></p>
-        <p><%=Request.Path%></p>
-        <p><%=Request.QueryString%></p>
+        <p>Raw URL: <%=Request.RawUrl%></p>
+        <p>Path: <%=Request.Path%></p>
+        <p>QueryString: <%=Request.QueryString%></p>
     </div>
     </form>
 </body>

@@ -5,14 +5,14 @@ using UrlRewrite.Utilities;
 
 namespace UrlRewrite.Actions
 {
-    internal class Replace: Action, IAction
+    internal class Append: Action, IAction
     {
         private readonly Scope _scope;
         private readonly string _scopeIndex;
         private readonly int _scopeIndexValue;
         private readonly IValueGetter _valueGetter;
 
-        public Replace(Scope scope, string scopeIndex, IValueGetter valueGetter)
+        public Append(Scope scope, string scopeIndex, IValueGetter valueGetter)
         {
             _scope = scope;
             _scopeIndex = scopeIndex;
@@ -23,9 +23,9 @@ namespace UrlRewrite.Actions
                 switch (scope)
                 {
                     case Scope.Header:
-                        throw new UrlRewriteException("When replacing the request headers you must specify the name of the header to replace");
+                        throw new UrlRewriteException("When appending the request headers you must specify the name of the header to replace");
                     case Scope.ServerVariable:
-                        throw new UrlRewriteException("When replacing server variables you must specify the name of the server variable to replace");
+                        throw new UrlRewriteException("When appending server variables you must specify the name of the server variable to replace");
                     case Scope.Parameter:
                         _scope = Scope.QueryString;
                         break;
@@ -54,27 +54,29 @@ namespace UrlRewrite.Actions
             switch (_scope)
             {
                 case Scope.Url:
-                    requestInfo.NewUrlString = value;
+                    requestInfo.NewUrlString = requestInfo.NewUrlString + value;
                     break;
                 case Scope.Path:
-                    requestInfo.NewPathString = value;
+                    requestInfo.NewPathString = requestInfo.NewPathString 
+                        + (requestInfo.NewPathString.EndsWith("/") ? "" : "/") + value;
                     break;
                 case Scope.QueryString:
-                    requestInfo.NewParametersString = value;
+                    requestInfo.NewParametersString = requestInfo.NewParametersString
+                        + (requestInfo.NewParametersString.Length > 0 ? "&" : "") + value;
                     break;
                 case Scope.Header:
-                    requestInfo.SetHeader(_scopeIndex, value);
+                    requestInfo.SetHeader(_scopeIndex, requestInfo.GetHeader(_scopeIndex) + value);
                     break;
                 case Scope.Parameter:
-                    requestInfo.NewParameters[_scopeIndex] = new List<string> { value };
+                    requestInfo.NewParameters[_scopeIndex].Add(value);
                     requestInfo.ParametersChanged();
                     break;
                 case Scope.PathElement:
-                    requestInfo.NewPath[_scopeIndexValue] = value;
+                    requestInfo.NewPath[_scopeIndexValue] = requestInfo.NewPath[_scopeIndexValue] + value;
                     requestInfo.PathChanged();
                     break;
                 case Scope.ServerVariable:
-                    requestInfo.SetServerVariable(_scopeIndex, value);
+                    requestInfo.SetServerVariable(_scopeIndex, requestInfo.GetServerVariable(_scopeIndex) + value);
                     break;
             }
 
@@ -84,19 +86,17 @@ namespace UrlRewrite.Actions
 
         public override string ToString()
         {
-            var text = "Replace " + _scope;
+            var text = "Append " + _valueGetter + " to " + _scope;
             if (!string.IsNullOrEmpty(_scopeIndex))
                 text += "[" + _scopeIndex + "]";
-            text += " with " + _valueGetter;
             return text;
         }
 
         public string ToString(IRequestInfo request)
         {
-            var text = "replace " + _scope;
+            var text = "append " + _valueGetter + " to " + _scope;
             if (!string.IsNullOrEmpty(_scopeIndex))
                 text += "[" + _scopeIndex + "]";
-            text += " with " + _valueGetter;
             return text;
         }
     }

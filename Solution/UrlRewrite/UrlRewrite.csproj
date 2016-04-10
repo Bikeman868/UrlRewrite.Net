@@ -46,6 +46,7 @@
     <Compile Include="Actions\AbortRequest.cs" />
     <Compile Include="Actions\Delete.cs" />
     <Compile Include="Actions\CustomResponse.cs" />
+    <Compile Include="Actions\Append.cs" />
     <Compile Include="Actions\Replace.cs" />
     <Compile Include="Actions\TemporaryRedirect.cs" />
     <Compile Include="Actions\PermenantRedirect.cs" />
