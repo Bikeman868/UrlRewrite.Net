@@ -53,23 +53,66 @@ namespace UrlRewrite.Configuration
             return new RuleList(rootName, null, rules);
         }
 
-        private IAction ConstructAction(Type type, XElement configuration)
+        private IAction ConstructAction(string actionName, XElement configuration)
         {
-            if (type == null) return null;
+            Type type;
+            switch (actionName.ToLower())
+            {
+                case "redirect":
+                    type = typeof(TemporaryRedirect);
+                    break;
+                case "redirectpermenant":
+                    type = typeof(PermenantRedirect);
+                    break;
+                case "customresponse":
+                    type = typeof(CustomResponse);
+                    break;
+                case "abortrequest":
+                    type = typeof(AbortRequest);
+                    break;
+                case "none":
+                    type = typeof(None);
+                    break;
+                default:
+                    // TODO: Look up list of registered custom actions
+                    return null;
+            }
+
             var action = _factory.Create(type) as IAction;
             if (action != null) action.Initialize(configuration);
             return action;
         }
 
-        private ICondition ConstructCondition(Type type, XElement configuration)
+        private ICondition ConstructCondition(string conditionName, XElement configuration)
         {
+            Type type = null;
             var condition = _factory.Create(type) as ICondition;
             if (condition != null) condition.Initialize(configuration);
             return condition;
         }
 
-        private IOperation ConstructOperation(Type type, XElement configuration)
+        private IOperation ConstructOperation(string operationName, XElement configuration)
         {
+            Type type;
+            switch (operationName.ToLower())
+            {
+                case "tolower":
+                    type = typeof(LowerCaseOperation);
+                    break;
+                case "toupper":
+                    type = typeof(UpperCaseOperation);
+                    break;
+                case "urlencode":
+                    type = typeof(UrlEncodeOperation);
+                    break;
+                case "urldecode":
+                    type = typeof(UrlDecodeOperation);
+                    break;
+                default:
+                    // TODO: Look up list of registered custom operations
+                    return null;
+            }
+
             var operation = _factory.Create(type) as IOperation;
             if (operation != null) operation.Initialize(configuration);
             return operation;
@@ -355,7 +398,40 @@ namespace UrlRewrite.Configuration
 
         private IAction ParseRewrite(XElement element)
         {
-            return null;
+            var fromScope = Scope.Path;
+            string fromIndex = null;
+            var toScope = Scope.Path;
+            string toIndex = null;
+            IOperation operation = null;
+            
+            if (element.HasAttributes)
+            {
+                foreach (var attribute in element.Attributes())
+                {
+                    switch (attribute.Name.LocalName.ToLower())
+                    {
+                        case "to":
+                            Enum.TryParse(attribute.Value, true, out toScope);
+                            break;
+                        case "toindex":
+                            toIndex = attribute.Value;
+                            break;
+                        case "from":
+                            Enum.TryParse(attribute.Value, true, out fromScope);
+                            break;
+                        case "fromindex":
+                            fromIndex = attribute.Value;
+                            break;
+                        case "operation":
+                            operation = ConstructOperation(attribute.Value, element);
+                            break;
+                    }
+                }
+            }
+
+            IList<IOperation> operations = operation == null ? null : new List<IOperation> { operation };
+            var value = _factory.Create<IValueGetter>().Initialize(fromScope, fromIndex, operations);
+            return new Replace(toScope, toIndex, value);
         }
 
         private IRule ParseRewriteMaps(XElement element)
@@ -365,8 +441,8 @@ namespace UrlRewrite.Configuration
 
         private IAction ParseRuleAction(XElement element)
         {
-            Type type = null;
             IValueGetter valueGetter = null;
+            IAction action = null;
             var appendQueryString = false;
 
             if (element.HasAttributes)
@@ -386,21 +462,7 @@ namespace UrlRewrite.Configuration
                             break;
                         }
                         case "type":
-                                 switch (attribute.Value.ToLower())
-                                 {
-                                     case "redirect":
-                                         type = typeof (TemporaryRedirect);
-                                         break;
-                                     case "redirectpermenant":
-                                         type = typeof (PermenantRedirect);
-                                         break;
-                                     case "customresponse":
-                                         type = typeof(CustomResponse);
-                                         break;
-                                     case "abortrequest":
-                                         type = typeof(AbortRequest);
-                                         break;
-                                 }
+                            action = ConstructAction(attribute.Value, element);
                             break;
                         case "appendquerystring":
                             appendQueryString = attribute.Value.ToLower() == "true";
@@ -410,13 +472,13 @@ namespace UrlRewrite.Configuration
             }
 
             var actionList = new ActionList();
+
             if (!appendQueryString)
                 actionList.Add(new Delete(Scope.QueryString));
 
             if (valueGetter != null)
                 actionList.Add(new Replace(Scope.Path, null, valueGetter));
 
-            var action = ConstructAction(type, element);
             if (action != null)
                 actionList.Add(action);
 

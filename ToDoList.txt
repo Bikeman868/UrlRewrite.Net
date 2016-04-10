@@ -5,21 +5,12 @@
 
 <action type="AbortRequest" />
 
-<action type="None" />
-
 <action type="<custom action name>" />
 
 <rule>
   <rules>
   </rules>
 </rule>
-
-<rewrite to="<scope>" toIndex="<index>" from="<scope>" fromIndex="<index>" operation="" />
-
-<rewrite operation="LowerCase" />
-<rewrite operation="UpperCase" />
-<rewrite operation="UrlDecode" />
-<rewrite operation="UrlEncode" />
 
 <rewrite operation="<custom operation name>" />
 
@@ -28,6 +19,8 @@
 <keep scope="<scope>" index="<index>" />
 
 <assembly fileName="">
-  <class name="MyOperation" type="operation" className="MyCompany.Rewrite.Operations.IsCustomer" />
+  <class name="CompanyNameToId" type="operation" className="MyCompany.Rewrite.Operations.CompanyNameToId" />
+  <class name="IsCustomer" type="condition" className="MyCompany.Rewrite.Condition.IsCustomer" />
+  <class name="MyAction" type="operation" className="MyCompany.Rewrite.Actions.MyAction" />
 </assembly>
 

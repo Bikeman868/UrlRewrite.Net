@@ -9,7 +9,10 @@
 <body>
     <form id="form1" runat="server">
     <div>
-        This is rewriteThree.aspx
+        <p>This is rewriteThree.aspx</p>
+        <p><%=Request.RawUrl%></p>
+        <p><%=Request.Path%></p>
+        <p><%=Request.QueryString%></p>
     </div>
     </form>
 </body>
