@@ -24,6 +24,4 @@
   <class name="MyAction" type="operation" className="MyCompany.Rewrite.Actions.MyAction" />
 </assembly>
 
-<conditions trackAllCaptures="true">
-
-<action url="/test1.aspx?infoid={C:1}&amp;email={C:2}" appendQueryString="false" />
+<insert scope="pathElement" scopeIndex="0" value="mobile" />

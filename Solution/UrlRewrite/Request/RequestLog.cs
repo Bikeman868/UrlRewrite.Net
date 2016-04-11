@@ -104,7 +104,7 @@ namespace UrlRewrite.Request
         void IRequestLog.TraceConditionListEnd(IRequestInfo request, ICondition condition, bool conditionsMet)
         {
             ReduceIndent();
-            Output(condition.ToString(request), " evaluated to " + conditionsMet);
+            Output(condition.ToString(request), "evaluated to", conditionsMet ? "true" : "false");
         }
 
         void IRequestLog.TraceCondition(IRequestInfo request, ICondition condition, bool isTrue)

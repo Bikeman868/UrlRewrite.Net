@@ -183,6 +183,21 @@ Does not rewrite `/company` or `/company/`
     </rule
 ```
 
+## Example of a rule that adds `/mobile` to the front of all paths where requests are from a mobile device
+If the request is a mobile device, rewrites `/company/123?param=value` to `/mobile/company/123?param=value`
+
+```
+    <rules name="root">
+      <assembly>
+        <class name="isMobile" type="condition" className="MyCompany.Rewrite.Conditions.IsMobile" />
+      </assembly>
+      <rule name="special mobile only pages">
+        <condition scope="header" index="user-agent" test="isMobile" />
+        <insert to="pathElement" toIndex="0" from="literal" fromIndex="mobile"/>
+      </rule
+    </rules>
+```
+
 # Integrating your IoC container
 
 You can optionally integrate the Rewrite Module with an IoC container. You might do this if you want to:
@@ -525,9 +540,9 @@ all other query string parameters untouched.
 to the `to` scope. Possible values are `LowerCase`, `UpperCase`, `UrlEncode`, `UrlDecode`. You can also register your own
 custom operations - see below.
 
-This Rewrite module also provides a `<delete>` element for removing parts of the request and a `<keep>` element to delete
-all except certain parts of the request. These elements allow you to remove unwanted query string parameters, shorten
-paths etc
+This Rewrite module also provides a `<delete>` element for removing parts of the request a `<keep>` element to delete
+all except certain parts of the request and an `<insert>` element and an `<append>` element. These elements allow you to 
+perform any modifications to the url that you need.
 
 The `<delete>` element has the following attributes:
 * `scope` identifies which part of the url to delete as `Url`, `Path`, `QueryString`, `PathElement`, `Parameter`, 'Header'.
@@ -538,6 +553,24 @@ The `<keep>` element has the following attributes:
 * `index` specifies the depth to trim the path to if scope is `Path` for example passing `"2"` will remove path elements 3 onwards.
 * `index` is a comma separated list of parameter names if the scope is `QueryString`. All other parameters will be deleted.
 * `index` is a comma separated list of header names if the scope is `Header`. All other headers will be deleted.
+
+The `<insert>` element has the following attributes:
+* `scope` identifies which part of the url to insert into `Url`, `Path`, `QueryString`, `PathElement`, `Parameter`, 'Header'.
+* `index` specifies the scope index of the element to insert in front of.
+* `from` specifies the scope to get the new value from.
+* `fromIndex` specifies the the index within this scope to get the value from.
+* `operation` specifes an operation to perform on the value after reading it from the `from` scope and before writing it
+to the `to` scope. Possible values are `LowerCase`, `UpperCase`, `UrlEncode`, `UrlDecode`. You can also register your own
+custom operations - see below.
+
+The `<append>` element has the following attributes:
+* `scope` identifies which part of the url to append to `Url`, `Path`, `QueryString`, `PathElement`, `Parameter`, 'Header'.
+* `index` specifies the scope index of the element to append to.
+* `from` specifies the scope to get the new value from.
+* `fromIndex` specifies the the index within this scope to get the value from.
+* `operation` specifes an operation to perform on the value after reading it from the `from` scope and before writing it
+to the `to` scope. Possible values are `LowerCase`, `UpperCase`, `UrlEncode`, `UrlDecode`. You can also register your own
+custom operations - see below.
 
 An example of a rule that makes lots of changes to the request follows:
 ```
