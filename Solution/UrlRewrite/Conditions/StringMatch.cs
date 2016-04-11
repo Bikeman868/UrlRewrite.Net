@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using UrlRewrite.Interfaces;
@@ -132,6 +133,11 @@ namespace UrlRewrite.Conditions
         public string ToString(IRequestInfo request)
         {
             return ToString();
+        }
+
+        public void Describe(TextWriter writer, string indent, string indentText)
+        {
+            writer.WriteLine(indent + "If " + ToString());
         }
     }
 }

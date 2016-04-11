@@ -2,7 +2,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Text;
 using System.Threading;
 using System.Web;
 using UrlRewrite.Configuration;
@@ -76,6 +78,18 @@ namespace UrlRewrite
             var parser = ruleParser ?? new StandardRuleParser(_factory);
             _rules = parser.Parse(ruleStream);
             ruleStream.Close();
+
+            var rulesDescriptionStream = new MemoryStream();
+            using (var rulesDescriptionWriter = new StreamWriter(rulesDescriptionStream))
+            {
+                _rules.Describe(rulesDescriptionWriter, "", "  ");
+                rulesDescriptionWriter.Flush();
+                var description = Encoding.ASCII.GetString(
+                    rulesDescriptionStream.GetBuffer(), 
+                    0,
+                    (int) rulesDescriptionStream.Length);
+                Trace.WriteLine(description);
+            }
 
 #if !TRACE_ALL
             if (requestUrlsToTrace != null)

@@ -1,4 +1,5 @@
-﻿using System.Web;
+﻿using System.IO;
+using System.Web;
 using System.Xml.Linq;
 using UrlRewrite.Interfaces;
 
@@ -23,6 +24,12 @@ namespace UrlRewrite.Operations
         public override string ToString()
         {
             return "UrlEncode()";
+        }
+
+        public void Describe(TextWriter writer, string indent, string indentText)
+        {
+            writer.Write(indent);
+            writer.WriteLine("url encode");
         }
     }
 }

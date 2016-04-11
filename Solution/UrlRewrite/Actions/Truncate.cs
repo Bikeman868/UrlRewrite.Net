@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
@@ -40,6 +41,11 @@ namespace UrlRewrite.Actions
         public string ToString(IRequestInfo request)
         {
             return "truncate the URL path to a maximum depth of " + _maximumDepth;
+        }
+
+        public void Describe(TextWriter writer, string indent, string indentText)
+        {
+            writer.WriteLine(indent + ToString());
         }
     }
 }

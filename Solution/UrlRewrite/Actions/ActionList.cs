@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.IO;
+using System.Runtime.InteropServices;
 using System.Web;
 using System.Xml.Linq;
 using UrlRewrite.Interfaces;
@@ -90,6 +92,17 @@ namespace UrlRewrite.Actions
         public string ToString(IRequestInfo requestInfo)
         {
             return ToString();
+        }
+
+        public void Describe(TextWriter writer, string indent, string indentText)
+        {
+            if (_actions != null && _actions.Count > 0)
+            {
+                writer.WriteLine(indent + "Perform these actions:");
+                indent += indentText;
+                foreach (var action in _actions)
+                    action.Describe(writer, indent, indentText);
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using UrlRewrite.Interfaces;
 using UrlRewrite.Utilities;
 
@@ -98,6 +99,11 @@ namespace UrlRewrite.Actions
             if (!string.IsNullOrEmpty(_scopeIndex))
                 text += "[" + _scopeIndex + "]";
             return text;
+        }
+
+        public void Describe(TextWriter writer, string indent, string indentText)
+        {
+            writer.WriteLine(indent + ToString());
         }
     }
 }

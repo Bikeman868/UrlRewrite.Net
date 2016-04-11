@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using UrlRewrite.Interfaces;
 using UrlRewrite.Utilities;
 
@@ -9,17 +10,17 @@ namespace UrlRewrite.Conditions
     {
         private Scope _scope;
         private string _scopeIndex;
-        private IList<IOperation> _operations;
+        private IOperation _operation;
         private Func<IRequestInfo, IRuleResult, string> _getValueFunc;
 
         public IValueGetter Initialize(
             Scope scope,
             int scopeIndex,
-            IList<IOperation> operations)
+            IOperation operation)
         {
             _scope = scope;
             _scopeIndex = scopeIndex.ToString();
-            _operations = operations;
+            _operation = operation;
 
             SetFunction(scopeIndex);
 
@@ -29,7 +30,7 @@ namespace UrlRewrite.Conditions
         public IValueGetter Initialize(
             Scope scope,
             string scopeIndex,
-            IList<IOperation> operations)
+            IOperation operation)
         {
             if (scopeIndex != null && string.IsNullOrWhiteSpace(scopeIndex))
                 scopeIndex = null;
@@ -75,7 +76,7 @@ namespace UrlRewrite.Conditions
 
             _scope = scope;
             _scopeIndex = scopeIndex;
-            _operations = operations;
+            _operation = operation;
 
             if (scopeIndexIsNumber)
                 SetFunction(scopeIndexValue);
@@ -256,9 +257,13 @@ namespace UrlRewrite.Conditions
             if (_scopeIndex != null)
                 description += "[" + _scopeIndex + "]";
 
-            if (_operations != null)
-                foreach (var operation in _operations)
-                    description += "." + operation;
+            if (_scope == Scope.Literal)
+            {
+                description = "\"" + _scopeIndex + "\"";
+            }
+
+            if (_operation != null)
+                description += "." + _operation;
 
             return description;
         }
@@ -266,9 +271,8 @@ namespace UrlRewrite.Conditions
         public string GetString(IRequestInfo requestInfo, IRuleResult ruleResult)
         {
             var value = _getValueFunc(requestInfo, ruleResult);
-            if (_operations != null)
-                foreach (var operation in _operations)
-                    value = operation.Execute(value);
+            if (_operation != null)
+                value = _operation.Execute(value);
             return value;
         }
 
@@ -277,6 +281,11 @@ namespace UrlRewrite.Conditions
             var value = GetString(requestInfo, ruleResult);
             int intValue;
             return int.TryParse(value, out intValue) ? intValue : defaultValue;
+        }
+
+        public void Describe(TextWriter writer, string indent, string indentText)
+        {
+            writer.WriteLine(indent + "Get value from " + ToString());
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Xml.Linq;
 using UrlRewrite.Interfaces;
 using UrlRewrite.Utilities;
@@ -65,6 +66,11 @@ namespace UrlRewrite.Conditions
         public string ToString(IRequestInfo request)
         {
             return ToString();
+        }
+
+        public void Describe(TextWriter writer, string indent, string indentText)
+        {
+            writer.WriteLine(indent + " If " + ToString());
         }
     }
 }

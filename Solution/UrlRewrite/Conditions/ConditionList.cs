@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Xml.Linq;
 using UrlRewrite.Interfaces;
 
@@ -124,6 +125,17 @@ namespace UrlRewrite.Conditions
                 request.Log.TraceConditionListEnd(request, false);
 
             return false;
+        }
+
+        public void Describe(TextWriter writer, string indent, string indentText)
+        {
+            if (_conditions != null && _conditions.Count > 0)
+            {
+                writer.WriteLine(indent + _logic + " these conditions:");
+                indent += indentText;
+                foreach (var condition in _conditions)
+                    condition.Describe(writer, indent, indentText);
+            }
         }
     }
 }

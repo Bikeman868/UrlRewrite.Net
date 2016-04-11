@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using UrlRewrite.Actions;
@@ -48,10 +49,12 @@ namespace UrlRewrite.Configuration
                 if (nameAttribute != null)
                     rootName = nameAttribute.Value;
             }
-            var rules = ParseRules(xmlRoot);
+            var rules = ParseRulesElement(xmlRoot);
 
             return new RuleList(rootName, null, rules);
         }
+
+        #region Constructing instances using factories and custom type registrations
 
         private IAction ConstructAction(string actionName, XElement configuration)
         {
@@ -118,7 +121,21 @@ namespace UrlRewrite.Configuration
             return operation;
         }
 
-        private IList<IRule> ParseRules(XElement element)
+        IValueGetter ConstructValueGetter(Scope scope = Scope.Url, string scopeIndex = null, IOperation operation = null)
+        {
+            return _factory.Create<IValueGetter>().Initialize(scope, scopeIndex, operation);
+        }
+
+        IValueGetter ConstructValueGetter(Scope scope, int scopeIndex, IOperation operation = null)
+        {
+            return _factory.Create<IValueGetter>().Initialize(scope, scopeIndex, operation);
+        }
+
+        #endregion
+
+        #region Parsing XML elements
+
+        private IList<IRule> ParseRulesElement(XElement element)
         {
             return element
                 .Nodes()
@@ -129,9 +146,9 @@ namespace UrlRewrite.Configuration
                     switch (e.Name.LocalName.ToLower())
                     {
                         case "rule":
-                            return ParseRule(e);
+                            return ParseRuleElement(e);
                         case "rewritemaps":
-                            return ParseRewriteMaps(e);
+                            return ParseRewriteMapsElement(e);
                         default:
                             return null;
                     }
@@ -140,7 +157,7 @@ namespace UrlRewrite.Configuration
                 .ToList();
         }
 
-        private IRule ParseRule(XElement element)
+        private IRule ParseRuleElement(XElement element)
         {
             var name = "Rule " + Guid.NewGuid();
             var stopProcessing = true;
@@ -169,19 +186,19 @@ namespace UrlRewrite.Configuration
                 switch (child.Name.LocalName.ToLower())
                 {
                     case "match":
-                        condition = CombineConditions(condition, ParseRuleMatch(child));
+                        condition = CombineConditions(condition, ParseMatchElement(child));
                         break;
                     case "condition":
-                        condition = CombineConditions(condition, ParseRuleCondition(child));
+                        condition = CombineConditions(condition, ParseConditionElement(child));
                         break;
                     case "conditions":
-                        condition = CombineConditions(condition, ParseRuleConditions(child));
+                        condition = CombineConditions(condition, ParseConditionsElement(child));
                         break;
                     case "action":
-                        action = CombineActions(action, ParseRuleAction(child));
+                        action = CombineActions(action, ParseActionElement(child));
                         break;
                     case "rewrite":
-                        action = CombineActions(action, ParseRewrite(child));
+                        action = CombineActions(action, ParseRewriteElement(child));
                         break;
                 }
             }
@@ -189,7 +206,7 @@ namespace UrlRewrite.Configuration
             return new Rule(name, condition, action, stopProcessing);
         }
 
-        private ICondition ParseRuleMatch(XElement element)
+        private ICondition ParseMatchElement(XElement element)
         {
             var scope = Scope.Url;
             var compareOperation = CompareOperation.MatchRegex;
@@ -223,12 +240,12 @@ namespace UrlRewrite.Configuration
                 }
             }
 
-            var valueGetter = _factory.Create<IValueGetter>().Initialize(scope);
+            var valueGetter = ConstructValueGetter(scope);
             var stringMatch = _factory.Create<IStringMatch>().Initialize(valueGetter, compareOperation, text, inverted, ignoreCase, "R");
             return stringMatch;
         }
 
-        private ICondition ParseRuleConditions(XElement element)
+        private ICondition ParseConditionsElement(XElement element)
         {
             ICondition result = null;
 
@@ -245,20 +262,20 @@ namespace UrlRewrite.Configuration
                 switch (child.Name.LocalName.ToLower())
                 {
                     case "add":
-                        result = CombineConditions(result, ParseRuleConditionsAdd(child));
+                        result = CombineConditions(result, ParseConditionsAddElement(child));
                         break;
                     case "condition":
-                        result = CombineConditions(result, ParseRuleCondition(child));
+                        result = CombineConditions(result, ParseConditionElement(child));
                         break;
                     case "conditions":
-                        result = CombineConditions(result, ParseRuleConditions(child));
+                        result = CombineConditions(result, ParseConditionsElement(child));
                         break;
                 }
             }
             return result;
         }
 
-        private ICondition ParseRuleCondition(XElement element)
+        private ICondition ParseConditionElement(XElement element)
         {
             var scope = Scope.Url;
 
@@ -328,26 +345,22 @@ namespace UrlRewrite.Configuration
                     break;
             }
 
-            var valueGetter = _factory.Create<IValueGetter>();
-            if (isNumericIndex)
-                 valueGetter.Initialize(scope, scopeIndexInt);
-            else
-                valueGetter.Initialize(scope, scopeIndexString);
+            IValueGetter valueGetter;
+            valueGetter = isNumericIndex ? ConstructValueGetter(scope, scopeIndexInt) : ConstructValueGetter(scope, scopeIndexString);
 
             if (isNumericValue)
                 return _factory.Create<INumberMatch>().Initialize(valueGetter, compareOperation, value, inverted, defaultValue);
             return _factory.Create<IStringMatch>().Initialize(valueGetter, compareOperation, text, inverted, ignoreCase);
         }
 
-        private ICondition ParseRuleConditionsAdd(XElement element)
+        private ICondition ParseConditionsAddElement(XElement element)
         {
+            IValueGetter valueGetter = null;
             var scope = Scope.Url;
-            string scopeIndex = null;
             var compareOperation = CompareOperation.MatchRegex;
             var inverted = false;
             var ignoreCase = true;
             var text = ".*";
-            IOperation operation = null;
 
             if (element.HasAttributes)
             {
@@ -356,13 +369,12 @@ namespace UrlRewrite.Configuration
                     switch (attribute.Name.LocalName.ToLower())
                     {
                         case "input":
-                            ParseCurlyBraces(attribute.Value, out scope, out scopeIndex, out operation);
+                            valueGetter = ParseTextWithMacros(attribute.Value);
                             break;
                         case "matchType":
                             if (attribute.Value.ToLower() == "isfile")
                             {
                                 scope = Scope.Path;
-                                scopeIndex = null;
                                 compareOperation = CompareOperation.EndsWith;
                                 text = "/";
                                 inverted = true;
@@ -370,7 +382,6 @@ namespace UrlRewrite.Configuration
                             else if (attribute.Value.ToLower() == "isdirectory")
                             {
                                 scope = Scope.Path;
-                                scopeIndex = null;
                                 compareOperation = CompareOperation.EndsWith;
                                 text = "/";
                                 inverted = false;
@@ -389,14 +400,14 @@ namespace UrlRewrite.Configuration
                 }
             }
 
-            IList<IOperation> operations = operation == null ? null : new List<IOperation> { operation };
+            if (valueGetter == null)
+                valueGetter = ConstructValueGetter(scope);
 
-            var valueGetter = _factory.Create<IValueGetter>().Initialize(scope, scopeIndex, operations);
             var stringMatch = _factory.Create<IStringMatch>().Initialize(valueGetter, compareOperation, text, inverted, ignoreCase);
             return stringMatch;
         }
 
-        private IAction ParseRewrite(XElement element)
+        private IAction ParseRewriteElement(XElement element)
         {
             var fromScope = Scope.Path;
             string fromIndex = null;
@@ -429,17 +440,16 @@ namespace UrlRewrite.Configuration
                 }
             }
 
-            IList<IOperation> operations = operation == null ? null : new List<IOperation> { operation };
-            var value = _factory.Create<IValueGetter>().Initialize(fromScope, fromIndex, operations);
+            var value = _factory.Create<IValueGetter>().Initialize(fromScope, fromIndex, operation);
             return new Replace(toScope, toIndex, value);
         }
 
-        private IRule ParseRewriteMaps(XElement element)
+        private IRule ParseRewriteMapsElement(XElement element)
         {
             return null;
         }
 
-        private IAction ParseRuleAction(XElement element)
+        private IAction ParseActionElement(XElement element)
         {
             IValueGetter valueGetter = null;
             IAction action = null;
@@ -453,12 +463,7 @@ namespace UrlRewrite.Configuration
                     {
                         case "url":
                         {
-                            Scope scope;
-                            string scopeIndex;
-                            IOperation operation;
-                            ParseCurlyBraces(attribute.Value, out scope, out scopeIndex, out operation);
-                            IList<IOperation> operations = operation == null ? null : new List<IOperation> { operation };
-                            valueGetter = _factory.Create<IValueGetter>().Initialize(scope, scopeIndex, operations);
+                            valueGetter = ParseTextWithMacros(attribute.Value);
                             break;
                         }
                         case "type":
@@ -477,13 +482,138 @@ namespace UrlRewrite.Configuration
                 actionList.Add(new Replace(Scope.Url, null, valueGetter));
 
             if (appendQueryString)
-                actionList.Add(new Append(Scope.QueryString, null, _factory.Create<IValueGetter>().Initialize(Scope.OriginalQueryString)));
+                actionList.Add(new Append(Scope.QueryString, null, ConstructValueGetter(Scope.OriginalQueryString)));
 
             if (action != null)
                 actionList.Add(action);
 
             return actionList;
         }
+        
+        #endregion
+
+        #region Parsing macros in curly braces
+
+        private class TextArea
+        {
+            public string Text;
+            public bool IsQuoted;
+        }
+
+        private IList<TextArea> SeparateMarcoText(string input)
+        {
+            var depth = 0;
+            var literalText = new StringBuilder();
+            var macroText = new StringBuilder();
+            var result = new List<TextArea>();
+
+            Action<char> appendChar = c =>
+            {
+                if (depth > 0) macroText.Append(c);
+                else literalText.Append(c);
+            };
+
+            for (var i = 0; i < input.Length; i++)
+            {
+                var ch = input[i];
+                switch (ch)
+                {
+                    case '{':
+                        if (depth == 0)
+                        {
+                            if (literalText.Length > 0)
+                            {
+                                result.Add(new TextArea
+                                {
+                                    Text = literalText.ToString(),
+                                    IsQuoted = false
+                                });
+                                literalText.Clear();
+                            }
+                        }
+                        else
+                        {
+                            appendChar(ch);
+                        }
+                        depth++;
+                        break;
+                    case '}':
+                        depth--;
+                        if (depth == 0)
+                        {
+                            if (macroText.Length > 0)
+                            {
+                                result.Add(new TextArea
+                                {
+                                    Text = macroText.ToString(),
+                                    IsQuoted = true
+                                });
+                                macroText.Clear();
+                            }
+                        }
+                        else
+                        {
+                            appendChar(ch);
+                        }
+                        break;
+                    default:
+                        appendChar(ch);
+                        break;
+                }
+            }
+            if (literalText.Length > 0) result.Add(new TextArea{Text = literalText.ToString()});
+            return result;
+        }
+
+        private IValueGetter ParseMacro(string input)
+        {
+            var colonIndex = input.IndexOf(':');
+            if (colonIndex > 0)
+            {
+                var operationName = input.Substring(0, colonIndex).ToLower();
+                input = input.Substring(colonIndex + 1, input.Length - colonIndex - 1);
+
+                if (operationName == "c")
+                    return ConstructValueGetter(Scope.ConditionGroup, input);
+
+                if (operationName == "r")
+                    return ConstructValueGetter(Scope.MatchGroup, input);
+
+                var operationInputGetter = ParseTextWithMacros(input);
+                IOperation operation = null;
+
+                     if (operationName == "tolower") operation = new LowerCaseOperation();
+                else if (operationName == "toupper") operation = new UpperCaseOperation();
+                else if (operationName == "urlencode") operation = new UrlEncodeOperation();
+                else if (operationName == "urldecode") operation = new UrlDecodeOperation();
+
+                // TODO: custom operations
+
+                return operation == null ? operationInputGetter : new ValueConcatenator().Initialize(operationInputGetter, operation);
+            }
+
+            if (input.StartsWith("HTTP_"))
+                return ConstructValueGetter(Scope.Header, input.Substring(5));
+            return ConstructValueGetter(Scope.ServerVariable, input);
+        }
+     
+        private IValueGetter ParseTextWithMacros(string input)
+        {
+            var textAreas = SeparateMarcoText(input.Trim());
+            if (textAreas == null || textAreas.Count == 0) return null;
+
+            var areaGetters = textAreas
+                .Select(a => a.IsQuoted
+                    ? ParseMacro(a.Text) 
+                    : ConstructValueGetter(Scope.Literal, a.Text))
+                .ToList();
+
+            return areaGetters.Count == 1 ? areaGetters[0] : new ValueConcatenator().Initialize(areaGetters);
+        }
+
+        #endregion
+
+        #region Private helper functions
 
         private ICondition CombineConditions(ICondition c1, ICondition c2)
         {
@@ -499,67 +629,6 @@ namespace UrlRewrite.Configuration
             }
             conditionList.Add(c2);
             return conditionList;
-        }
-
-        private void ParseCurlyBraces(string input, out Scope scope, out string scopeIndex, out IOperation operation)
-        {
-            input = input.Trim();
-            string operationName;
-            if (input.StartsWith("{") && input.EndsWith("}"))
-            {
-                var colonIndex = input.IndexOf(':');
-                if (colonIndex > 0)
-                {
-                    operationName = input.Substring(1, colonIndex - 1).ToLower();
-                    input = input.Substring(colonIndex + 1, input.Length - colonIndex - 2);
-                }
-                else
-                {
-                    operationName = null;
-                }
-
-                if (operationName == "c") 
-                {
-                    scope = Scope.ConditionGroup;
-                    scopeIndex = input;
-                }
-                else if (operationName == "r")
-                {
-                    scope = Scope.MatchGroup;
-                    scopeIndex = input;
-                }
-                else if (input.StartsWith("{") && input.EndsWith("}"))
-                {
-                    input = input.ToUpper();
-                    if (input.StartsWith("{HTTP_"))
-                    {
-                        scope = Scope.Header;
-                        scopeIndex = input.Substring(6, input.Length - 7);
-                    }
-                    else
-                    {
-                        scope = Scope.ServerVariable;
-                        scopeIndex = input.Substring(1, input.Length - 2);
-                    }
-                }
-                else
-                {
-                    scope = Scope.Literal;
-                    scopeIndex = input;
-                }
-            }
-            else
-            {
-                scope = Scope.Literal;
-                scopeIndex = input;
-                operationName = null;
-            }
-
-            if (operationName == "tolower") operation = new LowerCaseOperation();
-            else if (operationName == "toupper") operation = new UpperCaseOperation();
-            else if (operationName == "urlencode") operation = new UrlEncodeOperation();
-            else if (operationName == "urldecode") operation = new UrlDecodeOperation();
-            else operation = null;
         }
 
         private IAction CombineActions(IAction a1, IAction a2)
@@ -587,5 +656,6 @@ namespace UrlRewrite.Configuration
             return actionList1;
         }
 
+        #endregion
     }
 }

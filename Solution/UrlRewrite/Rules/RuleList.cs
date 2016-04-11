@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.IO;
+using System.Net.Mime;
 using System.Xml.Linq;
 using UrlRewrite.Interfaces;
 
@@ -105,6 +107,22 @@ namespace UrlRewrite.Rules
             var result = Evaluate(requestInfo);
             stopProcessing = result.StopProcessing;
             endRequest = result.EndRequest;
+        }
+
+        public void Describe(TextWriter writer, string indent, string indentText)
+        {
+            writer.WriteLine(indent + _name + " list of rules");
+            indent += indentText;
+
+            if (_condition != null) 
+                _condition.Describe(writer, indent, indentText);
+
+            if (_rules != null)
+                foreach (var rule in _rules)
+                    rule.Describe(writer, indent, indentText);
+
+            if (_stopProcessing)
+                writer.WriteLine(indent + "Stop processing");
         }
     }
 }

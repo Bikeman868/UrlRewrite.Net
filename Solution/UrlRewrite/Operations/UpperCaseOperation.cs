@@ -1,4 +1,5 @@
-﻿using System.Xml.Linq;
+﻿using System.IO;
+using System.Xml.Linq;
 using UrlRewrite.Interfaces;
 
 namespace UrlRewrite.Operations
@@ -22,6 +23,12 @@ namespace UrlRewrite.Operations
         public override string ToString()
         {
             return "ToUpper()";
+        }
+
+        public void Describe(TextWriter writer, string indent, string indentText)
+        {
+            writer.Write(indent);
+            writer.WriteLine("convert to upper case");
         }
     }
 }

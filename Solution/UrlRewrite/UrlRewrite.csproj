@@ -54,12 +54,14 @@
     <Compile Include="Actions\Truncate.cs" />
     <Compile Include="Conditions\ConditionList.cs" />
     <Compile Include="Conditions\NumberMatch.cs" />
+    <Compile Include="Conditions\ValueConcatenator.cs" />
     <Compile Include="Conditions\ValueGetter.cs" />
     <Compile Include="Conditions\StringMatch.cs" />
     <Compile Include="Configuration\StandardRuleParser.cs" />
     <Compile Include="Configuration\TestRuleParser.cs" />
     <Compile Include="Interfaces\CombinationLogic.cs" />
     <Compile Include="Interfaces\ExecutionMode.cs" />
+    <Compile Include="Interfaces\IDescribable.cs" />
     <Compile Include="Interfaces\IPropertyBag.cs" />
     <Compile Include="Interfaces\IRuleList.cs" />
     <Compile Include="Interfaces\IRuleElement.cs" />

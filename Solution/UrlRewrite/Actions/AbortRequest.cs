@@ -1,4 +1,5 @@
-﻿using System.Web;
+﻿using System.IO;
+using System.Web;
 using System.Xml.Linq;
 using UrlRewrite.Interfaces;
 
@@ -24,6 +25,11 @@ namespace UrlRewrite.Actions
         public string ToString(IRequestInfo requestInfo)
         {
             return "abort the request";
+        }
+
+        public void Describe(TextWriter writer, string indent, string indentText)
+        {
+            writer.WriteLine(indent + "Abort the request");
         }
     }
 }

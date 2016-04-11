@@ -1,4 +1,5 @@
-﻿using UrlRewrite.Interfaces;
+﻿using System.IO;
+using UrlRewrite.Interfaces;
 
 namespace UrlRewrite.Actions
 {
@@ -25,6 +26,10 @@ namespace UrlRewrite.Actions
         public string ToString(IRequestInfo request)
         {
             return "do nothing";
+        }
+
+        public void Describe(TextWriter writer, string indent, string indentText)
+        {
         }
     }
 }
