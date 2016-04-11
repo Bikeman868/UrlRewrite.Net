@@ -93,7 +93,7 @@ The `Initialize()` method has optional parameters you can pass to customize its 
 Note that these examples use made up random data. Your rules must be written to match the URLs that
 your web site receives.
 
-## Example of a rules file that uses all of the most common syntax
+### Example of a rules file that uses all of the most common syntax
 Permenantly redirects `/company/quote/page3.aspx?date=now` to `/entity/quote/page3.aspx?date=now`
 
 Permenantly redirects `/company/profile/page1.aspx?date=now` to `/entity/profile/page1.aspx?date=now`
@@ -134,7 +134,7 @@ For any path like `/company/.../*.aspx` if the session belongs to a customer app
     </rules>
 ```
 
-## Example of a rule that truncates any path deeper than 3 levels
+### Example of a rule that truncates any path deeper than 3 levels
 Rewrites `/company/quote/123/march/2/2016` to `/company/quote/123`
 ```
     <rule name="truncate paths deeper than 3 levels">
@@ -143,7 +143,7 @@ Rewrites `/company/quote/123/march/2/2016` to `/company/quote/123`
     </rule
 ```
 
-## Example of a rule that removes part of the path and turns in into a query string parameter
+### Example of a rule that removes part of the path and turns in into a query string parameter
 Rewrites `/company/123` to `/company?id=123`
 
 Rewrites `/company/123/profile.aspx` to `/company/profile.aspx?id=123`
@@ -158,7 +158,7 @@ Does not rewrite `/company` or `/company/`
     </rule
 ```
 
-## Example of a rule that changes all PUT requests into POST requests
+### Example of a rule that changes all PUT requests into POST requests
 ```
     <rule name="treat all PUT as POST">
       <condition scope="serverVariable" index="REQUEST_METHOD" test="equals" value="PUT" />
@@ -166,7 +166,7 @@ Does not rewrite `/company` or `/company/`
     </rule
 ```
 
-## Example of a rule that aborts any request for the `/secure/` part of the site unless it was made over HTTPS
+### Example of a rule that aborts any request for the `/secure/` part of the site unless it was made over HTTPS
 ```
     <rule name="ensure security">
       <condition scope="serverVariable" index="HTTPS" test="equals" value="false" />
@@ -175,7 +175,7 @@ Does not rewrite `/company` or `/company/`
     </rule
 ```
 
-## Example of a rule that appends the client's IP address to the querystring for all aspx pages'
+### Example of a rule that appends the client's IP address to the querystring for all aspx pages'
 ```
     <rule name="ensure security">
       <condition scope="pathElement" index="-1" test="endsWith" value=".aspx" />
@@ -183,7 +183,7 @@ Does not rewrite `/company` or `/company/`
     </rule
 ```
 
-## Example of a rule that adds `/mobile` to the front of all paths where requests are from a mobile device
+### Example of a rule that adds `/mobile` to the front of all paths where requests are from a mobile device
 If the request is a mobile device, rewrites `/company/123?param=value` to `/mobile/company/123?param=value`
 
 ```
