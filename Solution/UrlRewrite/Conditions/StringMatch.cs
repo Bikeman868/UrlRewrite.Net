@@ -101,10 +101,30 @@ namespace UrlRewrite.Conditions
                 var m = regex.Match(text);
                 if (m.Success)
                 {
-                    var matchGroups = new List<string>();
-                    foreach (var group in m.Groups)
-                        matchGroups.Add(group.ToString());
-                    ruleResult.Properties.Set<IList<string>>(matchGroups, name);
+                    if (ruleResult.Properties.Get<bool>("trackAllCaptures"))
+                    {
+                        var matchGroups = ruleResult.Properties.Get<IList<string>>(name);
+                        if (ReferenceEquals(matchGroups, null))
+                        {
+                            matchGroups = new List<string> { string.Empty };
+                            ruleResult.Properties.Set(matchGroups, name);
+                        }
+                        for (var i = 0; i < m.Groups.Count; i++)
+                        {
+                            var group = m.Groups[i];
+                            if (i == 0)
+                                matchGroups[0] += group.ToString();
+                            else
+                                matchGroups.Add(group.ToString());
+                        }
+                    }
+                    else
+                    {
+                        IList<string> matchGroups = new List<string>();
+                        foreach (var group in m.Groups)
+                            matchGroups.Add(group.ToString());
+                        ruleResult.Properties.Set(matchGroups, name);
+                    }
                     return true;
                 }
                 return false;

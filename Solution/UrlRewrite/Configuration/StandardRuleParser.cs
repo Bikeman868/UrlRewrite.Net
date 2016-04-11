@@ -221,8 +221,8 @@ namespace UrlRewrite.Configuration
                     switch (attribute.Name.LocalName.ToLower())
                     {
                         case "url":
-                            text = attribute.Value;
                             scope = Scope.Path;
+                            text = attribute.Value;
                             break;
                         case "patternsyntax":
                             if (attribute.Value == "ECMAScript")
@@ -247,15 +247,28 @@ namespace UrlRewrite.Configuration
 
         private ICondition ParseConditionsElement(XElement element)
         {
-            ICondition result = null;
+            var logic = CombinationLogic.MatchAll;
+            var trackAllCaptures = false;
 
-            var logicalGroupingAttribute = element.Attributes().FirstOrDefault(a => a.Name.LocalName.ToLower() == "logicalgrouping");
-            if (logicalGroupingAttribute != null)
+            if (element.HasAttributes)
             {
-                CombinationLogic logic;
-                if (Enum.TryParse(logicalGroupingAttribute.Value, out logic))
-                    result = new ConditionList().Initialize(logic);
+                foreach(var attribute in element.Attributes())
+                {
+                    switch (attribute.Name.LocalName.ToLower())
+                    {
+                        case "logicalgrouping":
+                            CombinationLogic logicalgrouping;
+                            if (Enum.TryParse(attribute.Value, out logicalgrouping))
+                                logic = logicalgrouping;
+                            break;
+                        case "trackallcaptures":
+                            trackAllCaptures = attribute.Value.ToLower() == "true";
+                            break;
+                    }
+                }
             }
+
+            ICondition result = new ConditionList().Initialize(logic, trackAllCaptures);
 
             foreach (var child in element.Elements())
             {
@@ -636,24 +649,16 @@ namespace UrlRewrite.Configuration
             if (a2 == null) return a1;
             if (a1 == null) return a2;
 
-            var actionList1 = a1 as ActionList;
-            var actionList2 = a2 as ActionList;
+            var actionList = a1 as ActionList;
 
-            if (actionList1 == null)
+            if (actionList == null)
             {
-                if (actionList2 == null)
-                {
-                    var newActionList = new ActionList();
-                    newActionList.Add(a1);
-                    newActionList.Add(a2);
-                    return newActionList;
-                }
-                actionList2.Add(a1);
-                return actionList2;
+                actionList = new ActionList();
+                actionList.Add(a1);
             }
 
-            actionList1.Add(a2);
-            return actionList1;
+            actionList.Add(a2);
+            return actionList;
         }
 
         #endregion

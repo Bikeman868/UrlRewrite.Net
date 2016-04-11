@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
+using UrlRewrite.Actions;
+using UrlRewrite.Conditions;
 using UrlRewrite.Interfaces;
 using UrlRewrite.Utilities;
 
@@ -11,12 +14,25 @@ namespace UrlRewrite.Request
         private readonly PerformanceTimer _timer = new PerformanceTimer();
         private readonly List<string> _output = new List<string>();
 
+        private string indent = string.Empty;
+
         private void Output(params string[] message)
         {
-            var line = string.Format("Rewrite: {0,6}mS {1}",
+            var line = string.Format("Rewrite: {0,6}mS {1}{2}",
                 _timer.ElapsedMilliSeconds.ToString("F1"),
+                indent,
                 string.Join(" ", message));
             _output.Add(line);
+        }
+
+        private void IncreaseIndent()
+        {
+            indent += "  ";
+        }
+
+        private void ReduceIndent()
+        {
+            indent = indent.Substring(2);
         }
 
         void IRequestLog.LogException(IRequestInfo request, Exception ex)
@@ -31,26 +47,30 @@ namespace UrlRewrite.Request
 
         void IRequestLog.TraceRequestBegin(IRequestInfo request)
         {
-            Output("rewriting URL", request.OriginalUrlString);
+            Output("rewriting ", request.OriginalUrlString);
+            IncreaseIndent();
             _timer.Start();
         }
 
         public void TraceRequestEnd(IRequestInfo request)
         {
             _timer.Stop();
-            Output("finished URL", request.NewUrlString);
+            ReduceIndent();
+            Output("finished ", request.NewUrlString);
 
-            Trace.WriteLine("--");
+            Trace.WriteLine("");
             foreach (var line in _output) Trace.WriteLine(line);
         }
 
         void IRequestLog.TraceRuleListBegin(IRequestInfo request, IRuleList ruleList)
         {
-            Output("begin", ruleList.ToString(request));
+            Output(ruleList.ToString(request));
+            IncreaseIndent();
         }
 
         void IRequestLog.TraceRuleListEnd(IRequestInfo request, IRuleList ruleList, bool matched, IRuleListResult ruleListResult)
         {
+            ReduceIndent();
             Output(
                 ruleList.ToString(request),
                 (matched ? "was executed." : "does not match this request."),
@@ -61,11 +81,13 @@ namespace UrlRewrite.Request
 
         void IRequestLog.TraceRuleBegin(IRequestInfo request, IRule rule)
         {
-            Output("begin " + rule.ToString(request));
+            Output(rule.ToString(request));
+            IncreaseIndent();
         }
 
         void IRequestLog.TraceRuleEnd(IRequestInfo request, IRule rule, bool matched, IRuleResult ruleResult)
         {
+            ReduceIndent();
             Output(
                 rule.ToString(request),
                 (matched ? "was executed." : "does not match this request."),
@@ -73,37 +95,40 @@ namespace UrlRewrite.Request
                 (ruleResult.EndRequest ? "End request." : ""));
         }
 
-        void IRequestLog.TraceConditionListBegin(IRequestInfo request, CombinationLogic logic)
+        void IRequestLog.TraceConditionListBegin(IRequestInfo request, ICondition condition)
         {
-            Output("list of conditions where " + logic);
+            Output(condition.ToString(request));
+            IncreaseIndent();
         }
 
-        void IRequestLog.TraceConditionListEnd(IRequestInfo request, bool conditionsMet)
+        void IRequestLog.TraceConditionListEnd(IRequestInfo request, ICondition condition, bool conditionsMet)
         {
-            Output("list of conditions evaluated to " + conditionsMet);
+            ReduceIndent();
+            Output(condition.ToString(request), " evaluated to " + conditionsMet);
         }
 
         void IRequestLog.TraceCondition(IRequestInfo request, ICondition condition, bool isTrue)
         {
-            Output(
-                "condition",
-                condition.ToString(request),
-                (isTrue ? "is true" : "is false"));
+            if (!(condition is ConditionList))
+                Output(condition.ToString(request), (isTrue ? "is true" : "is false"));
         }
 
         void IRequestLog.TraceAction(IRequestInfo request, IAction action, bool endRequest, bool stopProcessing)
         {
-            Output("action", action.ToString(request));
+            if (!(action is ActionList))
+                Output(action.ToString(request));
         }
 
         void IRequestLog.TraceActionListBegin(IRequestInfo request, IAction actionList)
         {
-            Output("start", actionList.ToString(request));
+            Output("execute", actionList.ToString(request));
+            IncreaseIndent();
         }
 
         void IRequestLog.TraceActionListEnd(IRequestInfo request, bool stopProcessing)
         {
-            Output("finished list of actions.", (stopProcessing ? "Stop processing" : ""));
+            ReduceIndent();
+            Output("finished executing actions.", (stopProcessing ? "Stop processing" : ""));
         }
     }
 }

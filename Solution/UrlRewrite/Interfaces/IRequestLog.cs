@@ -16,8 +16,8 @@ namespace UrlRewrite.Interfaces
         void TraceRuleBegin(IRequestInfo request, IRule rule);
         void TraceRuleEnd(IRequestInfo request, IRule rule, bool matched, IRuleResult ruleResult);
 
-        void TraceConditionListBegin(IRequestInfo request, CombinationLogic logic);
-        void TraceConditionListEnd(IRequestInfo request, bool conditionsMet);
+        void TraceConditionListBegin(IRequestInfo request, ICondition condition);
+        void TraceConditionListEnd(IRequestInfo request, ICondition condition, bool conditionsMet);
 
         void TraceActionListBegin(IRequestInfo request, IAction actionList);
         void TraceActionListEnd(IRequestInfo request, bool stopProcessing);

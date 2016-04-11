@@ -9,13 +9,15 @@ namespace UrlRewrite.Conditions
     internal class ConditionList : ICondition
     {
         private CombinationLogic _logic;
+        private bool _trackAllCaptures;
 
         private List<ICondition> _conditions;
         private Func<IRequestInfo, IRuleResult, bool> _testFunc;
 
-        public ConditionList Initialize(CombinationLogic logic)
+        public ConditionList Initialize(CombinationLogic logic, bool trackAllCaptures = false)
         {
             _logic = logic;
+            _trackAllCaptures = trackAllCaptures;
 
             switch (logic)
             {
@@ -43,7 +45,9 @@ namespace UrlRewrite.Conditions
             if (_conditions == null) _conditions = new List<ICondition>();
 
             var conditionList = condition as ConditionList;
-            if (conditionList == null || conditionList._logic != _logic)
+            if (conditionList == null 
+                || conditionList._logic != _logic 
+                || conditionList._trackAllCaptures != _trackAllCaptures)
                 _conditions.Add(condition);
             else
                 _conditions.AddRange(conditionList._conditions);
@@ -57,13 +61,21 @@ namespace UrlRewrite.Conditions
 
         public bool Test(IRequestInfo request, IRuleResult ruleResult)
         {
-            return _testFunc(request, ruleResult);
+            if (_trackAllCaptures)
+                ruleResult.Properties.Set(true, "trackAllCaptures");
+
+            var result = _testFunc(request, ruleResult);
+            
+            if (_trackAllCaptures)
+                ruleResult.Properties.Set(false, "trackAllCaptures");
+
+            return result;
         }
 
         public override string ToString()
         {
             var count = _conditions == null ? 0 : _conditions.Count;
-            return "list of " + count + " conditions";
+            return "list of " + count + " conditions" + (_trackAllCaptures ? " tracking all captures" : "");
         }
 
         public string ToString(IRequestInfo requestInfo)
@@ -76,7 +88,7 @@ namespace UrlRewrite.Conditions
             if (_conditions == null || _conditions.Count == 0) return true;
 
             if (request.ExecutionMode != ExecutionMode.ExecuteOnly)
-                request.Log.TraceConditionListBegin(request, _logic);
+                request.Log.TraceConditionListBegin(request, this);
             
             foreach (var condition in _conditions)
             {
@@ -88,13 +100,13 @@ namespace UrlRewrite.Conditions
                 if (isTrue != expected)
                 {
                     if (request.ExecutionMode != ExecutionMode.ExecuteOnly)
-                        request.Log.TraceConditionListEnd(request, false);
+                        request.Log.TraceConditionListEnd(request, this, false);
                     return false;
                 }
             }
 
             if (request.ExecutionMode != ExecutionMode.ExecuteOnly)
-                request.Log.TraceConditionListEnd(request, true);
+                request.Log.TraceConditionListEnd(request, this, true);
 
             return true;
         }
@@ -104,7 +116,7 @@ namespace UrlRewrite.Conditions
             if (_conditions == null || _conditions.Count == 0) return false;
 
             if (request.ExecutionMode != ExecutionMode.ExecuteOnly)
-                request.Log.TraceConditionListBegin(request, _logic);
+                request.Log.TraceConditionListBegin(request, this);
 
             foreach (var condition in _conditions)
             {
@@ -116,13 +128,13 @@ namespace UrlRewrite.Conditions
                 if (isTrue == expected)
                 {
                     if (request.ExecutionMode != ExecutionMode.ExecuteOnly)
-                        request.Log.TraceConditionListEnd(request, true);
+                        request.Log.TraceConditionListEnd(request, this, true);
                     return true;
                 }
             }
 
             if (request.ExecutionMode != ExecutionMode.ExecuteOnly)
-                request.Log.TraceConditionListEnd(request, false);
+                request.Log.TraceConditionListEnd(request, this, false);
 
             return false;
         }
@@ -131,7 +143,7 @@ namespace UrlRewrite.Conditions
         {
             if (_conditions != null && _conditions.Count > 0)
             {
-                writer.WriteLine(indent + _logic + " these conditions:");
+                writer.WriteLine(indent + _logic + " these conditions" + (_trackAllCaptures ? " tracking all captures:" : ":"));
                 indent += indentText;
                 foreach (var condition in _conditions)
                     condition.Describe(writer, indent, indentText);
