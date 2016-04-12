@@ -7,11 +7,6 @@
 
 <action type="<custom action name>" />
 
-<rule>
-  <rules>
-  </rules>
-</rule>
-
 <rewrite operation="<custom operation name>" />
 
 <delete scope="<scope>" index="<index>" />

@@ -42,16 +42,7 @@ namespace UrlRewrite.Configuration
             if (xmlRoot.Name != "rules")
                 throw new UrlRewriteException("The rewriter rules must be an XML document with a <rules> root element");
 
-            var rootName = "Root";
-            if (xmlRoot.HasAttributes)
-            {
-                var nameAttribute = xmlRoot.Attributes().FirstOrDefault(a => a.Name == "name");
-                if (nameAttribute != null)
-                    rootName = nameAttribute.Value;
-            }
-            var rules = ParseRulesElement(xmlRoot);
-
-            return new RuleList(rootName, null, rules);
+            return ParseRulesElement(xmlRoot, "Root");
         }
 
         #region Constructing instances using factories and custom type registrations
@@ -135,9 +126,9 @@ namespace UrlRewrite.Configuration
 
         #region Parsing XML elements
 
-        private IList<IRule> ParseRulesElement(XElement element)
+        private IRuleList ParseRulesElement(XElement element, string defaultName)
         {
-            return element
+            var rules = element
                 .Nodes()
                 .Where(n => n.NodeType == XmlNodeType.Element)
                 .Cast<XElement>()
@@ -155,6 +146,27 @@ namespace UrlRewrite.Configuration
                 })
                 .Where(r => r != null)
                 .ToList();
+
+            var name = defaultName;
+            var stopProcessing = false;
+
+            if (element.HasAttributes)
+            {
+                foreach (var attribute in element.Attributes())
+                {
+                    switch (attribute.Name.LocalName.ToLower())
+                    {
+                        case "name":
+                            name = attribute.Value;
+                            break;
+                        case "stopprocessing":
+                            stopProcessing = attribute.Value.ToLower() == "true";
+                            break;
+                    }
+                }
+            }
+
+            return new RuleList(name, null, rules, stopProcessing);
         }
 
         private IRule ParseRuleElement(XElement element)
@@ -199,6 +211,9 @@ namespace UrlRewrite.Configuration
                         break;
                     case "rewrite":
                         action = CombineActions(action, ParseRewriteElement(child));
+                        break;
+                    case "rules":
+                        action = CombineActions(action, ParseRulesElement(child, "Rule list " + Guid.NewGuid()) as IAction);
                         break;
                 }
             }
