@@ -48,8 +48,7 @@
     <Compile Include="Actions\CustomResponse.cs" />
     <Compile Include="Actions\Append.cs" />
     <Compile Include="Actions\Replace.cs" />
-    <Compile Include="Actions\TemporaryRedirect.cs" />
-    <Compile Include="Actions\PermenantRedirect.cs" />
+    <Compile Include="Actions\Redirect.cs" />
     <Compile Include="Actions\None.cs" />
     <Compile Include="Actions\Truncate.cs" />
     <Compile Include="Conditions\ConditionList.cs" />
@@ -58,7 +57,6 @@
     <Compile Include="Conditions\ValueGetter.cs" />
     <Compile Include="Conditions\StringMatch.cs" />
     <Compile Include="Configuration\StandardRuleParser.cs" />
-    <Compile Include="Configuration\TestRuleParser.cs" />
     <Compile Include="Interfaces\CombinationLogic.cs" />
     <Compile Include="Interfaces\ExecutionMode.cs" />
     <Compile Include="Interfaces\IDescribable.cs" />

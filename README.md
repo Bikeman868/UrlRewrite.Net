@@ -122,7 +122,7 @@ For any path like `/company/.../*.aspx` if the session belongs to a customer app
               <condition scope="pathElement" index="2" test="equals" value="financials" />
             </conditions>
             <rewrite to="pathElement" toIndex="1" from=="literal" fromIndex="entity" />
-            <action type="redirectPermenant" />
+            <action type="redirect" redirectType="301" />
     	  </rule>
 		  <rule name="flag customers">
 			<condition test="isCustomer" />
@@ -343,8 +343,8 @@ return a response back to the client even if the `stopProcessing` attribute of t
 Attributes:
 * `type` must be one of `Rewrite`, `Redirect`, `CustomResponse`, `AbortRequest` or `None`. Note that `None` is
 supported in this Rewrite Module for backward compatibility only, you can achieve the same result by ommitting the `<action>` element. 
-Note that this Rewrite Module adds a new action type of `RedirectPermenant` and also allows you to write your own custom action types.
 Note that this Rewrite Module depreciates the `Rewrite` action type in favor of a more powerful `<rewrite>` element.
+* `redirectType` can be 301, 302, 303 or 307. The default is 307 if this attribute is omitted.
 * `url` the URL to redirect or rewrite. If this is not provided the last rewrite action will define the url to redirect to.
 * `statusLine` only applies when `type` is `CustomResponse`. Sets the status line of the response so that you can return 503 or 204 or whatever.
 * `responseLine` only applies when `type` is `CustomResponse`. Sets the body of the response.
@@ -416,7 +416,7 @@ Example:
 		  <rule name="Upper case" stopProcessing="true">
 			<condition scope="OriginalPath" test="MatchRegex" value=".*[A-Z].*" ignoreCase="false" />
 			<rewrite to="Path" from="OriginalPath" operation="LowerCase"/>
-			<action type="RedirectPermenant" />
+			<action type="Redirect" redirectType="301"/>
 		  </rule>
 		</rules>
 	  </rule>
@@ -581,7 +581,7 @@ An example of a rule that makes lots of changes to the request follows:
       <rewrite to="PathElement" toIndex="2" from="PathElement" fromIndex="-1" />
       <keep scope="Path" index="2" />
       <keep scope="QueryString" index="page" />
-      <action type="RedirectPermenant" />
+      <action type="Redirect" redirectType="301" />
     </rule>
 ```
 If this rule was run against http://mydomain.com/Companies/Quote/MyCompany.aspx?order=date&Page=3&id=99 

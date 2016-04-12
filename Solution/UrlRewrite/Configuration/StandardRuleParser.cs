@@ -53,10 +53,7 @@ namespace UrlRewrite.Configuration
             switch (actionName.ToLower())
             {
                 case "redirect":
-                    type = typeof(TemporaryRedirect);
-                    break;
-                case "redirectpermenant":
-                    type = typeof(PermenantRedirect);
+                    type = typeof(Redirect);
                     break;
                 case "customresponse":
                     type = typeof(CustomResponse);
@@ -128,6 +125,9 @@ namespace UrlRewrite.Configuration
 
         private IRuleList ParseRulesElement(XElement element, string defaultName)
         {
+            var name = defaultName;
+            var stopProcessing = false;
+
             var rules = element
                 .Nodes()
                 .Where(n => n.NodeType == XmlNodeType.Element)
@@ -146,9 +146,6 @@ namespace UrlRewrite.Configuration
                 })
                 .Where(r => r != null)
                 .ToList();
-
-            var name = defaultName;
-            var stopProcessing = false;
 
             if (element.HasAttributes)
             {
@@ -172,7 +169,7 @@ namespace UrlRewrite.Configuration
         private IRule ParseRuleElement(XElement element)
         {
             var name = "Rule " + Guid.NewGuid();
-            var stopProcessing = true;
+            var stopProcessing = false;
 
             if (element.HasAttributes)
             {
@@ -481,7 +478,7 @@ namespace UrlRewrite.Configuration
         {
             IValueGetter valueGetter = null;
             IAction action = null;
-            var appendQueryString = false;
+            var appendQueryString = true;
 
             if (element.HasAttributes)
             {
@@ -490,10 +487,25 @@ namespace UrlRewrite.Configuration
                     switch (attribute.Name.LocalName.ToLower())
                     {
                         case "url":
-                        {
                             valueGetter = ParseTextWithMacros(attribute.Value);
                             break;
-                        }
+                        case "redirectType":
+                            switch(attribute.Value)
+                            {
+                                case "301":
+                                    action = ConstructAction("redirectPermenant", element);
+                                    break;
+                                case "302":
+                                    action = ConstructAction("Found", element);
+                                    break;
+                                case "303":
+                                    action = ConstructAction("PermenantRedirect", element);
+                                    break;
+                                case "307":
+                                    action = ConstructAction("Redirect", element);
+                                    break;
+                            }
+                            break;
                         case "type":
                             action = ConstructAction(attribute.Value, element);
                             break;
