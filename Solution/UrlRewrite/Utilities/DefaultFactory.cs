@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Web;
 using UrlRewrite.Conditions;
+using UrlRewrite.Configuration;
 using UrlRewrite.Interfaces;
 using UrlRewrite.Request;
 using UrlRewrite.Rules;
@@ -37,6 +38,9 @@ namespace UrlRewrite.Utilities
 
             if (type == typeof(IRuleResult))
                 return new RuleResult();
+
+            if (type == typeof(ICustomTypeRegistrar))
+                return new CustomTypeRegistrar();
 
             var constructor = type.GetConstructor(Type.EmptyTypes);
             return constructor == null ? null : constructor.Invoke(null);

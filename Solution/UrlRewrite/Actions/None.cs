@@ -6,9 +6,9 @@ namespace UrlRewrite.Actions
     /// <summary>
     /// Truncates the path of the URL to specified number of elements
     /// </summary>
-    internal class None: Action, IAction
+    internal class None: Action
     {
-        public void PerformAction(
+        public override void PerformAction(
             IRequestInfo requestInfo,
             IRuleResult ruleResult,
             out bool stopProcessing,
@@ -23,13 +23,9 @@ namespace UrlRewrite.Actions
             return "Do nothing";
         }
 
-        public string ToString(IRequestInfo request)
+        public override string ToString(IRequestInfo request)
         {
             return "do nothing";
-        }
-
-        public void Describe(TextWriter writer, string indent, string indentText)
-        {
         }
     }
 }

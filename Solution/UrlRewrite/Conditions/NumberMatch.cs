@@ -15,6 +15,11 @@ namespace UrlRewrite.Conditions
         private int _defaultValue;
         private Func<IRuleResult, int, bool> _testFunc;
 
+        public ICondition Initialize(XElement configuration, IValueGetter valueGetter)
+        {
+            return this;
+        }
+
         public INumberMatch Initialize(
             IValueGetter valueGetter, 
             CompareOperation compareOperation,
@@ -57,10 +62,6 @@ namespace UrlRewrite.Conditions
             var description = "request " + _valueGetter + " (default " + _defaultValue + ")";
             description += (_inverted ? " not" : "") + " " + _compareOperation + " " + _match;
             return description;
-        }
-
-        public void Initialize(XElement configuration)
-        {
         }
 
         public string ToString(IRequestInfo request)

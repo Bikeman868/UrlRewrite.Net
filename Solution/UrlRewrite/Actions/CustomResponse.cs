@@ -5,7 +5,7 @@ using UrlRewrite.Interfaces;
 
 namespace UrlRewrite.Actions
 {
-    internal class CustomResponse: Action, IAction
+    internal class CustomResponse: Action
     {
         private string _statusLine;
         private string _responseLine;
@@ -18,7 +18,7 @@ namespace UrlRewrite.Actions
             _endRequest = endRequest;
         }
 
-        public override void Initialize(XElement configuration)
+        public override IAction Initialize(XElement configuration)
         {
             _statusLine = "HTTP/1.1 200 OK";
             _responseLine = "OK";
@@ -38,9 +38,10 @@ namespace UrlRewrite.Actions
                     }
                 }
             }
+            return base.Initialize(configuration);
         }
 
-        public void PerformAction(
+        public override void PerformAction(
             IRequestInfo requestInfo,
             IRuleResult ruleResult,
             out bool stopProcessing,
@@ -61,14 +62,9 @@ namespace UrlRewrite.Actions
             return "Return a custom response";
         }
 
-        public string ToString(IRequestInfo requestInfo)
+        public override string ToString(IRequestInfo requestInfo)
         {
             return "return a custom response";
-        }
-
-        public void Describe(TextWriter writer, string indent, string indentText)
-        {
-            writer.WriteLine(indent + ToString());
         }
     }
 }

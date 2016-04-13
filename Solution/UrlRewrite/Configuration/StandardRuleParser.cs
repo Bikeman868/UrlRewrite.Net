@@ -17,10 +17,12 @@ namespace UrlRewrite.Configuration
     internal class StandardRuleParser: IRuleParser
     {
         private readonly IFactory _factory;
+        private readonly ICustomTypeRegistrar _customTypeRegistrar;
 
         public StandardRuleParser(IFactory factory)
         {
             _factory = factory;
+            _customTypeRegistrar = factory.Create<ICustomTypeRegistrar>();
         }
 
         public IRuleList Parse(Stream stream)
@@ -65,21 +67,12 @@ namespace UrlRewrite.Configuration
                     type = typeof(None);
                     break;
                 default:
-                    // TODO: Look up list of registered custom actions
-                    return null;
+                    return _customTypeRegistrar.ConstructAction(actionName, configuration);
             }
 
             var action = _factory.Create(type) as IAction;
             if (action != null) action.Initialize(configuration);
             return action;
-        }
-
-        private ICondition ConstructCondition(string conditionName, XElement configuration)
-        {
-            Type type = null;
-            var condition = _factory.Create(type) as ICondition;
-            if (condition != null) condition.Initialize(configuration);
-            return condition;
         }
 
         private IOperation ConstructOperation(string operationName, XElement configuration)
@@ -100,8 +93,7 @@ namespace UrlRewrite.Configuration
                     type = typeof(UrlDecodeOperation);
                     break;
                 default:
-                    // TODO: Look up list of registered custom operations
-                    return null;
+                    return _customTypeRegistrar.ConstructOperation(operationName, configuration);
             }
 
             var operation = _factory.Create(type) as IOperation;
@@ -316,6 +308,7 @@ namespace UrlRewrite.Configuration
             var valueIsANumber = false;
 
             var compareOperation = CompareOperation.MatchRegex;
+            string customConditionName = null;
             var inverted = false;
             var ignoreCase = true;
 
@@ -333,7 +326,8 @@ namespace UrlRewrite.Configuration
                             indexIsANumber = int.TryParse(attribute.Value, out scopeIndexInt);
                             break;
                         case "test":
-                            Enum.TryParse(attribute.Value, true, out compareOperation);
+                            if (!Enum.TryParse(attribute.Value, true, out compareOperation))
+                                customConditionName = attribute.Value;
                             break;
                         case "value":
                             text = attribute.Value;
@@ -353,10 +347,14 @@ namespace UrlRewrite.Configuration
             {
                 case Scope.PathElement:
                 case Scope.OriginalPathElement:
+                case Scope.ConditionGroup:
+                case Scope.MatchGroup:
                     isNumericIndex = true;
                     isNumericValue = false;
                     break;
+                case Scope.ServerVariable:
                 case Scope.Header:
+                case Scope.OriginalHeader:
                     isNumericIndex = false;
                     isNumericValue = valueIsANumber;
                     break;
@@ -370,12 +368,19 @@ namespace UrlRewrite.Configuration
                     break;
             }
 
-            IValueGetter valueGetter;
-            valueGetter = isNumericIndex ? ConstructValueGetter(scope, scopeIndexInt) : ConstructValueGetter(scope, scopeIndexString);
+            var valueGetter = isNumericIndex 
+                ? ConstructValueGetter(scope, scopeIndexInt) 
+                : ConstructValueGetter(scope, scopeIndexString);
 
+            if (customConditionName != null)
+                return _customTypeRegistrar.ConstructCondition(customConditionName, element, valueGetter);
+            
             if (isNumericValue)
-                return _factory.Create<INumberMatch>().Initialize(valueGetter, compareOperation, value, inverted, defaultValue);
-            return _factory.Create<IStringMatch>().Initialize(valueGetter, compareOperation, text, inverted, ignoreCase);
+                return _factory.Create<INumberMatch>()
+                    .Initialize(valueGetter, compareOperation, value, inverted, defaultValue);
+
+            return _factory.Create<IStringMatch>()
+                .Initialize(valueGetter, compareOperation, text, inverted, ignoreCase);
         }
 
         private ICondition ParseConditionsAddElement(XElement element)

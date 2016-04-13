@@ -55,8 +55,9 @@ namespace UrlRewrite.Conditions
             return this;
         }
 
-        public void Initialize(XElement configuration)
+        public ICondition Initialize(XElement configuration, IValueGetter valueGetter)
         {
+            return this;
         }
 
         public bool Test(IRequestInfo request, IRuleResult ruleResult)

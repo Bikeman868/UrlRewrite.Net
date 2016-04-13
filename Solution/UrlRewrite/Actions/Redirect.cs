@@ -8,7 +8,7 @@ using UrlRewrite.Utilities;
 
 namespace UrlRewrite.Actions
 {
-    internal class Redirect : Action, IAction
+    internal class Redirect : Action
     {
         private Action<IRequestInfo, string> _redirectAction;
         private string _code;
@@ -21,7 +21,7 @@ namespace UrlRewrite.Actions
             _endRequest = endRequest;
         }
 
-        public void PerformAction(
+        public override void PerformAction(
             IRequestInfo requestInfo,
             IRuleResult ruleResult,
             out bool stopProcessing,
@@ -37,7 +37,7 @@ namespace UrlRewrite.Actions
             endRequest = _endRequest;
         }
 
-        public override void Initialize(XElement configuration)
+        public override IAction Initialize(XElement configuration)
         {
             var redirectTypeAttribute = configuration.Attributes().FirstOrDefault(a => a.Name.LocalName.ToLower() == "redirectType");
             _code = redirectTypeAttribute == null ? "307" : redirectTypeAttribute.Value;
@@ -67,6 +67,7 @@ namespace UrlRewrite.Actions
                 default:
                     throw new UrlRewriteException("Unknown redirection type code. Supported values are 301, 302, 303 and 307");
             }
+            return base.Initialize(configuration);
         }
 
         public override string ToString()
@@ -74,14 +75,9 @@ namespace UrlRewrite.Actions
             return "Redirect to new URL with " + _code + " code";
         }
 
-        public string ToString(IRequestInfo requestInfo)
+        public override string ToString(IRequestInfo requestInfo)
         {
             return "redirect to '" + requestInfo.NewUrlString + "' with " + _code + " code";
-        }
-
-        public void Describe(TextWriter writer, string indent, string indentText)
-        {
-            writer.WriteLine(indent + "Redirect to new URL with " + _code + " code");
         }
     }
 }

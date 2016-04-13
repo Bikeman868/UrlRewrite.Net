@@ -11,7 +11,7 @@ namespace UrlRewrite.Actions
     /// <summary>
     /// Truncates the path of the URL to specified number of elements
     /// </summary>
-    internal class Truncate: Action, IAction
+    internal class Truncate: Action
     {
         private readonly int _maximumDepth;
 
@@ -20,7 +20,7 @@ namespace UrlRewrite.Actions
             _maximumDepth = maximumDepth;
         }
 
-        public void PerformAction(
+        public override void PerformAction(
             IRequestInfo requestInfo,
             IRuleResult ruleResult,
             out bool stopProcessing,
@@ -38,14 +38,9 @@ namespace UrlRewrite.Actions
             return "Truncate the URL path to a maximum depth of " + _maximumDepth;
         }
 
-        public string ToString(IRequestInfo request)
+        public override string ToString(IRequestInfo request)
         {
             return "truncate the URL path to a maximum depth of " + _maximumDepth;
-        }
-
-        public void Describe(TextWriter writer, string indent, string indentText)
-        {
-            writer.WriteLine(indent + ToString());
         }
     }
 }

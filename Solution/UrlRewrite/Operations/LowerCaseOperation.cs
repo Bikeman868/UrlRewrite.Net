@@ -11,8 +11,9 @@ namespace UrlRewrite.Operations
             return ReferenceEquals(value, null) ? string.Empty : value.ToLower();
         }
 
-        public void Initialize(XElement configuration)
+        public IOperation Initialize(XElement configuration)
         {
+            return this;
         }
 
         public string ToString(IRequestInfo requestInfo)

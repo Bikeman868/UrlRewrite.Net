@@ -11,7 +11,7 @@ namespace UrlRewrite.Actions
     /// This action executes a list of other actions. This exists to simplify rules which
     /// now only have to have a single action to execute where that action can be an ActionList
     /// </summary>
-    internal class ActionList: Action, IAction
+    internal class ActionList: Action
     {
         private List<IAction> _actions;
 
@@ -41,7 +41,7 @@ namespace UrlRewrite.Actions
             return this;
         }
 
-        public void PerformAction(
+        public override void PerformAction(
             IRequestInfo requestInfo,
             IRuleResult ruleResult,
             out bool stopProcessing,
@@ -85,16 +85,12 @@ namespace UrlRewrite.Actions
             return "list of " + count + " actions";
         }
 
-        public void Initialize(XElement configuration)
-        {
-        }
-
-        public string ToString(IRequestInfo requestInfo)
+        public override string ToString(IRequestInfo requestInfo)
         {
             return ToString();
         }
 
-        public void Describe(TextWriter writer, string indent, string indentText)
+        public override void Describe(TextWriter writer, string indent, string indentText)
         {
             if (_actions != null && _actions.Count > 0)
             {

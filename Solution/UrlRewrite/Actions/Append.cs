@@ -6,7 +6,7 @@ using UrlRewrite.Utilities;
 
 namespace UrlRewrite.Actions
 {
-    internal class Append: Action, IAction
+    internal class Append: Action
     {
         private readonly Scope _scope;
         private readonly string _scopeIndex;
@@ -44,7 +44,7 @@ namespace UrlRewrite.Actions
             }
         }
 
-        public void PerformAction(
+        public override void PerformAction(
             IRequestInfo requestInfo,
             IRuleResult ruleResult,
             out bool stopProcessing,
@@ -93,17 +93,12 @@ namespace UrlRewrite.Actions
             return text;
         }
 
-        public string ToString(IRequestInfo request)
+        public override string ToString(IRequestInfo request)
         {
             var text = "append " + _valueGetter + " to " + _scope;
             if (!string.IsNullOrEmpty(_scopeIndex))
                 text += "[" + _scopeIndex + "]";
             return text;
-        }
-
-        public void Describe(TextWriter writer, string indent, string indentText)
-        {
-            writer.WriteLine(indent + ToString());
         }
     }
 }

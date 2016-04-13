@@ -6,7 +6,7 @@ using UrlRewrite.Utilities;
 
 namespace UrlRewrite.Actions
 {
-    internal class Replace: Action, IAction
+    internal class Replace: Action
     {
         private readonly Scope _scope;
         private readonly string _scopeIndex;
@@ -44,7 +44,7 @@ namespace UrlRewrite.Actions
             }
         }
 
-        public void PerformAction(
+        public override void PerformAction(
             IRequestInfo requestInfo,
             IRuleResult ruleResult,
             out bool stopProcessing,
@@ -71,8 +71,25 @@ namespace UrlRewrite.Actions
                     requestInfo.ParametersChanged();
                     break;
                 case Scope.PathElement:
-                    requestInfo.NewPath[_scopeIndexValue] = value;
-                    requestInfo.PathChanged();
+                    if (_scopeIndexValue == 0)
+                        requestInfo.NewPathString = value;
+                    else if (_scopeIndexValue > 0)
+                    {
+                        if (_scopeIndexValue < requestInfo.NewPath.Count)
+                        {
+                            requestInfo.NewPath[_scopeIndexValue] = value;
+                            requestInfo.PathChanged();
+                        }
+                    }
+                    else
+                    {
+                        var index = requestInfo.NewPath.Count + _scopeIndexValue;
+                        if (index >= 0)
+                        {
+                            requestInfo.NewPath[index] = value;
+                            requestInfo.PathChanged();
+                        }
+                    }
                     break;
                 case Scope.ServerVariable:
                     requestInfo.SetServerVariable(_scopeIndex, value);
@@ -92,18 +109,13 @@ namespace UrlRewrite.Actions
             return text;
         }
 
-        public string ToString(IRequestInfo request)
+        public override string ToString(IRequestInfo request)
         {
             var text = "replace " + _scope;
             if (!string.IsNullOrEmpty(_scopeIndex))
                 text += "[" + _scopeIndex + "]";
             text += " with " + _valueGetter;
             return text;
-        }
-
-        public void Describe(TextWriter writer, string indent, string indentText)
-        {
-            writer.WriteLine(indent + ToString());
         }
     }
 }

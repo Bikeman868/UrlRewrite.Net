@@ -59,6 +59,7 @@
     <Compile Include="Configuration\StandardRuleParser.cs" />
     <Compile Include="Interfaces\CombinationLogic.cs" />
     <Compile Include="Interfaces\ExecutionMode.cs" />
+    <Compile Include="Interfaces\ICustomTypeRegistrar.cs" />
     <Compile Include="Interfaces\IDescribable.cs" />
     <Compile Include="Interfaces\IPropertyBag.cs" />
     <Compile Include="Interfaces\IRuleList.cs" />
@@ -90,6 +91,7 @@
     <Compile Include="Rules\RuleListResult.cs" />
     <Compile Include="Rules\RuleResult.cs" />
     <Compile Include="Rules\Rule.cs" />
+    <Compile Include="Configuration\CustomTypeRegistrar.cs" />
     <Compile Include="Utilities\DefaultFactory.cs" />
     <Compile Include="Utilities\PerformanceTimer.cs" />
     <Compile Include="Utilities\PropertyBag.cs" />

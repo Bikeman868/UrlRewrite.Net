@@ -146,8 +146,9 @@ namespace UrlRewrite.Conditions
             return description;
         }
 
-        public void Initialize(XElement configuration)
+        public ICondition Initialize(XElement configuration, IValueGetter valueGetter)
         {
+            return this;
         }
 
         public string ToString(IRequestInfo request)

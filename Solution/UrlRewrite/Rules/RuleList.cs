@@ -69,10 +69,7 @@ namespace UrlRewrite.Rules
 
                         if (ruleResult.EndRequest) ruleListResult.EndRequest = true;
                         if (ruleResult.StopProcessing)
-                        {
-                            ruleListResult.StopProcessing = true;
                             break;
-                        }
                     }
                 }
             }
@@ -89,8 +86,9 @@ namespace UrlRewrite.Rules
             return "list of " + count + " rules '" + _name + "'";
         }
 
-        public void Initialize(XElement configuration)
+        public IAction Initialize(XElement configuration)
         {
+            return this;
         }
 
         public string ToString(IRequestInfo request)

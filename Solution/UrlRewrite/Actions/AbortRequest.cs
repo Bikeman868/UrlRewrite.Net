@@ -5,9 +5,9 @@ using UrlRewrite.Interfaces;
 
 namespace UrlRewrite.Actions
 {
-    internal class AbortRequest: Action, IAction
+    internal class AbortRequest: Action
     {
-        public void PerformAction(
+        public override void PerformAction(
             IRequestInfo requestInfo,
             IRuleResult ruleResult,
             out bool stopProcessing,
@@ -22,14 +22,9 @@ namespace UrlRewrite.Actions
             return "Abort the request";
         }
 
-        public string ToString(IRequestInfo requestInfo)
+        public override string ToString(IRequestInfo requestInfo)
         {
             return "abort the request";
-        }
-
-        public void Describe(TextWriter writer, string indent, string indentText)
-        {
-            writer.WriteLine(indent + "Abort the request");
         }
     }
 }

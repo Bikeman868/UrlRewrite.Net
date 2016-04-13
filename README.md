@@ -218,6 +218,7 @@ The Rewrite Module needs to be able to resolve the following interfaces via the 
 * `UrlRewrite.Interfaces.INumberMatch`
 * `UrlRewrite.Interfaces.IRequestInfo`
 * `UrlRewrite.Interfaces.IRuleResult`
+* `UrlRewrite.Interfaces.ICustomTypeRegistrar`
 
 # Initializing the Rewrite Module
 You must call the Rewrite Module static `Initialize()` method once only when your application starts up. You can do this
