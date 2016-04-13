@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
@@ -132,6 +134,8 @@ namespace UrlRewrite.Configuration
                             return ParseRuleElement(e);
                         case "rewritemaps":
                             return ParseRewriteMapsElement(e);
+                        case "assembly":
+                            return ParseAssemblyElement(e);
                         default:
                             return null;
                     }
@@ -476,6 +480,46 @@ namespace UrlRewrite.Configuration
 
         private IRule ParseRewriteMapsElement(XElement element)
         {
+            return null;
+        }
+
+        private IRule ParseAssemblyElement(XElement element)
+        {
+            var filenameAttribute = element.Attributes().FirstOrDefault(a => a.Name.LocalName.ToLower() == "filename");
+            if (filenameAttribute == null) return null;
+
+            var filename = filenameAttribute.Value;
+            var assembly = Assembly.LoadFrom(filename);
+
+            foreach (var classElement in element.Elements())
+            {
+                var nameAttribute = classElement.Attributes().FirstOrDefault(a => a.Name.LocalName.ToLower() == "name");
+                var typeAttribute = classElement.Attributes().FirstOrDefault(a => a.Name.LocalName.ToLower() == "type");
+                var classNameAttribute = classElement.Attributes().FirstOrDefault(a => a.Name.LocalName.ToLower() == "classname");
+
+                if (nameAttribute == null || typeAttribute == null || classNameAttribute == null)
+                    continue;
+
+                var type = assembly.GetType(classNameAttribute.Value);
+                switch (typeAttribute.Value.ToLower())
+                {
+                    case "operation":
+                        if (!typeof (IOperation).IsAssignableFrom(type))
+                            throw new UrlRewriteException("Type " + type.FullName + " from " + filename + " does not implement IOperation");
+                        _customTypeRegistrar.RegisterOperation(type, nameAttribute.Value);
+                        break;
+                    case "action":
+                        if (!typeof(IAction).IsAssignableFrom(type))
+                            throw new UrlRewriteException("Type " + type.FullName + " from " + filename + " does not implement IAction");
+                        _customTypeRegistrar.RegisterAction(type, nameAttribute.Value);
+                        break;
+                    case "condition":
+                        if (!typeof(ICondition).IsAssignableFrom(type))
+                            throw new UrlRewriteException("Type " + type.FullName + " from " + filename + " does not implement ICondition");
+                        _customTypeRegistrar.RegisterCondition(type, nameAttribute.Value);
+                        break;
+                }
+            }
             return null;
         }
 
