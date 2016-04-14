@@ -1,23 +1,10 @@
-<action 
-	type="CustomResponse" 
-	statusLine="HTTP/1.1 404 Not Found" 
-	responseLine="The requested resource was not found on this server." />
+
 
 <action type="AbortRequest" />
-
-<action type="<custom action name>" />
-
-<rewrite operation="<custom operation name>" />
 
 <delete scope="<scope>" index="<index>" />
 
 <keep scope="<scope>" index="<index>" />
-
-<assembly fileName="">
-  <class name="CompanyNameToId" type="operation" className="MyCompany.Rewrite.Operations.CompanyNameToId" />
-  <class name="IsCustomer" type="condition" className="MyCompany.Rewrite.Condition.IsCustomer" />
-  <class name="MyAction" type="operation" className="MyCompany.Rewrite.Actions.MyAction" />
-</assembly>
 
 <insert scope="pathElement" scopeIndex="0" value="mobile" />
 
