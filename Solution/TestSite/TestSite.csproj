@@ -76,6 +76,7 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Code\CustomAction.cs" />
     <Compile Include="rewriteOne.aspx.cs">
       <DependentUpon>rewriteOne.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>

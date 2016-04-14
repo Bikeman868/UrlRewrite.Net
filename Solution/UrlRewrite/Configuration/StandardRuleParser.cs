@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Web.Compilation;
 using System.Xml;
 using System.Xml.Linq;
 using UrlRewrite.Actions;
@@ -493,7 +494,7 @@ namespace UrlRewrite.Configuration
             if (filenameAttribute == null) return null;
 
             var filename = filenameAttribute.Value;
-            var assembly = Assembly.LoadFrom(filename);
+            var assembly = Assembly.Load(filename);
 
             foreach (var classElement in element.Elements())
             {
@@ -504,7 +505,11 @@ namespace UrlRewrite.Configuration
                 if (nameAttribute == null || typeAttribute == null || classNameAttribute == null)
                     continue;
 
-                var type = assembly.GetType(classNameAttribute.Value);
+                var type = assembly.GetType(classNameAttribute.Value, false, true);
+                if (type == null) type = BuildManager.GetType(classNameAttribute.Value, false);
+                if (type == null)
+                    throw new UrlRewriteException("Unable to load type " + classNameAttribute.Value + " from " + assembly.FullName);
+
                 switch (typeAttribute.Value.ToLower())
                 {
                     case "operation":
@@ -686,7 +691,7 @@ namespace UrlRewrite.Configuration
             }
 
             if (input.StartsWith("HTTP_"))
-                return ConstructValueGetter(Scope.Header, input.Substring(5));
+                return ConstructValueGetter(Scope.Header, input.Substring(5).Replace("_", "-"));
             return ConstructValueGetter(Scope.ServerVariable, input);
         }
      

@@ -40,7 +40,7 @@ namespace UrlRewrite.Utilities
                 return new RuleResult();
 
             if (type == typeof(ICustomTypeRegistrar))
-                return new CustomTypeRegistrar();
+                return new CustomTypeRegistrar(this);
 
             var constructor = type.GetConstructor(Type.EmptyTypes);
             return constructor == null ? null : constructor.Invoke(null);
