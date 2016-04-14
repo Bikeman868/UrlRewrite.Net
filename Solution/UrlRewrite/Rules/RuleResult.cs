@@ -9,6 +9,7 @@ namespace UrlRewrite.Rules
         public List<IAction> Actions { get; set; }
         public bool StopProcessing { get; set; }
         public bool EndRequest { get; set; }
+        public bool IsDynamic { get; set; }
 
         private IPropertyBag _properties;
         public IPropertyBag Properties
@@ -19,5 +20,6 @@ namespace UrlRewrite.Rules
                 return _properties;
             }
         }
+
     }
 }

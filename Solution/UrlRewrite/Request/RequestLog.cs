@@ -68,12 +68,11 @@ namespace UrlRewrite.Request
             IncreaseIndent();
         }
 
-        void IRequestLog.TraceRuleListEnd(IRequestInfo request, IRuleList ruleList, bool matched, IRuleListResult ruleListResult)
+        void IRequestLog.TraceRuleListEnd(IRequestInfo request, IRuleList ruleList, IRuleListResult ruleListResult)
         {
             ReduceIndent();
             Output(
                 ruleList.ToString(request),
-                (matched ? "was executed." : "does not match this request."),
                 (ruleListResult.RuleResults != null && ruleListResult.RuleResults.Count > 0 ? ruleListResult.RuleResults.Count + " rules evaluated." : ""),
                 (ruleListResult.StopProcessing ? "Stop processing." : ""),
                 (ruleListResult.EndRequest ? "End request." : ""));
@@ -91,6 +90,7 @@ namespace UrlRewrite.Request
             Output(
                 rule.ToString(request),
                 (matched ? "was executed." : "does not match this request."),
+                (ruleResult.IsDynamic ? "Results are dynamic and can not be cached." : ""),
                 (ruleResult.StopProcessing ? "Stop processing." : ""),
                 (ruleResult.EndRequest ? "End request." : ""));
         }

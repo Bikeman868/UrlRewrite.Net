@@ -10,6 +10,7 @@ namespace UrlRewrite.Rules
         private readonly string _name;
         private readonly ICondition _condition;
         private readonly bool _stopProcessing;
+        private readonly bool _isDynamic;
         private readonly List<IAction> _actions;
         private readonly IRuleList _childRules;
 
@@ -17,12 +18,14 @@ namespace UrlRewrite.Rules
             string name, 
             ICondition condition, 
             IAction action, 
-            bool stopProcessing = false)
+            bool stopProcessing = false,
+            bool isDynamic = false)
         {
             _name = name;
             _condition = condition;
             _actions = action == null ? null : new List<IAction> { action };
             _stopProcessing = stopProcessing;
+            _isDynamic = isDynamic;
         }
 
         public string Name { get { return _name; } }
@@ -46,6 +49,8 @@ namespace UrlRewrite.Rules
             if (conditionIsTrue)
             {
                 result.StopProcessing = _stopProcessing;
+                result.IsDynamic = _isDynamic;
+
                 if (_actions != null)
                 {
                     result.Actions = new List<IAction>();

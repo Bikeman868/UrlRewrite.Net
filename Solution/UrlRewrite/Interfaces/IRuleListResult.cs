@@ -6,6 +6,7 @@ namespace UrlRewrite.Interfaces
     {
         bool StopProcessing { get; }
         bool EndRequest { get; }
+        bool IsDynamic { get; }
         List<IRuleResult> RuleResults { get; }
     }
 }

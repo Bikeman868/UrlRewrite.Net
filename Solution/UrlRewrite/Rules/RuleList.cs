@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Net.Mime;
 using System.Xml.Linq;
 using UrlRewrite.Interfaces;
 
@@ -9,19 +8,16 @@ namespace UrlRewrite.Rules
     internal class RuleList: IRuleList, IAction
     {
         private readonly string _name;
-        private readonly ICondition _condition;
         private readonly bool _stopProcessing;
 
         private IList<IRule> _rules;
 
         public RuleList(
             string name, 
-            ICondition condition, 
             IList<IRule> rules = null,
             bool stopProcessing = false)
         {
             _name = name;
-            _condition = condition;
             _rules = rules;
             _stopProcessing = stopProcessing;
         }
@@ -45,37 +41,27 @@ namespace UrlRewrite.Rules
 
             var ruleListResult = new RuleListResult();
 
-            var conditionIsTrue = true;
-            if (_condition != null)
+            if (_rules != null && _rules.Count > 0)
             {
-                conditionIsTrue = _condition.Test(requestInfo);
+                ruleListResult.RuleResults = new List<IRuleResult>();
 
-                if (requestInfo.ExecutionMode != ExecutionMode.ExecuteOnly)
-                    requestInfo.Log.TraceCondition(requestInfo, _condition, conditionIsTrue);
-            }
-
-            if (conditionIsTrue)
-            {
-                ruleListResult.StopProcessing = _stopProcessing;
-
-                if (_rules != null && _rules.Count > 0)
+                foreach (var rule in _rules)
                 {
-                    ruleListResult.RuleResults = new List<IRuleResult>();
+                    var ruleResult = rule.Evaluate(requestInfo);
+                    ruleListResult.RuleResults.Add(ruleResult);
 
-                    foreach (var rule in _rules)
+                    if (ruleResult.EndRequest) ruleListResult.EndRequest = true;
+                    if (ruleResult.IsDynamic) ruleListResult.IsDynamic = true;
+                    if (ruleResult.StopProcessing)
                     {
-                        var ruleResult = rule.Evaluate(requestInfo);
-                        ruleListResult.RuleResults.Add(ruleResult);
-
-                        if (ruleResult.EndRequest) ruleListResult.EndRequest = true;
-                        if (ruleResult.StopProcessing)
-                            break;
+                        ruleListResult.StopProcessing = _stopProcessing;
+                        break;
                     }
                 }
             }
 
             if (requestInfo.ExecutionMode != ExecutionMode.ExecuteOnly)
-                requestInfo.Log.TraceRuleListEnd(requestInfo, this, conditionIsTrue, ruleListResult);
+                requestInfo.Log.TraceRuleListEnd(requestInfo, this, ruleListResult);
 
             return ruleListResult;
         }
@@ -111,9 +97,6 @@ namespace UrlRewrite.Rules
         {
             writer.WriteLine(indent + _name + " list of rules");
             indent += indentText;
-
-            if (_condition != null) 
-                _condition.Describe(writer, indent, indentText);
 
             if (_rules != null)
                 foreach (var rule in _rules)

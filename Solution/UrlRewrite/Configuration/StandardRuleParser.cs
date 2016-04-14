@@ -159,13 +159,14 @@ namespace UrlRewrite.Configuration
                 }
             }
 
-            return new RuleList(name, null, rules, stopProcessing);
+            return new RuleList(name, rules, stopProcessing);
         }
 
         private IRule ParseRuleElement(XElement element)
         {
             var name = "Rule " + Guid.NewGuid();
             var stopProcessing = false;
+            var isDynamic = false;
 
             if (element.HasAttributes)
             {
@@ -178,6 +179,9 @@ namespace UrlRewrite.Configuration
                             break;
                         case "stopprocessing":
                             stopProcessing = attribute.Value.ToLower() == "true";
+                            break;
+                        case "dynamic":
+                            isDynamic = attribute.Value.ToLower() == "true";
                             break;
                     }
                 }
@@ -211,7 +215,7 @@ namespace UrlRewrite.Configuration
                 }
             }
 
-            return new Rule(name, condition, action, stopProcessing);
+            return new Rule(name, condition, action, stopProcessing, isDynamic);
         }
 
         private ICondition ParseMatchElement(XElement element)

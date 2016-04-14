@@ -11,7 +11,7 @@ namespace UrlRewrite.Interfaces
         void TraceRequestEnd(IRequestInfo request);
 
         void TraceRuleListBegin(IRequestInfo request, IRuleList ruleList);
-        void TraceRuleListEnd(IRequestInfo request, IRuleList ruleList, bool matched, IRuleListResult ruleResult);
+        void TraceRuleListEnd(IRequestInfo request, IRuleList ruleList, IRuleListResult ruleResult);
 
         void TraceRuleBegin(IRequestInfo request, IRule rule);
         void TraceRuleEnd(IRequestInfo request, IRule rule, bool matched, IRuleResult ruleResult);

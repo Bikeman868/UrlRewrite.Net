@@ -39,7 +39,7 @@ namespace UrlRewrite.Actions
 
         public override IAction Initialize(XElement configuration)
         {
-            var redirectTypeAttribute = configuration.Attributes().FirstOrDefault(a => a.Name.LocalName.ToLower() == "redirectType");
+            var redirectTypeAttribute = configuration.Attributes().FirstOrDefault(a => a.Name.LocalName.ToLower() == "redirecttype");
             _code = redirectTypeAttribute == null ? "307" : redirectTypeAttribute.Value;
 
             switch (_code)
