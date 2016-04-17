@@ -1,6 +1,6 @@
-﻿using System.Xml.Linq;
+﻿using UrlRewrite.Interfaces.Utilities;
 
-namespace UrlRewrite.Interfaces
+namespace UrlRewrite.Interfaces.Rules
 {
     public interface IRuleElement : IDescribable
     {

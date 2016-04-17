@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Web.Compilation;
 using System.Xml;
 using System.Xml.Linq;
-using UrlRewrite.Actions;
-using UrlRewrite.Conditions;
 using UrlRewrite.Interfaces;
+using UrlRewrite.Interfaces.Actions;
+using UrlRewrite.Interfaces.Conditions;
+using UrlRewrite.Interfaces.Operations;
+using UrlRewrite.Interfaces.Rules;
 using UrlRewrite.Operations;
-using UrlRewrite.Rules;
 using UrlRewrite.Utilities;
 
 namespace UrlRewrite.Configuration
@@ -22,10 +22,12 @@ namespace UrlRewrite.Configuration
         private readonly IFactory _factory;
         private readonly ICustomTypeRegistrar _customTypeRegistrar;
 
-        public StandardRuleParser(IFactory factory)
+        public StandardRuleParser(
+            IFactory factory,
+            ICustomTypeRegistrar customTypeRegistrar)
         {
             _factory = factory;
-            _customTypeRegistrar = factory.Create<ICustomTypeRegistrar>();
+            _customTypeRegistrar = customTypeRegistrar;
         }
 
         public IRuleList Parse(Stream stream)
@@ -58,16 +60,16 @@ namespace UrlRewrite.Configuration
             switch (actionName.ToLower())
             {
                 case "redirect":
-                    type = typeof(Redirect);
+                    type = typeof(Actions.Redirect);
                     break;
                 case "customresponse":
-                    type = typeof(CustomResponse);
+                    type = typeof(Actions.CustomResponse);
                     break;
                 case "abortrequest":
-                    type = typeof(AbortRequest);
+                    type = typeof(Actions.AbortRequest);
                     break;
                 case "none":
-                    type = typeof(None);
+                    type = typeof(Actions.None);
                     break;
                 default:
                     return _customTypeRegistrar.ConstructAction(actionName, configuration);
@@ -160,7 +162,7 @@ namespace UrlRewrite.Configuration
                 }
             }
 
-            return new RuleList(name, rules, stopProcessing);
+            return _factory.Create<IRuleList>().Initialize(name, rules, stopProcessing);
         }
 
         private IRule ParseRuleElement(XElement element)
@@ -216,7 +218,7 @@ namespace UrlRewrite.Configuration
                 }
             }
 
-            return new Rule(name, condition, action, stopProcessing, isDynamic);
+            return _factory.Create<IRule>().Initialize(name, condition, action, stopProcessing, isDynamic);
         }
 
         private ICondition ParseMatchElement(XElement element)
@@ -281,7 +283,7 @@ namespace UrlRewrite.Configuration
                 }
             }
 
-            ICondition result = new ConditionList().Initialize(logic, trackAllCaptures);
+            ICondition result = _factory.Create<IConditionList>().Initialize(logic, trackAllCaptures);
 
             foreach (var child in element.Elements())
             {
@@ -480,7 +482,7 @@ namespace UrlRewrite.Configuration
             }
 
             var value = _factory.Create<IValueGetter>().Initialize(fromScope, fromIndex, operation);
-            return new Replace(toScope, toIndex, value);
+            return _factory.Create<IReplaceAction>().Initialize(toScope, toIndex, value);
         }
 
         private IRule ParseRewriteMapsElement(XElement element)
@@ -574,13 +576,13 @@ namespace UrlRewrite.Configuration
                 }
             }
 
-            var actionList = new ActionList();
+            var actionList = _factory.Create<IActionList>().Initialize();
 
             if (valueGetter != null)
-                actionList.Add(new Replace(Scope.Url, null, valueGetter));
+                actionList.Add(_factory.Create<IReplaceAction>().Initialize(Scope.Url, null, valueGetter));
 
             if (appendQueryString)
-                actionList.Add(new Append(Scope.QueryString, null, ConstructValueGetter(Scope.OriginalQueryString)));
+                actionList.Add(_factory.Create<IAppendAction>().Initialize(Scope.QueryString, null, ConstructValueGetter(Scope.OriginalQueryString)));
 
             if (action != null)
                 actionList.Add(action);
@@ -687,7 +689,7 @@ namespace UrlRewrite.Configuration
 
                 // TODO: custom operations
 
-                return operation == null ? operationInputGetter : new ValueConcatenator().Initialize(operationInputGetter, operation);
+                return operation == null ? operationInputGetter : _factory.Create<IValueConcatenator>().Initialize(operationInputGetter, operation);
             }
 
             if (input.StartsWith("HTTP_"))
@@ -706,7 +708,7 @@ namespace UrlRewrite.Configuration
                     : ConstructValueGetter(Scope.Literal, a.Text))
                 .ToList();
 
-            return areaGetters.Count == 1 ? areaGetters[0] : new ValueConcatenator().Initialize(areaGetters);
+            return areaGetters.Count == 1 ? areaGetters[0] : _factory.Create<IValueConcatenator>().Initialize(areaGetters);
         }
 
         #endregion
@@ -718,11 +720,10 @@ namespace UrlRewrite.Configuration
             if (c2 == null) return c1;
             if (c1 == null) return c2;
 
-            var conditionList = c1 as ConditionList;
+            var conditionList = c1 as IConditionList;
             if (conditionList == null)
             {
-                conditionList = new ConditionList();
-                conditionList.Initialize(CombinationLogic.MatchAll);
+                conditionList = _factory.Create<IConditionList>().Initialize(CombinationLogic.MatchAll);
                 conditionList.Add(c1);
             }
             conditionList.Add(c2);
@@ -734,11 +735,11 @@ namespace UrlRewrite.Configuration
             if (a2 == null) return a1;
             if (a1 == null) return a2;
 
-            var actionList = a1 as ActionList;
+            var actionList = a1 as IActionList;
 
             if (actionList == null)
             {
-                actionList = new ActionList();
+                actionList = _factory.Create<IActionList>().Initialize();
                 actionList.Add(a1);
             }
 

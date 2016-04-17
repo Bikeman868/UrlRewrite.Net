@@ -1,23 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Xml.Linq;
 using UrlRewrite.Interfaces;
+using UrlRewrite.Interfaces.Actions;
+using UrlRewrite.Interfaces.Rules;
 
 namespace UrlRewrite.Actions
 {
     /// <summary>
     /// Truncates the path of the URL to specified number of elements
     /// </summary>
-    internal class Truncate: Action
+    internal class Truncate: Action, ITruncateAction
     {
-        private readonly int _maximumDepth;
+        private int _maximumDepth;
 
-        public Truncate(int maximumDepth)
+        public ITruncateAction Initialize(int maximumDepth)
         {
             _maximumDepth = maximumDepth;
+            return this;
         }
 
         public override void PerformAction(

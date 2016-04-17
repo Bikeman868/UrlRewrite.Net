@@ -5,6 +5,10 @@ using System.Text;
 using UrlRewrite.Actions;
 using UrlRewrite.Conditions;
 using UrlRewrite.Interfaces;
+using UrlRewrite.Interfaces.Actions;
+using UrlRewrite.Interfaces.Conditions;
+using UrlRewrite.Interfaces.Rules;
+using UrlRewrite.Interfaces.Utilities;
 using UrlRewrite.Utilities;
 
 namespace UrlRewrite.Request

@@ -1,6 +1,7 @@
 ﻿using System.Xml.Linq;
+using UrlRewrite.Interfaces.Rules;
 
-namespace UrlRewrite.Interfaces
+namespace UrlRewrite.Interfaces.Conditions
 {
     public interface ICondition : IRuleElement
     {

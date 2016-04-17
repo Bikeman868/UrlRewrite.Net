@@ -31,6 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Ninject">
+      <HintPath>..\packages\Ninject.3.2.2.0\lib\net40\Ninject.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
@@ -44,6 +47,7 @@
     <Compile Include="Actions\Action.cs" />
     <Compile Include="Actions\ActionList.cs" />
     <Compile Include="Actions\AbortRequest.cs" />
+    <Compile Include="Actions\Keep.cs" />
     <Compile Include="Actions\Delete.cs" />
     <Compile Include="Actions\CustomResponse.cs" />
     <Compile Include="Actions\Append.cs" />
@@ -57,29 +61,37 @@
     <Compile Include="Conditions\ValueGetter.cs" />
     <Compile Include="Conditions\StringMatch.cs" />
     <Compile Include="Configuration\StandardRuleParser.cs" />
-    <Compile Include="Interfaces\CombinationLogic.cs" />
+    <Compile Include="Interfaces\Actions\IActionList.cs" />
+    <Compile Include="Interfaces\Actions\IAppendAction.cs" />
+    <Compile Include="Interfaces\Actions\ITruncateAction.cs" />
+    <Compile Include="Interfaces\Actions\IReplaceAction.cs" />
+    <Compile Include="Interfaces\Actions\IDeleteAction.cs" />
+    <Compile Include="Interfaces\Actions\IKeepAction.cs" />
+    <Compile Include="Interfaces\Conditions\CombinationLogic.cs" />
+    <Compile Include="Interfaces\Conditions\IConditionList.cs" />
+    <Compile Include="Interfaces\Conditions\IValueConcatenator.cs" />
     <Compile Include="Interfaces\ExecutionMode.cs" />
     <Compile Include="Interfaces\ICustomTypeRegistrar.cs" />
-    <Compile Include="Interfaces\IDescribable.cs" />
-    <Compile Include="Interfaces\IPropertyBag.cs" />
-    <Compile Include="Interfaces\IRuleList.cs" />
-    <Compile Include="Interfaces\IRuleElement.cs" />
+    <Compile Include="Interfaces\Utilities\IDescribable.cs" />
+    <Compile Include="Interfaces\Utilities\IPropertyBag.cs" />
+    <Compile Include="Interfaces\Rules\IRuleList.cs" />
+    <Compile Include="Interfaces\Rules\IRuleElement.cs" />
     <Compile Include="Interfaces\IFactory.cs" />
     <Compile Include="Interfaces\IRequestInfo.cs" />
-    <Compile Include="Interfaces\IRequestLog.cs" />
-    <Compile Include="Interfaces\ILog.cs" />
-    <Compile Include="Interfaces\IAction.cs" />
-    <Compile Include="Interfaces\ICondition.cs" />
-    <Compile Include="Interfaces\IRule.cs" />
-    <Compile Include="Interfaces\IRuleParser.cs" />
-    <Compile Include="Interfaces\IRuleResult.cs" />
-    <Compile Include="Interfaces\IRuleListResult.cs" />
-    <Compile Include="Interfaces\CompareOperation.cs" />
-    <Compile Include="Interfaces\INumberMatch.cs" />
-    <Compile Include="Interfaces\IOperation.cs" />
-    <Compile Include="Interfaces\IStringMatch.cs" />
-    <Compile Include="Interfaces\IValueGetter.cs" />
-    <Compile Include="Interfaces\Scope.cs" />
+    <Compile Include="Interfaces\Utilities\IRequestLog.cs" />
+    <Compile Include="Interfaces\Utilities\ILog.cs" />
+    <Compile Include="Interfaces\Actions\IAction.cs" />
+    <Compile Include="Interfaces\Conditions\ICondition.cs" />
+    <Compile Include="Interfaces\Rules\IRule.cs" />
+    <Compile Include="Interfaces\Rules\IRuleParser.cs" />
+    <Compile Include="Interfaces\Rules\IRuleResult.cs" />
+    <Compile Include="Interfaces\Rules\IRuleListResult.cs" />
+    <Compile Include="Interfaces\Conditions\CompareOperation.cs" />
+    <Compile Include="Interfaces\Conditions\INumberMatch.cs" />
+    <Compile Include="Interfaces\Operations\IOperation.cs" />
+    <Compile Include="Interfaces\Conditions\IStringMatch.cs" />
+    <Compile Include="Interfaces\Conditions\IValueGetter.cs" />
+    <Compile Include="Interfaces\Conditions\Scope.cs" />
     <Compile Include="Operations\UrlDecodeOperation.cs" />
     <Compile Include="Operations\UrlEncodeOperation.cs" />
     <Compile Include="Operations\UpperCaseOperation.cs" />
@@ -92,13 +104,18 @@
     <Compile Include="Rules\RuleResult.cs" />
     <Compile Include="Rules\Rule.cs" />
     <Compile Include="Configuration\CustomTypeRegistrar.cs" />
+    <Compile Include="Utilities\DefaultLog.cs" />
     <Compile Include="Utilities\DefaultFactory.cs" />
+    <Compile Include="Utilities\IocLifetime.cs" />
+    <Compile Include="Utilities\IocRegistrationInformation.cs" />
     <Compile Include="Utilities\PerformanceTimer.cs" />
     <Compile Include="Utilities\PropertyBag.cs" />
     <Compile Include="Request\RequestLog.cs" />
     <Compile Include="Utilities\UrlRewriteException.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

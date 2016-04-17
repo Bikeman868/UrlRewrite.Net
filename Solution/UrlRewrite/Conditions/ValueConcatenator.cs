@@ -3,13 +3,16 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 using UrlRewrite.Interfaces;
+using UrlRewrite.Interfaces.Conditions;
+using UrlRewrite.Interfaces.Operations;
+using UrlRewrite.Interfaces.Rules;
 
 namespace UrlRewrite.Conditions
 {
     /// <summary>
     /// Implements IValueGetter by taking a list of IValueGetter and concetenating their output
     /// </summary>
-    internal class ValueConcatenator: IValueGetter
+    internal class ValueConcatenator : IValueConcatenator
     {
         private IList<IValueGetter> _values;
         private string _separator;

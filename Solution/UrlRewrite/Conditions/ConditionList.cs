@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Xml.Linq;
 using UrlRewrite.Interfaces;
+using UrlRewrite.Interfaces.Conditions;
+using UrlRewrite.Interfaces.Rules;
 
 namespace UrlRewrite.Conditions
 {
-    internal class ConditionList : ICondition
+    internal class ConditionList : IConditionList
     {
         private CombinationLogic _logic;
         private bool _trackAllCaptures;
@@ -14,7 +16,7 @@ namespace UrlRewrite.Conditions
         private List<ICondition> _conditions;
         private Func<IRequestInfo, IRuleResult, bool> _testFunc;
 
-        public ConditionList Initialize(CombinationLogic logic, bool trackAllCaptures = false)
+        public IConditionList Initialize(CombinationLogic logic, bool trackAllCaptures = false)
         {
             _logic = logic;
             _trackAllCaptures = trackAllCaptures;
@@ -40,7 +42,7 @@ namespace UrlRewrite.Conditions
             return this;
         }
 
-        public ConditionList Add(ICondition condition)
+        public IConditionList Add(ICondition condition)
         {
             if (_conditions == null) _conditions = new List<ICondition>();
 

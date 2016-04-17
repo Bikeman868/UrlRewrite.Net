@@ -7,6 +7,10 @@ using System.Threading;
 using System.Web;
 using UrlRewrite.Configuration;
 using UrlRewrite.Interfaces;
+using UrlRewrite.Interfaces.Actions;
+using UrlRewrite.Interfaces.Conditions;
+using UrlRewrite.Interfaces.Rules;
+using UrlRewrite.Interfaces.Utilities;
 using UrlRewrite.Utilities;
 
 namespace UrlRewrite
@@ -73,7 +77,7 @@ namespace UrlRewrite
                 ruleStream = File.Open(filePath, FileMode.Open, FileAccess.Read);
             }
 
-            var parser = ruleParser ?? new StandardRuleParser(_factory);
+            var parser = ruleParser ?? _factory.Create<StandardRuleParser>();
             _rules = parser.Parse(ruleStream);
             ruleStream.Close();
 
@@ -110,6 +114,43 @@ namespace UrlRewrite
 #endif
         }
 
+        public static IEnumerable<IocRegistrationInformation> GetIocInformation()
+        {
+            return new List<IocRegistrationInformation>
+            {
+                // Singletons
+                new IocRegistrationInformation().Init<IFactory, DefaultFactory>(IocLifetime.Singleton),
+                new IocRegistrationInformation().Init<ILog, DefaultLog>(IocLifetime.Singleton),
+                new IocRegistrationInformation().Init<ICustomTypeRegistrar, CustomTypeRegistrar>(IocLifetime.Singleton),
+
+                // Input values and comparison
+                new IocRegistrationInformation().Init<IValueGetter, Conditions.ValueGetter>(IocLifetime.CreateEachTime),
+                new IocRegistrationInformation().Init<IStringMatch, Conditions.StringMatch>(IocLifetime.CreateEachTime),
+                new IocRegistrationInformation().Init<INumberMatch, Conditions.NumberMatch>(IocLifetime.CreateEachTime),
+                new IocRegistrationInformation().Init<IConditionList, Conditions.ConditionList>(IocLifetime.CreateEachTime),
+                new IocRegistrationInformation().Init<IValueConcatenator, Conditions.ValueConcatenator>(IocLifetime.CreateEachTime),
+
+                // Request handling
+                new IocRegistrationInformation().Init<IRequestInfo, Request.RequestInfo>(IocLifetime.CreateEachTime),
+
+                // Actions
+                new IocRegistrationInformation().Init<IActionList, Actions.ActionList>(IocLifetime.CreateEachTime),
+                new IocRegistrationInformation().Init<IKeepAction, Actions.Keep>(IocLifetime.CreateEachTime),
+                new IocRegistrationInformation().Init<IAppendAction, Actions.Append>(IocLifetime.CreateEachTime),
+                new IocRegistrationInformation().Init<IDeleteAction, Actions.Delete>(IocLifetime.CreateEachTime),
+                new IocRegistrationInformation().Init<IReplaceAction, Actions.Replace>(IocLifetime.CreateEachTime),
+                new IocRegistrationInformation().Init<ITruncateAction, Actions.Truncate>(IocLifetime.CreateEachTime),
+
+                // Rules
+                new IocRegistrationInformation().Init<IRuleResult, Rules.RuleResult>(IocLifetime.CreateEachTime),
+                new IocRegistrationInformation().Init<IRuleList, Rules.RuleList>(IocLifetime.CreateEachTime),
+                new IocRegistrationInformation().Init<IRule, Rules.Rule>(IocLifetime.CreateEachTime),
+
+                // Utility classed
+                new IocRegistrationInformation().Init<IPropertyBag, PropertyBag>(IocLifetime.CreateEachTime),
+            };
+        }
+     
         public void Init(HttpApplication application)
         {
             application.BeginRequest += OnBeginRequest;

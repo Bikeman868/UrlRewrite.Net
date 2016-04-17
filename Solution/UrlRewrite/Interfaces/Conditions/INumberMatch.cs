@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace UrlRewrite.Interfaces
+﻿namespace UrlRewrite.Interfaces.Conditions
 {
     public interface INumberMatch: ICondition
     {

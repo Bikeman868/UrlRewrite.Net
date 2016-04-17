@@ -2,27 +2,30 @@
 using System.IO;
 using System.Xml.Linq;
 using UrlRewrite.Interfaces;
+using UrlRewrite.Interfaces.Actions;
+using UrlRewrite.Interfaces.Rules;
 
 namespace UrlRewrite.Rules
 {
     internal class RuleList: IRuleList, IAction
     {
-        private readonly string _name;
-        private readonly bool _stopProcessing;
+        private string _name;
+        private bool _stopProcessing;
 
         private IList<IRule> _rules;
 
-        public RuleList(
+        public IRuleList Initialize(
             string name, 
-            IList<IRule> rules = null,
-            bool stopProcessing = false)
+            IList<IRule> rules,
+            bool stopProcessing)
         {
             _name = name;
             _rules = rules;
             _stopProcessing = stopProcessing;
+            return this;
         }
 
-        public RuleList Add(IRule rule)
+        public IRuleList Add(IRule rule)
         {
             if (_rules == null) _rules = new List<IRule>();
             _rules.Add(rule);

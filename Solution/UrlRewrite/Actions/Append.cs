@@ -1,19 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using UrlRewrite.Interfaces;
+using UrlRewrite.Interfaces.Actions;
+using UrlRewrite.Interfaces.Conditions;
+using UrlRewrite.Interfaces.Rules;
 using UrlRewrite.Utilities;
 
 namespace UrlRewrite.Actions
 {
-    internal class Append: Action
+    internal class Append: Action, IAppendAction
     {
-        private readonly Scope _scope;
-        private readonly string _scopeIndex;
-        private readonly int _scopeIndexValue;
-        private readonly IValueGetter _valueGetter;
+        private Scope _scope;
+        private string _scopeIndex;
+        private int _scopeIndexValue;
+        private IValueGetter _valueGetter;
 
-        public Append(Scope scope, string scopeIndex, IValueGetter valueGetter)
+        public IAppendAction Initialize(Scope scope, string scopeIndex, IValueGetter valueGetter)
         {
             _scope = scope;
             _scopeIndex = scopeIndex;
@@ -42,6 +43,8 @@ namespace UrlRewrite.Actions
                     if (scope == Scope.PathElement) _scope = Scope.Path;
                 }
             }
+
+            return this;
         }
 
         public override void PerformAction(

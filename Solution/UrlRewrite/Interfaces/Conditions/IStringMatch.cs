@@ -1,4 +1,4 @@
-﻿namespace UrlRewrite.Interfaces
+﻿namespace UrlRewrite.Interfaces.Conditions
 {
     public interface IStringMatch: ICondition
     {

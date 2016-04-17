@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace UrlRewrite.Interfaces
+namespace UrlRewrite.Interfaces.Rules
 {
     public interface IRuleParser
     {

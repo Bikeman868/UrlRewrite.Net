@@ -3,20 +3,20 @@ using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using UnitTests.Mocks;
 using UrlRewrite.Interfaces;
+using UrlRewrite.Interfaces.Actions;
 using UrlRewrite.Interfaces.Conditions;
-using UrlRewrite.Interfaces.Rules;
 using UrlRewrite.Utilities;
 
 namespace UnitTests
 {
     [TestClass]
-    public class ValueGetterTests
+    public class KeepActionTests
     {
-        private IValueGetter _valueGetter;
-        private IRuleResult _ruleResult;
         private IRequestInfo _request1;
         private IRequestInfo _request2;
         private IRequestInfo _request3;
+
+        private IKeepAction _keepAction;
 
         [TestInitialize]
         public void Initialize()
@@ -41,14 +41,13 @@ namespace UnitTests
             _request3.ParametersChanged();
 
             IFactory factory = new DefaultFactory();
-            _valueGetter = factory.Create<IValueGetter>();
-            _ruleResult = factory.Create<IRuleResult>();
+            _keepAction = factory.Create<IKeepAction>();
         }
 
         [TestMethod]
-        public void ShouldGetVariousScopesAsStrings()
+        public void ShouldDeleteAllParameters()
         {
-            _valueGetter.Initialize(Scope.OriginalUrl);
+            _keepAction.Initialize(Scope.OriginalUrl);
             Assert.AreEqual(_request1.OriginalUrlString, _valueGetter.GetString(_request1, _ruleResult));
             Assert.AreEqual(_request2.OriginalUrlString, _valueGetter.GetString(_request2, _ruleResult));
             Assert.AreEqual(_request3.OriginalUrlString, _valueGetter.GetString(_request3, _ruleResult));

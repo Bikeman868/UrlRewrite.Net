@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using UrlRewrite.Interfaces.Actions;
+using UrlRewrite.Interfaces.Utilities;
 
-namespace UrlRewrite.Interfaces
+namespace UrlRewrite.Interfaces.Rules
 {
     public interface IRuleResult
     {

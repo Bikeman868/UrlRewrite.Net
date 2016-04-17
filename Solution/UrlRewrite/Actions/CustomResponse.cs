@@ -2,6 +2,8 @@
 using System.Web;
 using System.Xml.Linq;
 using UrlRewrite.Interfaces;
+using UrlRewrite.Interfaces.Actions;
+using UrlRewrite.Interfaces.Rules;
 
 namespace UrlRewrite.Actions
 {

@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using UrlRewrite.Interfaces.Operations;
+using UrlRewrite.Interfaces.Rules;
+using UrlRewrite.Interfaces.Utilities;
 
-namespace UrlRewrite.Interfaces
+namespace UrlRewrite.Interfaces.Conditions
 {
     public interface IValueGetter : IDescribable
     {

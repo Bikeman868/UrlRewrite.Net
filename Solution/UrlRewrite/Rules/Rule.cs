@@ -2,30 +2,35 @@
 using System.IO;
 using System.Xml.Linq;
 using UrlRewrite.Interfaces;
+using UrlRewrite.Interfaces.Actions;
+using UrlRewrite.Interfaces.Conditions;
+using UrlRewrite.Interfaces.Rules;
 
 namespace UrlRewrite.Rules
 {
     internal class Rule: IRule
     {
-        private readonly string _name;
-        private readonly ICondition _condition;
-        private readonly bool _stopProcessing;
-        private readonly bool _isDynamic;
-        private readonly List<IAction> _actions;
-        private readonly IRuleList _childRules;
+        private string _name;
+        private ICondition _condition;
+        private bool _stopProcessing;
+        private bool _isDynamic;
+        private List<IAction> _actions;
+        private IRuleList _childRules;
 
-        public Rule(
+        public IRule Initialize(
             string name, 
             ICondition condition, 
             IAction action, 
-            bool stopProcessing = false,
-            bool isDynamic = false)
+            bool stopProcessing,
+            bool isDynamic)
         {
             _name = name;
             _condition = condition;
             _actions = action == null ? null : new List<IAction> { action };
             _stopProcessing = stopProcessing;
             _isDynamic = isDynamic;
+
+            return this;
         }
 
         public string Name { get { return _name; } }

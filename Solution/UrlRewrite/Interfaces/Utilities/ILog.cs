@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Web;
 
-namespace UrlRewrite.Interfaces
+namespace UrlRewrite.Interfaces.Utilities
 {
     public interface ILog
     {

@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices;
-using System.Web;
-using System.Xml.Linq;
 using UrlRewrite.Interfaces;
+using UrlRewrite.Interfaces.Actions;
+using UrlRewrite.Interfaces.Rules;
 
 namespace UrlRewrite.Actions
 {
@@ -11,17 +10,20 @@ namespace UrlRewrite.Actions
     /// This action executes a list of other actions. This exists to simplify rules which
     /// now only have to have a single action to execute where that action can be an ActionList
     /// </summary>
-    internal class ActionList: Action
+    internal class ActionList: Action, IActionList
     {
         private List<IAction> _actions;
 
-        public ActionList(bool stopProcessing = false, bool endRequest = false)
+        public IActionList Initialize(bool stopProcessing, bool endRequest)
         {
             _stopProcessing = stopProcessing;
             _endRequest = endRequest;
+            _actions = null;
+
+            return this;
         }
 
-        public ActionList Add(IAction action)
+        public IActionList Add(IAction action)
         {
             if (action == null)
                 return this;

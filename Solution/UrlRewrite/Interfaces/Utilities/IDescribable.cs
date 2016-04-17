@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace UrlRewrite.Interfaces
+namespace UrlRewrite.Interfaces.Utilities
 {
     public interface IDescribable
     {

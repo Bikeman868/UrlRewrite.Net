@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UrlRewrite.Interfaces;
+using UrlRewrite.Interfaces.Rules;
 
 namespace UrlRewrite.Rules
 {

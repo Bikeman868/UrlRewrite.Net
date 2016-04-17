@@ -1,5 +1,8 @@
 ﻿using System.Collections.Generic;
 using UrlRewrite.Interfaces;
+using UrlRewrite.Interfaces.Actions;
+using UrlRewrite.Interfaces.Rules;
+using UrlRewrite.Interfaces.Utilities;
 using UrlRewrite.Utilities;
 
 namespace UrlRewrite.Rules

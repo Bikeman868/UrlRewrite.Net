@@ -1,4 +1,4 @@
-namespace UrlRewrite.Interfaces
+namespace UrlRewrite.Interfaces.Utilities
 {
     public interface IPropertyBag
     {

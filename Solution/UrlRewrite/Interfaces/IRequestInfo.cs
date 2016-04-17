@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Web;
+using UrlRewrite.Interfaces.Utilities;
 
 namespace UrlRewrite.Interfaces
 {
@@ -39,9 +40,10 @@ namespace UrlRewrite.Interfaces
         // Interaction with the request - these are here to enable unit testing
         string GetOriginalServerVariable(string name);
         string GetOriginalHeader(string name);
-        string GetServerVariable(string name);
+        IEnumerable<string> GetHeaderNames();
         string GetHeader(string name);
-        void SetServerVariable(string name, string value);
         void SetHeader(string name, string value);
+        string GetServerVariable(string name);
+        void SetServerVariable(string name, string value);
     }
 }

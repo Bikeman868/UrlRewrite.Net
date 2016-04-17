@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UrlRewrite.Interfaces;
+using UrlRewrite.Interfaces.Utilities;
 
 namespace UnitTests.Mocks
 {
@@ -321,6 +320,11 @@ namespace UnitTests.Mocks
         public void SetHeader(string name, string value)
         {
             _headers[name] = value;
+        }
+
+        public IEnumerable<string> GetHeaderNames()
+        {
+            return _headers.Keys;
         }
     }
 }

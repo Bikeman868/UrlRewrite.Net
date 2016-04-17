@@ -1,18 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using UrlRewrite.Interfaces;
+using UrlRewrite.Interfaces.Actions;
+using UrlRewrite.Interfaces.Conditions;
+using UrlRewrite.Interfaces.Rules;
 using UrlRewrite.Utilities;
 
 namespace UrlRewrite.Actions
 {
-    internal class Delete: Action
+    internal class Delete: Action, IDeleteAction
     {
-        private readonly Scope _scope;
-        private readonly string _scopeIndex;
-        private readonly int _scopeIndexValue;
+        private Scope _scope;
+        private string _scopeIndex;
+        private int _scopeIndexValue;
 
-        public Delete(Scope scope, string scopeIndex = null)
+        public IDeleteAction Initialize(Scope scope, string scopeIndex)
         {
             _scope = scope;
             _scopeIndex = scopeIndex;
@@ -38,6 +39,8 @@ namespace UrlRewrite.Actions
                     if (scope == Scope.PathElement) _scope = Scope.Path;
                 }
             }
+
+            return this;
         }
 
         public override void PerformAction(

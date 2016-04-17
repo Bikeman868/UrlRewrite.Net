@@ -1,7 +1,7 @@
-﻿using System.Web;
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
+using UrlRewrite.Interfaces.Rules;
 
-namespace UrlRewrite.Interfaces
+namespace UrlRewrite.Interfaces.Actions
 {
     public interface IAction: IRuleElement
     {

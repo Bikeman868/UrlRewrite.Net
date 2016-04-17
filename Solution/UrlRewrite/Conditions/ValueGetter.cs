@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using UrlRewrite.Interfaces;
+using UrlRewrite.Interfaces.Conditions;
+using UrlRewrite.Interfaces.Operations;
+using UrlRewrite.Interfaces.Rules;
 using UrlRewrite.Utilities;
 
 namespace UrlRewrite.Conditions

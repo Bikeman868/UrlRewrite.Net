@@ -1,9 +1,9 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
-using System.Web;
 using System.Xml.Linq;
 using UrlRewrite.Interfaces;
+using UrlRewrite.Interfaces.Actions;
+using UrlRewrite.Interfaces.Rules;
 using UrlRewrite.Utilities;
 
 namespace UrlRewrite.Actions

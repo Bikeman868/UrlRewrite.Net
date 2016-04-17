@@ -1,6 +1,9 @@
 ﻿using System;
+using UrlRewrite.Interfaces.Actions;
+using UrlRewrite.Interfaces.Conditions;
+using UrlRewrite.Interfaces.Rules;
 
-namespace UrlRewrite.Interfaces
+namespace UrlRewrite.Interfaces.Utilities
 {
     public interface IRequestLog
     {

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Web;
 using UrlRewrite.Interfaces;
+using UrlRewrite.Interfaces.Utilities;
 using UrlRewrite.Utilities;
 
 namespace UrlRewrite.Request
@@ -428,6 +429,11 @@ namespace UrlRewrite.Request
                     _originalHeaders[header] = Context.Request.Headers[header];
             }
             Context.Request.Headers[name] = value;
+        }
+
+        public IEnumerable<string> GetHeaderNames()
+        {
+            return Context.Request.Headers.AllKeys;
         }
     }
 }
