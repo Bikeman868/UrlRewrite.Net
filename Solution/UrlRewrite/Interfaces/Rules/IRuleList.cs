@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
+using UrlRewrite.Interfaces.Actions;
 
 namespace UrlRewrite.Interfaces.Rules
 {
-    public interface IRuleList : IRuleElement
+    public interface IRuleList : IAction
     {
         IRuleList Initialize(
             string name,

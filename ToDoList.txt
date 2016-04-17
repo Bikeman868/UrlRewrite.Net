@@ -1,8 +1,9 @@
 
 
-<action type="AbortRequest" />
 
 <delete scope="<scope>" index="<index>" />
+
+<keep scope="<scope>" index="<index>" />
 
 <insert scope="pathElement" scopeIndex="0" value="mobile" />
 

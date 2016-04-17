@@ -213,7 +213,16 @@ namespace UrlRewrite.Configuration
                         action = CombineActions(action, ParseRewriteElement(child));
                         break;
                     case "rules":
-                        action = CombineActions(action, ParseRulesElement(child, "Rule list " + Guid.NewGuid()) as IAction);
+                        action = CombineActions(action, ParseRulesElement(child, Guid.NewGuid().ToString()));
+                        break;
+                    case "delete":
+                        action = CombineActions(action, ParseDeleteElement(child));
+                        break;
+                    case "keep":
+                        action = CombineActions(action, ParseKeepElement(child));
+                        break;
+                    case "insert":
+                        action = CombineActions(action, ParseInsertElement(child));
                         break;
                 }
             }
@@ -485,9 +494,30 @@ namespace UrlRewrite.Configuration
             return _factory.Create<IReplaceAction>().Initialize(toScope, toIndex, value);
         }
 
+
+        private IAction ParseDeleteElement(XElement element)
+        {
+            throw new NotImplementedException();
+        }
+
+        private IAction ParseInsertElement(XElement element)
+        {
+            throw new NotImplementedException();
+        }
+
+        private IAction ParseAppendElement(XElement element)
+        {
+            throw new NotImplementedException();
+        }
+
+        private IAction ParseKeepElement(XElement element)
+        {
+            throw new NotImplementedException();
+        }
+
         private IRule ParseRewriteMapsElement(XElement element)
         {
-            return null;
+            throw new NotImplementedException();
         }
 
         private IRule ParseAssemblyElement(XElement element)
