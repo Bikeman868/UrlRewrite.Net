@@ -68,9 +68,26 @@ namespace UrlRewrite.Actions
                     requestInfo.ParametersChanged();
                     break;
                 case Scope.PathElement:
-                    requestInfo.NewPath.RemoveAt(_scopeIndexValue);
-                    requestInfo.PathChanged();
+                {
+                    if (_scopeIndexValue == 0 || requestInfo.NewPathString == "/")
+                    {
+                        requestInfo.NewPathString = "/";
+                    }
+                    else
+                    {
+                        var count = requestInfo.NewPath.Count;
+                        if (string.IsNullOrEmpty(requestInfo.NewPath[count - 1])) count--;
+                        var indexToRemove = _scopeIndexValue < 0
+                            ? count + _scopeIndexValue
+                            : _scopeIndexValue;
+                        if (indexToRemove > 0 && indexToRemove < count)
+                        {
+                            requestInfo.NewPath.RemoveAt(indexToRemove);
+                            requestInfo.PathChanged();
+                        }
+                    }
                     break;
+                }
                 case Scope.ServerVariable:
                     requestInfo.SetServerVariable(_scopeIndex, null);
                     break;
