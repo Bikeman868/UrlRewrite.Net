@@ -70,6 +70,7 @@ namespace UrlRewrite.Utilities
             Bind<IDeleteAction>().To<Actions.Delete>();
             Bind<IReplaceAction>().To<Actions.Replace>();
             Bind<ITruncateAction>().To<Actions.Truncate>();
+            Bind<IInsertAction>().To<Actions.Insert>();
 
             // Rules
             Bind<IRuleResult>().To<Rules.RuleResult>();

@@ -25,28 +25,32 @@ namespace UrlRewrite.Actions
             if (string.IsNullOrEmpty(scopeIndex))
                 throw new UrlRewriteException("When inserting into the path the index of the element to insert before must be provided");
             
-            if (scope != Scope.Path)
+            if (scope != Scope.PathElement)
                 throw new UrlRewriteException("You can only insert into the path scope");
 
             if (!int.TryParse(scopeIndex, out _scopeIndexValue))
                 throw new UrlRewriteException("The index of the path element to insert must be a number");
 
             if (_scopeIndexValue == 0)
-                _action = (requestInfo, value) => requestInfo.NewPathString = value + "/" + requestInfo.NewPathString;
+                _action = (requestInfo, value) =>
+                {
+                    if (requestInfo.NewPathString == "/")
+                        requestInfo.NewPathString = "/" + value;
+                    else
+                        requestInfo.NewPathString = "/" + value + requestInfo.NewPathString;
+                };
 
             else if (_scopeIndexValue > 0)
             {
                 _action = (requestInfo, value) =>
                 {
-                    if (_scopeIndexValue < requestInfo.NewPath.Count)
+                    var maxIndex = requestInfo.NewPath.Count;
+                    if (string.IsNullOrEmpty(requestInfo.NewPath[requestInfo.NewPath.Count - 1]))
+                        maxIndex--;
+                    if (_scopeIndexValue < maxIndex)
                     {
-                        var newPath = new List<string>();
-                        for (var i = 0; i < _scopeIndexValue; i++)
-                            newPath.Add(requestInfo.NewPath[i]);
-                        newPath.Add(value);
-                        for (var i = _scopeIndexValue; i < requestInfo.NewPath.Count; i++)
-                            newPath.Add(requestInfo.NewPath[i]);
-                        requestInfo.NewPath = newPath;
+                        requestInfo.NewPath.Insert(_scopeIndexValue, value);
+                        requestInfo.PathChanged();
                     }
                 };
             }
@@ -56,15 +60,12 @@ namespace UrlRewrite.Actions
                 _action = (requestInfo, value) =>
                 {
                     var index = requestInfo.NewPath.Count + _scopeIndexValue;
-                    if (index >= 0)
+                    if (string.IsNullOrEmpty(requestInfo.NewPath[requestInfo.NewPath.Count - 1]))
+                        index--;
+                    if (index > 0)
                     {
-                        var newPath = new List<string>();
-                        for (var i = 0; i < index; i++)
-                            newPath.Add(requestInfo.NewPath[i]);
-                        newPath.Add(value);
-                        for (var i = index; i < requestInfo.NewPath.Count; i++)
-                            newPath.Add(requestInfo.NewPath[i]);
-                        requestInfo.NewPath = newPath;
+                        requestInfo.NewPath.Insert(index, value);
+                        requestInfo.PathChanged();
                     }
                 };
             }

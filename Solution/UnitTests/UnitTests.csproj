@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="Mocks\MockRequestInfo.cs" />
     <Compile Include="MockRequestInfoTests.cs" />
+    <Compile Include="InsertActionTests.cs" />
     <Compile Include="ValueGetterTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
