@@ -51,6 +51,7 @@
     <Compile Include="Actions\Delete.cs" />
     <Compile Include="Actions\CustomResponse.cs" />
     <Compile Include="Actions\Append.cs" />
+    <Compile Include="Actions\Insert.cs" />
     <Compile Include="Actions\Replace.cs" />
     <Compile Include="Actions\Redirect.cs" />
     <Compile Include="Actions\None.cs" />
@@ -63,6 +64,7 @@
     <Compile Include="Configuration\StandardRuleParser.cs" />
     <Compile Include="Interfaces\Actions\IActionList.cs" />
     <Compile Include="Interfaces\Actions\IAppendAction.cs" />
+    <Compile Include="Interfaces\Actions\IInsertAction.cs" />
     <Compile Include="Interfaces\Actions\ITruncateAction.cs" />
     <Compile Include="Interfaces\Actions\IReplaceAction.cs" />
     <Compile Include="Interfaces\Actions\IDeleteAction.cs" />

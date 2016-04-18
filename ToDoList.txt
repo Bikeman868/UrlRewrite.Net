@@ -1,12 +1,6 @@
 
 
 
-<delete scope="<scope>" index="<index>" />
-
-<keep scope="<scope>" index="<index>" />
-
-<insert scope="pathElement" scopeIndex="0" value="mobile" />
-
 <rewriteMaps></rewriteMaps>
 
 Cache rule results that are not dynamic

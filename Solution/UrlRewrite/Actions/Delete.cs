@@ -69,6 +69,7 @@ namespace UrlRewrite.Actions
                     break;
                 case Scope.PathElement:
                     requestInfo.NewPath.RemoveAt(_scopeIndexValue);
+                    requestInfo.PathChanged();
                     break;
                 case Scope.ServerVariable:
                     requestInfo.SetServerVariable(_scopeIndex, null);

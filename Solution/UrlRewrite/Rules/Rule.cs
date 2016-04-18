@@ -15,7 +15,6 @@ namespace UrlRewrite.Rules
         private bool _stopProcessing;
         private bool _isDynamic;
         private List<IAction> _actions;
-        private IRuleList _childRules;
 
         public IRule Initialize(
             string name, 
@@ -114,9 +113,6 @@ namespace UrlRewrite.Rules
             if (_actions != null) 
                 foreach (var action in _actions)
                     action.Describe(writer, indent, indentText);
-
-            if (_childRules != null)
-                _childRules.Describe(writer, indent, indentText);
 
             if (_stopProcessing)
                 writer.WriteLine(indent + "Stop processing");

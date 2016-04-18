@@ -224,6 +224,9 @@ namespace UrlRewrite.Configuration
                     case "insert":
                         action = CombineActions(action, ParseInsertElement(child));
                         break;
+                    case "append":
+                        action = CombineActions(action, ParseAppendElement(child));
+                        break;
                 }
             }
 
@@ -339,7 +342,8 @@ namespace UrlRewrite.Configuration
                     switch (attribute.Name.LocalName.ToLower())
                     {
                         case "scope":
-                            Enum.TryParse(attribute.Value, true, out scope);
+                            if (!Enum.TryParse(attribute.Value, true, out scope))
+                                throw new UrlRewriteException(attribute.Value + " is not a valid scope");
                             break;
                         case "index":
                             scopeIndexString = attribute.Value;
@@ -472,13 +476,15 @@ namespace UrlRewrite.Configuration
                     switch (attribute.Name.LocalName.ToLower())
                     {
                         case "to":
-                            Enum.TryParse(attribute.Value, true, out toScope);
+                            if (!Enum.TryParse(attribute.Value, true, out toScope))
+                                throw new UrlRewriteException(attribute.Value + " is not a valid scope");
                             break;
                         case "toindex":
                             toIndex = attribute.Value;
                             break;
                         case "from":
-                            Enum.TryParse(attribute.Value, true, out fromScope);
+                            if (!Enum.TryParse(attribute.Value, true, out fromScope))
+                                throw new UrlRewriteException(attribute.Value + " is not a valid scope");
                             break;
                         case "fromindex":
                             fromIndex = attribute.Value;
@@ -497,22 +503,130 @@ namespace UrlRewrite.Configuration
 
         private IAction ParseDeleteElement(XElement element)
         {
-            throw new NotImplementedException();
+            var scope = Scope.PathElement;
+            string index = null;
+
+            if (element.HasAttributes)
+            {
+                foreach (var attribute in element.Attributes())
+                {
+                    switch (attribute.Name.LocalName.ToLower())
+                    {
+                        case "scope":
+                            if (!Enum.TryParse(attribute.Value, true, out scope))
+                                throw new UrlRewriteException(attribute.Value + " is not a valid scope");
+                            break;
+                        case "index":
+                            index = attribute.Value;
+                            break;
+                    }
+                }
+            }
+
+            return _factory.Create<IDeleteAction>().Initialize(scope, index);
         }
 
         private IAction ParseInsertElement(XElement element)
         {
-            throw new NotImplementedException();
+            var fromScope = Scope.Literal;
+            string fromIndex = null;
+            var toScope = Scope.PathElement;
+            var toIndex = "0";
+            IOperation operation = null;
+
+            if (element.HasAttributes)
+            {
+                foreach (var attribute in element.Attributes())
+                {
+                    switch (attribute.Name.LocalName.ToLower())
+                    {
+                        case "scope":
+                            if (!Enum.TryParse(attribute.Value, true, out toScope))
+                                throw new UrlRewriteException(attribute.Value + " is not a valid scope");
+                            break;
+                        case "index":
+                            toIndex = attribute.Value;
+                            break;
+                        case "from":
+                            if (!Enum.TryParse(attribute.Value, true, out fromScope))
+                                throw new UrlRewriteException(attribute.Value + " is not a valid scope");
+                            break;
+                        case "fromindex":
+                            fromIndex = attribute.Value;
+                            break;
+                        case "operation":
+                            operation = ConstructOperation(attribute.Value, element);
+                            break;
+                    }
+                }
+            }
+
+            var value = _factory.Create<IValueGetter>().Initialize(fromScope, fromIndex, operation);
+            return _factory.Create<IInsertAction>().Initialize(toScope, toIndex, value);
         }
 
         private IAction ParseAppendElement(XElement element)
         {
-            throw new NotImplementedException();
+            var fromScope = Scope.Literal;
+            string fromIndex = null;
+            var toScope = Scope.Path;
+            string toIndex = null;
+            IOperation operation = null;
+
+            if (element.HasAttributes)
+            {
+                foreach (var attribute in element.Attributes())
+                {
+                    switch (attribute.Name.LocalName.ToLower())
+                    {
+                        case "scope":
+                            if (!Enum.TryParse(attribute.Value, true, out toScope))
+                                throw new UrlRewriteException(attribute.Value + " is not a valid scope");
+                            break;
+                        case "index":
+                            toIndex = attribute.Value;
+                            break;
+                        case "from":
+                            if (!Enum.TryParse(attribute.Value, true, out fromScope))
+                                throw new UrlRewriteException(attribute.Value + " is not a valid scope");
+                            break;
+                        case "fromindex":
+                            fromIndex = attribute.Value;
+                            break;
+                        case "operation":
+                            operation = ConstructOperation(attribute.Value, element);
+                            break;
+                    }
+                }
+            }
+
+            var value = _factory.Create<IValueGetter>().Initialize(fromScope, fromIndex, operation);
+            return _factory.Create<IAppendAction>().Initialize(toScope, toIndex, value);
         }
 
         private IAction ParseKeepElement(XElement element)
         {
-            throw new NotImplementedException();
+            var scope = Scope.Parameter;
+            string index = null;
+
+            if (element.HasAttributes)
+            {
+                foreach (var attribute in element.Attributes())
+                {
+                    switch (attribute.Name.LocalName.ToLower())
+                    {
+                        case "scope":
+                            if (!Enum.TryParse(attribute.Value, true, out scope))
+                                throw new UrlRewriteException(attribute.Value + " is not a valid scope");
+                            break;
+                        case "index":
+                            index = attribute.Value;
+                            break;
+                    }
+                }
+            }
+
+            return _factory.Create<IKeepAction>().Initialize(scope, index);
         }
 
         private IRule ParseRewriteMapsElement(XElement element)
