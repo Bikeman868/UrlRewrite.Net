@@ -62,6 +62,9 @@ namespace UrlRewrite.Actions
                 .OrderBy(i => i)
                 .ToList();
 
+            if (_scopeIndexValue.Count == 0 || _scopeIndexValue[0] != 0)
+                _scopeIndexValue.Insert(0, 0);
+
             return this;
         }
 
@@ -84,18 +87,23 @@ namespace UrlRewrite.Actions
                     var parameters = new Dictionary<string, IList<string>>();
                     foreach (var parameterName in _scopeIndex)
                     {
-                        var parameterValue = requestInfo.NewParameters[parameterName];
-                        if (parameterValue != null && parameterValue.Count > 0)
-                            parameters[parameterName] = parameterValue;
+                        IList<string> parameterValue;
+                        if (requestInfo.NewParameters.TryGetValue(parameterName, out parameterValue))
+                        {
+                            if (parameterValue != null && parameterValue.Count > 0)
+                                parameters[parameterName] = parameterValue;
+                        }
                     }
                     requestInfo.NewParameters = parameters;
                     break;
                 case Scope.PathElement:
                     // Note that _scopeIndexValue is sorted into ascending order
-                    requestInfo.NewPath = _scopeIndexValue
+                    var newPath = _scopeIndexValue
                         .Where(i => i >= 0 && i < requestInfo.NewPath.Count)
                         .Select(index => requestInfo.NewPath[index])
                         .ToList();
+                    if (newPath.Count < 2) newPath.Add(string.Empty);
+                    requestInfo.NewPath = newPath;
                     break;
             }
 

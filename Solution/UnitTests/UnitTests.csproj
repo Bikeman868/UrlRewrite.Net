@@ -52,6 +52,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="DeleteActionTests.cs" />
+    <Compile Include="KeepActionTests.cs" />
     <Compile Include="Mocks\MockRequestInfo.cs" />
     <Compile Include="MockRequestInfoTests.cs" />
     <Compile Include="InsertActionTests.cs" />
