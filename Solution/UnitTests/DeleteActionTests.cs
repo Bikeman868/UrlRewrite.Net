@@ -29,7 +29,7 @@ namespace UnitTests
             _request3 = new MockRequestInfo("/path1/path2/");
             _request4 = new MockRequestInfo("/");
 
-            IFactory factory = new DefaultFactory();
+            IFactory factory = new NinjectFactory();
             _deleteAction = factory.Create<IDeleteAction>();
             _ruleResult = factory.Create<IRuleResult>();
         }

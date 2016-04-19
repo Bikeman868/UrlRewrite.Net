@@ -106,10 +106,12 @@
     <Compile Include="Rules\RuleResult.cs" />
     <Compile Include="Rules\Rule.cs" />
     <Compile Include="Configuration\CustomTypeRegistrar.cs" />
-    <Compile Include="Utilities\DefaultLog.cs" />
-    <Compile Include="Utilities\DefaultFactory.cs" />
+    <Compile Include="Utilities\IocRegistrations.cs" />
+    <Compile Include="Utilities\NinjectUrlRewriteModule.cs" />
+    <Compile Include="Utilities\TraceLog.cs" />
+    <Compile Include="Utilities\NinjectFactory.cs" />
     <Compile Include="Utilities\IocLifetime.cs" />
-    <Compile Include="Utilities\IocRegistrationInformation.cs" />
+    <Compile Include="Utilities\IocRegistration.cs" />
     <Compile Include="Utilities\PerformanceTimer.cs" />
     <Compile Include="Utilities\PropertyBag.cs" />
     <Compile Include="Request\RequestLog.cs" />

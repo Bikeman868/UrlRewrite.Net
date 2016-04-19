@@ -2,9 +2,9 @@
 
 namespace UrlRewrite.Utilities
 {
-    public class IocRegistrationInformation
+    public class IocRegistration
     {
-        public IocRegistrationInformation Init<TInterface, TClass>(IocLifetime lifetime) 
+        public IocRegistration Init<TInterface, TClass>(IocLifetime lifetime) 
             where TInterface: class
             where TClass: class, TInterface
         {

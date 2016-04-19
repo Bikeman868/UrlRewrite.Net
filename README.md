@@ -222,10 +222,9 @@ To integrate your IoC container you need to:
 * Pass an instance of your factory class to the `Initialize()` method of the Rewrite Module.
 * Register the intefaces that the Rewrite Module uses with your IoC container so that they are resolvable using the factory.
 
-To discover which interfaces you need to register with your IoC container call the static `GetIocInformation()` method of
-the `UrlRewrite.RewriteModule` class like this:
+To discover which interfaces you need to register with your IoC container add this code to your solution:
 ```
-    var iocClasses = UrlRewrite.RewriteModule.GetIocInformation();
+    var iocClasses = UrlRewrite.Utilities.IocRegistrations.GetAll();
 ```
 
 Note that if you use Ninject, then you can more easily register all the Rewrire Module classes with the Ninject IoC container 

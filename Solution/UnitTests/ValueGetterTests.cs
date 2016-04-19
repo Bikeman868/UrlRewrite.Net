@@ -40,7 +40,7 @@ namespace UnitTests
             _request3.NewParameters["param"] = new List<string> { "added" };
             _request3.ParametersChanged();
 
-            IFactory factory = new DefaultFactory();
+            IFactory factory = new NinjectFactory();
             _valueGetter = factory.Create<IValueGetter>();
             _ruleResult = factory.Create<IRuleResult>();
         }

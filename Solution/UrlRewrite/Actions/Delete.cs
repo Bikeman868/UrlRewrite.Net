@@ -52,7 +52,7 @@ namespace UrlRewrite.Actions
             switch (_scope)
             {
                 case Scope.Url:
-                    requestInfo.NewUrlString = string.Empty;
+                    requestInfo.NewUrlString = "/";
                     break;
                 case Scope.Path:
                     requestInfo.NewPathString = "/";

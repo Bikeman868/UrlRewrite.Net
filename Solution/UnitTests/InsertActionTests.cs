@@ -30,7 +30,7 @@ namespace UnitTests
             _request3 = new MockRequestInfo("/path1/path2/");
             _request4 = new MockRequestInfo("/");
 
-            IFactory factory = new DefaultFactory();
+            IFactory factory = new NinjectFactory();
             _insertAction = factory.Create<IInsertAction>();
             _valueGetter = factory.Create<IValueGetter>();
             _valueGetter.Initialize(Scope.Literal, "NewValue");

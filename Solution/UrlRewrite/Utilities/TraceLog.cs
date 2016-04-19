@@ -7,7 +7,7 @@ using UrlRewrite.Request;
 
 namespace UrlRewrite.Utilities
 {
-    public class DefaultLog: ILog
+    public class TraceLog: ILog
     {
         void ILog.LogException(IRequestInfo request, Exception ex)
         {

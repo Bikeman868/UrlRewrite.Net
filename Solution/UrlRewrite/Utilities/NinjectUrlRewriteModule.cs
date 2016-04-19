@@ -9,37 +9,11 @@ using UrlRewrite.Interfaces.Utilities;
 
 namespace UrlRewrite.Utilities
 {
-    public class DefaultFactory: IFactory
-    {
-        private readonly IKernel _ninject;
-
-        public DefaultFactory()
-        {
-            _ninject = new StandardKernel(new RewriteNinjectModule(this));
-        }
-
-        T IFactory.Create<T>()
-        {
-            return (T)(((IFactory)this).Create(typeof(T)));
-        }
-
-        object IFactory.Create(Type type)
-        {
-            var result = _ninject.TryGet(type);
-            if (ReferenceEquals(result, null))
-            {
-                var constructor = type.GetConstructor(Type.EmptyTypes);
-                result = constructor == null ? null : constructor.Invoke(null);
-            }
-            return result;
-        }
-    }
-
-    public class RewriteNinjectModule : NinjectModule
+    public class NinjectUrlRewriteModule : NinjectModule
     {
         private readonly IFactory _factory;
 
-        public RewriteNinjectModule(IFactory factory)
+        public NinjectUrlRewriteModule(IFactory factory)
         {
             _factory = factory;
         }
@@ -50,7 +24,7 @@ namespace UrlRewrite.Utilities
             Bind<IFactory>().ToConstant(_factory);
 
             // Singletons
-            Bind<ILog>().To<DefaultLog>().InSingletonScope();
+            Bind<ILog>().To<TraceLog>().InSingletonScope();
             Bind<ICustomTypeRegistrar>().To<Configuration.CustomTypeRegistrar>().InSingletonScope();
 
             // Input values and comparison
