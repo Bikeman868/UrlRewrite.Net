@@ -79,7 +79,10 @@ namespace UrlRewrite.Actions
                         requestInfo.NewPathString = value;
                     else if (_scopeIndexValue > 0)
                     {
-                        if (_scopeIndexValue < requestInfo.NewPath.Count)
+                        var count = requestInfo.NewPath.Count;
+                        if (string.IsNullOrEmpty(requestInfo.NewPath[count - 1]))
+                            count--;
+                        if (_scopeIndexValue < count)
                         {
                             requestInfo.NewPath[_scopeIndexValue] = value;
                             requestInfo.PathChanged();
@@ -87,8 +90,11 @@ namespace UrlRewrite.Actions
                     }
                     else
                     {
-                        var index = requestInfo.NewPath.Count + _scopeIndexValue;
-                        if (index >= 0)
+                        var count = requestInfo.NewPath.Count;
+                        if (string.IsNullOrEmpty(requestInfo.NewPath[count - 1]))
+                            count--;
+                        var index = count + _scopeIndexValue;
+                        if (index > 0)
                         {
                             requestInfo.NewPath[index] = value;
                             requestInfo.PathChanged();

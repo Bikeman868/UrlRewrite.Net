@@ -97,7 +97,7 @@ namespace UrlRewrite.Actions
                     requestInfo.NewParameters = parameters;
                     break;
                 case Scope.PathElement:
-                    // Note that _scopeIndexValue is sorted into ascending order
+                    // Note that _scopeIndexValue is sorted into ascending order and always includes 0
                     var newPath = _scopeIndexValue
                         .Where(i => i >= 0 && i < requestInfo.NewPath.Count)
                         .Select(index => requestInfo.NewPath[index])
