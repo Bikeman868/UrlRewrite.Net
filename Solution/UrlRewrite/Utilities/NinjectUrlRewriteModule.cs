@@ -45,6 +45,7 @@ namespace UrlRewrite.Utilities
             Bind<IReplaceAction>().To<Actions.Replace>();
             Bind<ITruncateAction>().To<Actions.Truncate>();
             Bind<IInsertAction>().To<Actions.Insert>();
+            Bind<INormalizeAction>().To<Actions.Normalize>();
 
             // Rules
             Bind<IRuleResult>().To<Rules.RuleResult>();

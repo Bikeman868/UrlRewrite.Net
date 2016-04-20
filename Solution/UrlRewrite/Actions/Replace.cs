@@ -39,9 +39,15 @@ namespace UrlRewrite.Actions
             }
             else
             {
-                if (!int.TryParse(scopeIndex, out _scopeIndexValue))
+                if (int.TryParse(scopeIndex, out _scopeIndexValue))
                 {
-                    if (scope == Scope.PathElement) _scope = Scope.Path;
+                    if (scope == Scope.PathElement && _scopeIndexValue == 0)
+                        _scope = Scope.Path;
+                }
+                else
+                {
+                    if (scope == Scope.PathElement) 
+                        _scope = Scope.Path;
                 }
             }
 

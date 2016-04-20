@@ -57,12 +57,8 @@ namespace UrlRewrite.Rules
 
                 if (_actions != null)
                 {
-                    result.Actions = new List<IAction>();
-
                     foreach (var action in _actions)
                     {
-                        result.Actions.Add(action);
-
                         bool stopProcessing;
                         bool endRequest;
                         action.PerformAction(request, result, out stopProcessing, out endRequest);

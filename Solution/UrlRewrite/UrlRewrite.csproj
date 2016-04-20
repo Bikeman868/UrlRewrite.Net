@@ -47,6 +47,7 @@
     <Compile Include="Actions\Action.cs" />
     <Compile Include="Actions\ActionList.cs" />
     <Compile Include="Actions\AbortRequest.cs" />
+    <Compile Include="Actions\Normalize.cs" />
     <Compile Include="Actions\Keep.cs" />
     <Compile Include="Actions\Delete.cs" />
     <Compile Include="Actions\CustomResponse.cs" />
@@ -64,6 +65,7 @@
     <Compile Include="Configuration\StandardRuleParser.cs" />
     <Compile Include="Interfaces\Actions\IActionList.cs" />
     <Compile Include="Interfaces\Actions\IAppendAction.cs" />
+    <Compile Include="Interfaces\Actions\INormalizeAction.cs" />
     <Compile Include="Interfaces\Actions\IInsertAction.cs" />
     <Compile Include="Interfaces\Actions\ITruncateAction.cs" />
     <Compile Include="Interfaces\Actions\IReplaceAction.cs" />

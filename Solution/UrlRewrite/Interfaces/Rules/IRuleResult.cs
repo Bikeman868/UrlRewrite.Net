@@ -26,12 +26,6 @@ namespace UrlRewrite.Interfaces.Rules
         bool IsDynamic { get; }
 
         /// <summary>
-        /// A list of actions to execute. Only populated if this rule matched the
-        /// incomming request.
-        /// </summary>
-        List<IAction> Actions { get; }
-
-        /// <summary>
         /// This is used to pass information between rule elements. For example
         /// one action might set a value and another might act upon it. One way
         /// that this is used is to support backreferences in curly braces, in

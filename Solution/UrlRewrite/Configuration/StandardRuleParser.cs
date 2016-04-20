@@ -227,6 +227,9 @@ namespace UrlRewrite.Configuration
                     case "append":
                         action = CombineActions(action, ParseAppendElement(child));
                         break;
+                    case "normalize":
+                        action = CombineActions(action, ParseNormalizeElement(child));
+                        break;
                 }
             }
 
@@ -627,6 +630,32 @@ namespace UrlRewrite.Configuration
             }
 
             return _factory.Create<IKeepAction>().Initialize(scope, index);
+        }
+
+        private IAction ParseNormalizeElement(XElement element)
+        {
+            var leadingSeparator = NormalizeAction.None;
+            var trailingSeparator = NormalizeAction.None;
+
+            if (element.HasAttributes)
+            {
+                foreach (var attribute in element.Attributes())
+                {
+                    switch (attribute.Name.LocalName.ToLower())
+                    {
+                        case "pathleadingseparator":
+                            if (!Enum.TryParse(attribute.Value, true, out leadingSeparator))
+                                throw new UrlRewriteException(attribute.Value + " is not a valid normalization action");
+                            break;
+                        case "pathtrailingseparator":
+                            if (!Enum.TryParse(attribute.Value, true, out trailingSeparator))
+                                throw new UrlRewriteException(attribute.Value + " is not a valid normalization action");
+                            break;
+                    }
+                }
+            }
+
+            return _factory.Create<INormalizeAction>().Initialize(leadingSeparator, trailingSeparator);
         }
 
         private IRule ParseRewriteMapsElement(XElement element)

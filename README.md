@@ -210,6 +210,14 @@ devices from the USER_AGENT header in the request.
     </rules>
 ```
 
+#### Example of a rule that ensures all URL paths start with a leading / and do not end with
+a trailing / separator
+```
+    <rule name="Always">
+      <normalize pathLeadingSeparator="add" pathTrailingSeparator="remove"/>  
+    </rule>
+```
+
 # Integrating your IoC container
 
 You can optionally integrate the Rewrite Module with an IoC container. You might do this if you want to:
@@ -603,7 +611,8 @@ register your own custom operations - see below.
 
 This Rewrite module also provides a `<delete>` element for removing parts of the request a `<keep>` element to delete
 all except certain parts of the request an `<insert>` element and an `<append>` element. These elements allow you to 
-perform any modifications to the url that you need.
+perform any modifications to the url that you need. It also has a <normalize> element that allows you to make your
+URLs consistent (for example always starting the path with / and never ending the path with /).
 
 The `<delete>` element has the following attributes:
 * `scope` identifies which part of the url to delete as `Url`, `Path`, `QueryString`, `PathElement`, `Parameter`, 'Header'.
@@ -632,6 +641,10 @@ The `<append>` element has the following attributes:
 * `operation` specifes an operation to perform on the value after reading it from the `from` scope and before writing it
 to the `to` scope. Possible values are `LowerCase`, `UpperCase`, `UrlEncode`, `UrlDecode`. You can also register your own
 custom operations - see below.
+
+The `<normalize>` element has the following optional attributes:
+* `pathLeadingSeparator` can be `add` or `remove`.
+* `pathTrailingSeparator` can be `add` or `remove`.
 
 An example of a rule that makes changes to the request follows:
 ```

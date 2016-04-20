@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using UrlRewrite.Interfaces;
-using UrlRewrite.Interfaces.Actions;
-using UrlRewrite.Interfaces.Rules;
+﻿using UrlRewrite.Interfaces.Rules;
 using UrlRewrite.Interfaces.Utilities;
 using UrlRewrite.Utilities;
 
@@ -9,7 +6,6 @@ namespace UrlRewrite.Rules
 {
     internal class RuleResult: IRuleResult
     {
-        public List<IAction> Actions { get; set; }
         public bool StopProcessing { get; set; }
         public bool EndRequest { get; set; }
         public bool IsDynamic { get; set; }
