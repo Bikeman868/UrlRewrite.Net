@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>UrlRewrite.Net</id>
+    <version>1.0.0</version>
+    <title>A much better URL rewriter than the one that comes with IIS but backwards compatible</title>
+    <authors>Martin Halliday</authors>
+    <owners>Martin Halliday</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Drop-in replacement for the standard IIS URL rewriter that goes way beyond the standard IIS rewriter both in terms of speed and features.</description>
+    <copyright>Copyright 2016</copyright>
+    <releaseNotes>First tested and stable release</releaseNotes>
+    <projectUrl>https://github.com/Bikeman868/UrlRewrite.Net</projectUrl>
+    <licenseUrl>http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html</licenseUrl>
+    <tags>IIS rewrite url-rewriter</tags>
+    <dependencies>
+      <dependency id="Ninject" version="3.2.2.0" />
+    </dependencies>
+    <references>
+    </references>
+  </metadata>
+  <files>
+    <file src="Solution\UrlRewrite\bin\Release\UrlRewrite.dll" target="lib"/>
+    <file src="*.md" target=""/>
+    <file src="*.txt" target=""/>
+  </files>
+</package>
