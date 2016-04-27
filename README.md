@@ -70,12 +70,10 @@ need to do this step. Note that if you are including rewriter rules into your ap
 create a file in the root of your site called `RewriteRules.config` and skip the rest of this step.
 
 To move the rewriting rules into a separate file, open the `web.config` file and find the `<rewrite>` element. You need
-to copy eveything from inside this element and paste it into a new file called `RewriteRules.config`, then you need to replace
+to copy this element and paste it into a new file called `RewriteRules.config`, then you need to replace
 the contents of this section with a reference to the file like this:
 ```
-    <rewrite>
-      <rules configSource="RewriteRules.config" />
-    </rewrite>
+    <rewrite configSource="RewriteRules.config" />
 ```
 
 ## Initialize the Rewrite Module
@@ -115,32 +113,36 @@ Does not redirect `/company/quote/page1`
 
 For any path like `/company/.../*.aspx` if the session belongs to a customer appends `?customer=true` to the url
 ```
-    <rules name="root">
-      <assembly>
-        <class name="isCustomer" type="condition" className="MyCompany.Rewrite.Conditions.IsCustomer" />
-      </assembly>
-    
-      <rule name="is a company page">
-        <condition scope="pathElement" index="1" test="equals" value="company" />
-        <condition scope="pathElement" index="-1" test="endsWith" value=".aspx" />
-        <rules name="company page rules>
-          <rule name="permenantly redirect urls from v1 site">
-            <conditions logicalGrouping="matchAny">
-              <condition scope="pathElement" index="2" test="equals" value="quote" />
-              <condition scope="pathElement" index="2" test="equals" value="profile" />
-              <condition scope="pathElement" index="2" test="equals" value="financials" />
-            </conditions>
-            <rewrite to="pathElement" toIndex="1" from=="literal" fromIndex="entity" />
-            <action type="redirect" redirectType="301" />
-    	  </rule>
-		  <rule name="flag customers">
-			<condition test="isCustomer" />
-			<rewrite to="parameter" toIndex="customer" from="literal" fromIndex="true" />
-		  </rule>
-        </rules>
-      </rule
-    
-    </rules>
+    <rewrite>
+      <rules name="root">
+
+        <assembly>
+          <class name="isCustomer" type="condition" className="MyCompany.Rewrite.Conditions.IsCustomer" />
+        </assembly>
+      
+        <rule name="is a company page">
+          <condition scope="pathElement" index="1" test="equals" value="company" />
+          <condition scope="pathElement" index="-1" test="endsWith" value=".aspx" />
+          <rules name="company page rules>
+            <rule name="permenantly redirect urls from v1 site">
+              <conditions logicalGrouping="matchAny">
+                <condition scope="pathElement" index="2" test="equals" value="quote" />
+                <condition scope="pathElement" index="2" test="equals" value="profile" />
+                <condition scope="pathElement" index="2" test="equals" value="financials" />
+              </conditions>
+              <rewrite to="pathElement" toIndex="1" from=="literal" fromIndex="entity" />
+              <action type="redirect" redirectType="301" />
+      	    </rule>
+
+  		    <rule name="flag customers">
+  			  <condition test="isCustomer" />
+  			  <rewrite to="parameter" toIndex="customer" from="literal" fromIndex="true" />
+  		    </rule>
+          </rules>
+        </rule
+      
+      </rules>
+	</rewrite>
 ```
 
 #### Example of a rule that truncates any path deeper than 3 levels
@@ -210,8 +212,7 @@ devices from the USER_AGENT header in the request.
     </rules>
 ```
 
-#### Example of a rule that ensures all URL paths start with a leading / and do not end with
-a trailing / separator
+#### Example of a rule that ensures all URL paths start with a leading / and do not end with a trailing / separator
 ```
     <rule name="Always">
       <normalize pathLeadingSeparator="add" pathTrailingSeparator="remove"/>  
@@ -372,6 +373,35 @@ Note that this Rewrite Module depreciates the `Rewrite` action type in favor of 
 * `statusLine` only applies when `type` is `CustomResponse`. Sets the status line of the response so that you can return 503 or 204 or whatever.
 * `responseLine` only applies when `type` is `CustomResponse`. Sets the body of the response.
 * `appendQueryString` adds the original query string to the redirected URL. If false the querystring is stripped off the URL.
+
+### Rewrite maps
+See http://www.iis.net/learn/extensions/url-rewrite-module/using-rewrite-maps-in-url-rewrite-module for
+more details on what rewrite maps are and how to configure them.
+
+Example rewrite map usage:
+```
+    <rewrite>
+      <rewriteMaps>
+        <rewriteMap name="StaticRewrites" defaultValue="">
+          <add key="/article1" value="/article.aspx?id=1&amp;title=some-title" />
+          <add key="/some-title" value="/article.aspx?id=1&amp;title=some-title" />
+          <add key="/post/some-title.html" value="/article.aspx?id=1&amp;title=some-title" />
+        </rewriteMap>
+      </rewriteMaps>
+      <rules>
+        <rule name="Rewrite Rule">
+          <match url=".*" />
+          <conditions>
+            <add input="{StaticRewrites:{REQUEST_URI}}" pattern="(.+)" />
+          </conditions>
+          <action type="Rewrite" url="{C:1}" />
+        </rule>
+      </rules>
+    </rewrite>
+```
+Effectively the rewrite map becomes a custom function that does a dictionary lookup. You can
+reference this function using the curly braces syntax anywhere where this is supported as
+described below.
 
 ### Curly braces
 Anything inside curly braces is replaced with information from somewhere else. This provides a way to include 

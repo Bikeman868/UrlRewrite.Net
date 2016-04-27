@@ -13,11 +13,6 @@ namespace UrlRewrite.Operations
             return ReferenceEquals(value, null) ? string.Empty : HttpUtility.UrlDecode(value);
         }
 
-        public IOperation Initialize(XElement configuration)
-        {
-            return this;
-        }
-
         public string ToString(IRequestInfo requestInfo)
         {
             return "UrlDecode()";

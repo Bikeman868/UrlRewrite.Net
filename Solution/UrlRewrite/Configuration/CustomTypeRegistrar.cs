@@ -38,7 +38,7 @@ namespace UrlRewrite.Configuration
             _conditions[name.ToLower()] = type;
         }
 
-        public IOperation ConstructOperation(string name, XElement configuration)
+        public IOperation ConstructOperation(string name)
         {
             Type type;
 

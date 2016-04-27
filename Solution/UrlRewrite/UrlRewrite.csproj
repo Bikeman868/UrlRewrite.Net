@@ -96,6 +96,7 @@
     <Compile Include="Interfaces\Conditions\IStringMatch.cs" />
     <Compile Include="Interfaces\Conditions\IValueGetter.cs" />
     <Compile Include="Interfaces\Conditions\Scope.cs" />
+    <Compile Include="Operations\RewriteMapOperation.cs" />
     <Compile Include="Operations\UrlDecodeOperation.cs" />
     <Compile Include="Operations\UrlEncodeOperation.cs" />
     <Compile Include="Operations\UpperCaseOperation.cs" />
