@@ -297,25 +297,33 @@ http://www.iis.net/learn/extensions/url-rewrite-module/url-rewrite-module-config
 ### Example file
 This shows the overall structure of the rules file:
 ```
-    <rules>
-      <clear />
-      <rule name="LowerCaseRule" stopProcessing="true">
-        <match url=".*[A-Z].*" ignoreCase="false" />
-        <action type="Redirect" url="{ToLower:{URL}}" />
-        <conditions>
-          <add input="{URL}" pattern="^b/" negate="true" />
-        </conditions>
-      </rule>
-    </rules>
+    <rewrite>
+      <rules>
+        <clear />
+        <rule name="LowerCaseRule" stopProcessing="true">
+          <match url=".*[A-Z].*" ignoreCase="false" />
+          <action type="Redirect" url="{ToLower:{URL}}" />
+          <conditions>
+            <add input="{URL}" pattern="^b/" negate="true" />
+          </conditions>
+        </rule>
+      </rules>
+	</rewrite>
 ```
 
 Notes:
-* The root element of your XML must be `<rules>`. The file must be well formed, valid XML.
+* The root element of your XML must be `<rewrite>`. The file must be well formed, valid XML.
+* Inside of the <rewrite> element you can have a <rewriteMaps> element and a <rules> element.
 * The `<clear />` element is ignored by this Rewrite Module and can safely be deleted.
 * The elements inside each rule can appear in any order. The `<action>` elements execute in the order 
 that they appear inside the rule but only after all `<match>` and `<conditions>` elements have been 
 evaluated even if the `<action>` is above the `<conditions>`.
 * You can only have one `<match>` and it is usually the first element inside the `<rule>`.
+* For backwards compatibility the <match url=""/> element strips the leading / from the URL before 
+trying to match it to the regular expression. Also the <action type="Redirect" url="" />
+element adds a / to the front of the URL. This creates behaviour that matches the standard IIS rewrite
+module for backwards compatibility. I recommend that you don't use this syntax in any new rules
+that you write.
 
 ### The `<rule>` element
 Defines a rule. Rules are executed in order until a rule matches and has `stopProcessing` set to true, or
@@ -333,7 +341,8 @@ and `<conditions>` match the request, then the rule's `<action>` elements are ex
 
 Attributes:
 * `url` contains the pattern you are looking for in the URL. If the request URL has been modified by a 
-prior rule, this rule will try tp match the modified request not the original request.
+prior rule, this rule will try to match the modified request not the original request. The request URL 
+will have the leading / removed from it prior to matching.
 * `patternSyntax` can be one of `ECMAScript` or `Wildcard `. The default is `ECMAScript` which 
 is a flavour of Regular Expression. Wildcard uses the same wildcard scheme as the Windows file system.
 * `negate` when true inverts the logic so the rule matches the request when the url is not a match
