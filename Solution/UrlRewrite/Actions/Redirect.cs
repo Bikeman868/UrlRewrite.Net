@@ -44,12 +44,14 @@ namespace UrlRewrite.Actions
 
             switch (_code.ToLower())
             {
-                case "permenant":
-                case "301": 
+                case "permanent":
+                case "301":
+                    _code = "301";
                     _redirectAction = (ri, url) => ri.Context.Response.RedirectPermanent(url);
                     break;
                 case "found":
                 case "302":
+                    _code = "302";
                     _redirectAction = (ri, url) =>
                     {
                         ri.Context.Response.Redirect(url);
@@ -59,6 +61,7 @@ namespace UrlRewrite.Actions
                 case "seeother":
                 case "see other":
                 case "303":
+                    _code = "303";
                     _redirectAction = (ri, url) =>
                     {
                         ri.Context.Response.Redirect(url);
@@ -67,10 +70,11 @@ namespace UrlRewrite.Actions
                     break;
                 case "temporary":
                 case "307":
+                    _code = "307";
                     _redirectAction = (ri, url) => ri.Context.Response.Redirect(url);
                     break;
                 default:
-                    throw new UrlRewriteException("Unknown redirection type code. Supported values are permenant, found, seeOther, temporary, 301, 302, 303 and 307");
+                    throw new UrlRewriteException("Unknown redirectType=\"" + _code + "\". Supported values are permanent, found, seeOther, temporary, 301, 302, 303 and 307");
             }
             return base.Initialize(configuration);
         }

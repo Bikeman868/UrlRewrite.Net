@@ -65,8 +65,9 @@ namespace UrlRewrite.Actions
                         + (requestInfo.NewPathString.EndsWith("/") ? "" : "/") + value;
                     break;
                 case Scope.QueryString:
-                    requestInfo.NewParametersString = requestInfo.NewParametersString
-                        + (requestInfo.NewParametersString.Length > 0 ? "&" : "") + value;
+                    if (!string.IsNullOrWhiteSpace(value))
+                        requestInfo.NewParametersString = requestInfo.NewParametersString
+                            + (requestInfo.NewParametersString.Length > 0 ? "&" : "") + value;
                     break;
                 case Scope.Header:
                     requestInfo.SetHeader(_scopeIndex, requestInfo.GetHeader(_scopeIndex) + value);

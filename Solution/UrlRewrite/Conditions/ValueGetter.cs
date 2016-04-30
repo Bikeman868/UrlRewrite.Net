@@ -244,6 +244,16 @@ namespace UrlRewrite.Conditions
                     _getValueFunc = (request, ruleResult) => request.NewPathString;
                     break;
 
+                case Scope.MatchPath:
+                    _getValueFunc = (request, ruleResult) =>
+                    {
+                        var path = request.NewPathString;
+                        if (path.Length > 0 && path[0] == '/')
+                            return path.Substring(1);
+                        return path;
+                    };
+                    break;
+
                 case Scope.QueryString:
                     _getValueFunc = (request, ruleResult) => request.NewParametersString;
                     break;

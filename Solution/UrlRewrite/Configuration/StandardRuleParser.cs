@@ -268,7 +268,7 @@ namespace UrlRewrite.Configuration
                     switch (attribute.Name.LocalName.ToLower())
                     {
                         case "url":
-                            scope = Scope.Path;
+                            scope = Scope.MatchPath;
                             text = attribute.Value;
                             break;
                         case "patternsyntax":
@@ -732,7 +732,11 @@ namespace UrlRewrite.Configuration
                     switch (attribute.Name.LocalName.ToLower())
                     {
                         case "url":
-                            valueGetter = ParseTextWithMacros(attribute.Value, context);
+                            valueGetter = _factory.Create<IValueConcatenator>().Initialize(new List<IValueGetter>
+                            {
+                                ConstructValueGetter(Scope.Literal, "/"),
+                                ParseTextWithMacros(attribute.Value, context)
+                            });
                             break;
                         case "redirectType":
                             action = ConstructAction("Redirect", element);

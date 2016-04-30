@@ -11,6 +11,7 @@
 
         Url,
         Path,
+        MatchPath,
         QueryString,
         PathElement,
         Parameter,
