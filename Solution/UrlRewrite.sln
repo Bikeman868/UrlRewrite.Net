@@ -15,6 +15,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\LICENSE = ..\LICENSE
 		..\README.md = ..\README.md
 		..\ToDoList.txt = ..\ToDoList.txt
+		..\UrlRewrite.Net.nuspec = ..\UrlRewrite.Net.nuspec
+		..\NuGet\web.config.install.xdt = ..\NuGet\web.config.install.xdt
+		..\NuGet\web.config.uninstall.xdt = ..\NuGet\web.config.uninstall.xdt
 	EndProjectSection
 EndProject
 Global

@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<configuration xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
+  <system.webServer>
+    <modules>
+      <remove name="UrlRoutingModule" xdt:Transform="Remove" xdt:Locator="Match(name)" />
+      <add name="UrlRoutingModule" xdt:Transform="Remove" xdt:Locator="Match(name)" />
+    </modules>
+  </system.webServer>
+</configuration>
