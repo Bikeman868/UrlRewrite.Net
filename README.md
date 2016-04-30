@@ -313,7 +313,7 @@ This shows the overall structure of the rules file:
 
 Notes:
 * The root element of your XML must be `<rewrite>`. The file must be well formed, valid XML.
-* Inside of the <rewrite> element you can have a <rewriteMaps> element and a <rules> element.
+* Inside of the `<rewrite>` element you can have a `<rewriteMaps>` element and a `<rules>` element.
 * The `<clear />` element is ignored by this Rewrite Module and can safely be deleted.
 * The elements inside each rule can appear in any order. The `<action>` elements execute in the order 
 that they appear inside the rule but only after all `<match>` and `<conditions>` elements have been 
