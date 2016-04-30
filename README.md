@@ -693,7 +693,7 @@ An example of a rule that makes changes to the request follows:
       <rewrite to="Path" from="OriginalPath" operation="LowerCase" />
       <rewrite to="PathElement" toIndex="2" from="PathElement" fromIndex="-1" />
       <keep scope="Path" index="2" />
-      <keep scope="QueryString" index="page" />
+      <keep scope="Parameter" index="page" />
       <action type="Redirect" redirectType="301" />
     </rule>
 ```
@@ -749,3 +749,118 @@ an interface containing details of the request being processed.
 
 For custom operations pass the name of your operation to the `operation` attribute of the `<rewrite>` element. It will be
 passed a string and should return a modified version of that string.
+
+## Optimization techniques
+Use this section as a guide to making your redirection rules run as efficiently as possible
+
+### Optimization number 1, no regular expressions
+The most important optimization technique is *DO NOT USE REGULAR EXPRESSIONS* not only are they slow
+but they are hard to read and repeat the same tests over and over in a heirachical rule set.
+
+Instead of writing this:
+```
+    <rules>
+	  <rule name="rule 1">
+	    <condition scope="path" test="matchRegex" value="^/pathA/pathB" />
+	  </rule>
+	  <rule name="rule 2">
+	    <condition scope="path" test="matchRegex" value="^/pathC/pathB" />
+	  </rule>
+	</rules>
+```
+
+Refactor your regular expression into tests for each path element. It might look like more 
+lines, but this will execute much faster, and we can factor out common conditions 
+(as explained below).
+
+```
+    <rules>
+	  <rule name="rule 1">
+	    <condition scope="pathElement" index="1" test="equals" value="pathA" />
+	    <condition scope="pathElement" index="2" test="equals" value="pathB" />
+	  </rule>
+	  <rule name="rule 2">
+	    <condition scope="pathElement" index="1" test="equals" value="pathC" />
+	    <condition scope="pathElement" index="2" test="equals" value="pathB" />
+	  </rule>
+	</rules>
+```
+
+Notice that when you write the rules like this you can see that rule 1 and rule 2 
+share an identical condition that path element 2 must be 'pathB'. We can avoid 
+eveluating this condition twice by grouping these rules together into a rule list like this:
+
+```
+    <rules>
+	  <rule name="rule 3">
+	    <condition scope="pathElement" index="2" test="equals" value="pathB" />
+		<rules stopProcessing="true">
+	      <rule name="rule 1">
+	        <condition scope="pathElement" index="1" test="equals" value="pathA" />
+	      </rule>
+	      <rule name="rule 2">
+	        <condition scope="pathElement" index="1" test="equals" value="pathC" />
+	      </rule>
+	    </rules>
+	  </rule>
+	</rules>
+```
+What happens now is that rule 3 checks if path element 2 is 'pathB' and if not skips over
+rule 1 and rule 2 and we can remove this condition from both of these rules.
+
+### Optimization number 2, modify the URL don't reconstruct it
+This Rewrite Module provides a rich set of elements that can make any change to the URL
+that you need as efficiently as possible.
+
+With the standard IIS rewrite module to modify the URL you have to capture groups in your
+regex then refer to these using curly bracket syntax. A typical example is shown below:
+```
+    <rule name="InfoID" stopProcessing="true">
+      <match url="^newsblast/nb\.asp$" />
+      <conditions logicalGrouping="MatchAll" trackAllCaptures="true">
+        <add input="{QUERY_STRING}" pattern="infoid=([\d]+)" />
+        <add input="{QUERY_STRING}" pattern="email=(.+)" />
+      </conditions>
+      <action type="Redirect" url="/handlers/legacy.ashx?infoid={C:1}&amp;email={C:2}" appendQueryString="false" />
+    </rule>
+```
+Not only is this rule quite hard to read - it takes more than a few seconds to figure out
+exactly what it does, but it is also very slow. You can refector this rule to the following
+which does exactly the same thing but is much faster and more readable:
+```
+    <rule name="InfoID" stopProcessing="true">
+      <condition scope="path" test="equals" value="/newsblast/nb.asp" />
+      <condition scope="parameter" index="infoid" test="matchRegex" value="[\d]+" />
+      <condition scope="parameter" index="email" test="equals" value="" negate="true" />
+	  <rewrite scope="path" from="literal" fromIndex="/handlers/legacy.ashx" />
+	  <keep scope="parameter" index="infoid,email" />
+	  <action type="redirect" />
+    </rule>
+```
+### Optimization number 3, set the stopProcessing flag correctly
+Setting this flag correctly will avoid evaluating rules unnecessarily.
+
+By default the `<rule>` element will execute its actions only if all the rule's conditions are 
+met. Whether the rule's conditions or met or not, processing continues with the next rule until 
+all of the rules in the rule list have been evaluated.
+
+Sometimes you know that when a rule's conditions are met, all the other rules below
+it do not need to be evaluated. In this case you should add a `stopProcessing="true"` attribute
+to the `<rule>`. This will stop the processing of any further rules only if the conditions
+attached to the rule are met.
+
+Note that as a debugging aid you can add a rule with no conditions and the stopProcessing flag
+set to true which will always terminate rule processing at that point.
+
+By default if the `<rules>` element finds a matching rule and this rule has the `stopProcessing="true"` 
+attribute this will make the rule list skip the rest of the rules in this list, but it will not
+pass back a `stopProcessing` flag to its parent rule, so the parent will continue executing the
+rest of the rules in the outer list.
+
+To change this behavior set the `stopProcessing="true"` attribute of the `<rules>` element. In short
+when the `stopProcessing` attribute of the `<rules>` element is `true` this means "if any stop processing 
+rules in this list match the request then we are done processing the whole request". when the `stopProcessing` 
+attribute of the `<rules>` element is `false` (the default) this means "if any stop processing 
+rules in this list match the request then we are done processing rules in this list but continue
+evaluating rules at the level above".
+
