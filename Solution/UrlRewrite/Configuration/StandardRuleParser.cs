@@ -735,21 +735,7 @@ namespace UrlRewrite.Configuration
                             valueGetter = ParseTextWithMacros(attribute.Value, context);
                             break;
                         case "redirectType":
-                            switch(attribute.Value)
-                            {
-                                case "301":
-                                    action = ConstructAction("redirectPermenant", element);
-                                    break;
-                                case "302":
-                                    action = ConstructAction("Found", element);
-                                    break;
-                                case "303":
-                                    action = ConstructAction("PermenantRedirect", element);
-                                    break;
-                                case "307":
-                                    action = ConstructAction("Redirect", element);
-                                    break;
-                            }
+                            action = ConstructAction("Redirect", element);
                             break;
                         case "type":
                             action = ConstructAction(attribute.Value, element);

@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>UrlRewrite.Net</id>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <title>UrlRewrite.Net</title>
     <authors>Martin Halliday</authors>
     <owners>Martin Halliday</owners>
@@ -10,9 +10,19 @@
     <description>A much better URL rewriter than the one that comes with IIS and fully backwards compatible</description>
     <copyright>Copyright 2016</copyright>
     <releaseNotes>First tested and stable release</releaseNotes>
+    <summary>
+      All the features of the standard IIS rewrite module and fully backwards compatible, plus...
+
+      * Rules can contain lists of other rules
+      * No need for expensive regex and clunky back references
+      * Many times faster
+      * Much more readable syntax
+      * Integrate custom application logic
+      * Store your rewrite rules in a database or fetch them from a web service
+    </summary>
     <projectUrl>https://github.com/Bikeman868/UrlRewrite.Net</projectUrl>
     <licenseUrl>http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html</licenseUrl>
-    <tags>IIS rewrite url-rewriter</tags>
+    <tags>IIS rewrite url-rewriter urlrewrite</tags>
     <dependencies>
       <dependency id="Ninject" version="3.0.0.0" />
     </dependencies>
@@ -20,9 +30,9 @@
     </references>
   </metadata>
   <files>
-    <file src="Solution\UrlRewrite\bin\Release\UrlRewrite.dll" target="lib"/>
-    <file src="*.md" target=""/>
-    <file src="*.txt" target=""/>
-    <file src="NuGet\*.xdt" target="content"/>
+    <file src="..\Solution\UrlRewrite\bin\Release\UrlRewrite.dll" target="lib"/>
+    <file src="..\*.md" target=""/>
+    <file src="..\*.txt" target=""/>
+    <file src="*.xdt" target="content"/>
   </files>
 </package>

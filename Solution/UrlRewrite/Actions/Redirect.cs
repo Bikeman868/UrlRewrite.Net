@@ -42,30 +42,35 @@ namespace UrlRewrite.Actions
             var redirectTypeAttribute = configuration.Attributes().FirstOrDefault(a => a.Name.LocalName.ToLower() == "redirecttype");
             _code = redirectTypeAttribute == null ? "307" : redirectTypeAttribute.Value;
 
-            switch (_code)
+            switch (_code.ToLower())
             {
-                case "301": // Moved permenantly
+                case "permenant":
+                case "301": 
                     _redirectAction = (ri, url) => ri.Context.Response.RedirectPermanent(url);
                     break;
-                case "302": // Found
+                case "found":
+                case "302":
                     _redirectAction = (ri, url) =>
                     {
                         ri.Context.Response.Redirect(url);
                         ri.Context.Response.StatusCode = 302;
                     };
                     break;
-                case "303": // See other
+                case "seeother":
+                case "see other":
+                case "303":
                     _redirectAction = (ri, url) =>
                     {
                         ri.Context.Response.Redirect(url);
                         ri.Context.Response.StatusCode = 303;
                     };
                     break;
-                case "307": // Temporary redirect
+                case "temporary":
+                case "307":
                     _redirectAction = (ri, url) => ri.Context.Response.Redirect(url);
                     break;
                 default:
-                    throw new UrlRewriteException("Unknown redirection type code. Supported values are 301, 302, 303 and 307");
+                    throw new UrlRewriteException("Unknown redirection type code. Supported values are permenant, found, seeOther, temporary, 301, 302, 303 and 307");
             }
             return base.Initialize(configuration);
         }
