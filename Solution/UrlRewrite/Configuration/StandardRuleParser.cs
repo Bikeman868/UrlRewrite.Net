@@ -516,7 +516,10 @@ namespace UrlRewrite.Configuration
                 }
             }
 
-            var value = _factory.Create<IValueGetter>().Initialize(fromScope, fromIndex, operation);
+            var value = toScope == Scope.Literal 
+                ? ParseTextWithMacros(fromIndex, context)
+                : _factory.Create<IValueGetter>().Initialize(fromScope, fromIndex, operation);
+
             return _factory.Create<IReplaceAction>().Initialize(toScope, toIndex, value);
         }
 
@@ -581,7 +584,10 @@ namespace UrlRewrite.Configuration
                 }
             }
 
-            var value = _factory.Create<IValueGetter>().Initialize(fromScope, fromIndex, operation);
+            var value = toScope == Scope.Literal
+                ? ParseTextWithMacros(fromIndex, context)
+                : _factory.Create<IValueGetter>().Initialize(fromScope, fromIndex, operation);
+
             return _factory.Create<IInsertAction>().Initialize(toScope, toIndex, value);
         }
 
@@ -620,7 +626,10 @@ namespace UrlRewrite.Configuration
                 }
             }
 
-            var value = _factory.Create<IValueGetter>().Initialize(fromScope, fromIndex, operation);
+            var value = toScope == Scope.Literal
+                ? ParseTextWithMacros(fromIndex, context)
+                : _factory.Create<IValueGetter>().Initialize(fromScope, fromIndex, operation);
+
             return _factory.Create<IAppendAction>().Initialize(toScope, toIndex, value);
         }
 

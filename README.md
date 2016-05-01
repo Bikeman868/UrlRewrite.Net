@@ -864,3 +864,55 @@ attribute of the `<rules>` element is `false` (the default) this means "if any s
 rules in this list match the request then we are done processing rules in this list but continue
 evaluating rules at the level above".
 
+### Optimization number 4, look at the execution trace
+This Rewrite Module is capable of outputting a complete trace of rewrite requests showing full
+details of the rules that were evaluated, the conditions that were tested and the actions
+that were executed. The request log includes a timespamp on each event to allow you to identify
+any performance bottlenecks.
+
+Tracing every request is only useful in a development environment. You should never do this
+on your production servers. Because of this, the mechanism that we provide to turn this on
+requires you to recompile the source code.
+
+To enable request tracing on specific URLs you must pass a list of these URLs to the `Initialize()`
+method of the Rewrite Module (see section on initialization above).
+
+By default the Rewrite Module will output trace information to the `System.Debug.Trace` output, so you
+need to attach a debugger to see this. You can attatch the Visual Studio debugger in which case the
+execution trace will be displayed in the "Output" window, or you can attach the DebugView application
+from Microsoft.
+
+If you don't want to attach a debugger, you can capture the execution trace by implementing the `ILog`
+interface, and passing your implementation to the `Initialize()` method.
+
+This is an example of what the execution trace looks like:
+```
+    Rewrite:    0.0mS rewriting  /rewritethree.aspx
+    Rewrite:    3.6mS   list of 7 rules 'Testing'
+    Rewrite:    6.0mS     rule 'Always'
+    Rewrite:    7.9mS       Add leading path separator. Remove trailing path separator. 
+    Rewrite:    8.5mS     rule 'Always' was executed.   
+    Rewrite:    8.6mS     rule 'Icon'
+    Rewrite:   14.6mS       request MatchPath MatchWildcard '*.ico' is false
+    Rewrite:   14.6mS     rule 'Icon' does not match this request.   
+    Rewrite:   14.6mS     rule 'Must be lower case'
+    Rewrite:   15.9mS       list of 3 conditions
+    Rewrite:   17.7mS         request MatchPath MatchRegex '.*[A-Z].*' (case sensitive) is false
+    Rewrite:   17.9mS       list of 3 conditions evaluated to false
+    Rewrite:   17.9mS     rule 'Must be lower case' does not match this request.   
+    Rewrite:   17.9mS     rule 'Web form'
+    Rewrite:   20.7mS       request MatchPath MatchWildcard '*.aspx' is true
+    Rewrite:   21.6mS       execute list of 4 actions
+    Rewrite:   26.1mS         replace Parameter[ipAddress] with ServerVariable[REMOTE_ADDR]
+    Rewrite:   26.3mS         replace Parameter[method] with ServerVariable[REQUEST_METHOD].ToLower()
+    Rewrite:   27.2mS         append OriginalQueryString to QueryString
+    Rewrite:   27.4mS         Application defined custom action
+    Rewrite:   27.6mS       finished executing actions. 
+    Rewrite:   27.6mS     rule 'Web form' was executed.  Stop processing. 
+    Rewrite:   28.2mS   list of 7 rules 'Testing' 4 rules evaluated.  
+    Rewrite:   28.6mS finished  /rewritethree.aspx?ipAddress=::1&method=get
+```
+On the very first execution you might see the redirection rule processing taking 10's milliseconds. After
+the first few requests the times should drop to below 2 milliseconds. If your rules are taking longer than
+this to execute you should look through the other optimization tipe in this document to resolve the
+problem.
