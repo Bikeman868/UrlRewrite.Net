@@ -25,16 +25,25 @@ allows lists of rules to be inside a parent rule, and it supports faster compari
 * Unless rules are set to 'Dynamic' the results of rule evaluation will be cached for subsequent requests.
 
 ## Current status
-This project is at the pre v1.0 stage. We need to achieve feature parity with the original
-Microsoft IIS rewriter module before this can be released so that it can be used as a drop
-in replacement.
+Version 1.0.0 was functionally complete except for the caching of non-dynamic requests. This
+version was published to NuGet so that I can get feedback on backwards compatibility.
 
-If you want to get involved and make a contribution please contact the author. If you are 
-looking for this kind of functionallity for your website then you will need to wait a few 
-months until the tireless men and women of the open source community have worked their magic.
+The standard IIS rewrite module is not very precicely documented so I need some people out there
+to try is with their rewrite rules and let me know where the behaviour is different between this
+Rewrite Module and the Microsoft one. I am aiming for 100% backwards compatibility.
+
+If you are starting from scratch and don't need compatibility with an existing set of rewriter rules
+then go for it, this code is stable and production ready. I already have it on all of my own web sites
+and have started optimizing the performance of my rules.
 
 ## Roadmap
-Estimated completion date for version 1.0 is end of May 2016.
+1. Estimated completion date for version 1.0 is end of May 2016.[ Actually completed end of April 2016]
+2. Caching of non-dynamic requests. This involves hashing the url and doing a lookup on the redirection
+results rather then re-evaluating the rules each time. If any of your rules produce different results
+each time they are run (because they lookup in a database, or use the current time of day for example)
+then be sure to mark them as `Dynamic` so that the results will not be cached.
+3. 100% unit test coverage.
+4. Outbound rules. This is a feature of the IIS rewriter that I only just discovered.
 
 # Getting started
 If you already use the Microsoft URL Rewriter module, follow these steps to replace it with this modue.
