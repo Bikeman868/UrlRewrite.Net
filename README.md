@@ -211,7 +211,7 @@ devices from the USER_AGENT header in the request.
 
 ```
     <rules name="root">
-      <assembly>
+      <assembly fileName="MyCompany.Rewrite">
         <class name="isMobile" type="condition" className="MyCompany.Rewrite.Conditions.IsMobile" />
       </assembly>
       <rule name="special mobile only pages">
