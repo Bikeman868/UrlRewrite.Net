@@ -317,7 +317,7 @@ This shows the overall structure of the rules file:
           </conditions>
         </rule>
       </rules>
-	</rewrite>
+    </rewrite>
 ```
 
 Notes:
@@ -328,9 +328,9 @@ Notes:
 that they appear inside the rule but only after all `<match>` and `<conditions>` elements have been 
 evaluated even if the `<action>` is above the `<conditions>`.
 * You can only have one `<match>` and it is usually the first element inside the `<rule>`.
-* For backwards compatibility the <match url=""/> element strips the leading / from the URL before 
-trying to match it to the regular expression. Also the <action type="Redirect" url="" />
-element adds a / to the front of the URL. This creates behaviour that matches the standard IIS rewrite
+* For backwards compatibility the `<match url=""/>` element strips the leading `/` from the URL before 
+trying to match it to the regular expression. Also the `<action type="Redirect" url="" />`
+element adds a `/` to the front of the URL. This creates behaviour that matches the standard IIS rewrite
 module for backwards compatibility. I recommend that you don't use this syntax in any new rules
 that you write.
 
@@ -340,7 +340,7 @@ the end of the rule list is reached. If the `<match>` and `<conditions>` match t
 then the `<action>` elements are executed otherwise they are skipped.
 
 Attributes:
-* `name` is useful in trace output to identify the rule that was being executed.
+* `name` is useful in trace output to identify the rule that was being executed. If you dont specify a name it will be a GUID.
 * `stopProcessing` when true, if this rule matches the incomming request no further rules will be evaluated.
 
 ### The `<match>` element
@@ -351,7 +351,7 @@ and `<conditions>` match the request, then the rule's `<action>` elements are ex
 Attributes:
 * `url` contains the pattern you are looking for in the URL. If the request URL has been modified by a 
 prior rule, this rule will try to match the modified request not the original request. The request URL 
-will have the leading / removed from it prior to matching.
+will have the leading `/` removed from it prior to matching.
 * `patternSyntax` can be one of `ECMAScript` or `Wildcard `. The default is `ECMAScript` which 
 is a flavour of Regular Expression. Wildcard uses the same wildcard scheme as the Windows file system.
 * `negate` when true inverts the logic so the rule matches the request when the url is not a match
@@ -386,7 +386,7 @@ Attributes:
 * `type` must be one of `Rewrite`, `Redirect`, `CustomResponse`, `AbortRequest` or `None`. Note that `None` is
 supported in this Rewrite Module for backward compatibility only, you can achieve the same result by ommitting the `<action>` element. 
 Note that this Rewrite Module depreciates the `Rewrite` action type in favor of a more powerful `<rewrite>` element.
-* `redirectType` can be 301, 302, 303 or 307. The default is 307 if this attribute is omitted.
+* `redirectType` can be 301, 302, 303 or 307. The default is 307 if this attribute is omitted. See https://en.wikipedia.org/wiki/List_of_HTTP_status_codes for more information.
 * `url` the URL to redirect or rewrite. If this is not provided the last rewrite action will define the url to redirect to.
 * `statusLine` only applies when `type` is `CustomResponse`. Sets the status line of the response so that you can return 503 or 204 or whatever.
 * `responseLine` only applies when `type` is `CustomResponse`. Sets the body of the response.
@@ -424,7 +424,7 @@ described below.
 ### Curly braces
 Anything inside curly braces is replaced with information from somewhere else. This provides a way to include 
 information from the request and to invoke build-in functions. This curly brace expansion applies to the `url` 
-attribute of the `<match>` and `<action>` elements and the `input` attribute of conditions.
+attribute of the `<match>` and `<action>` elements. the `input` attribute of conditions and literal values.
 
 The things you can put inside curly braces are:
 * The name of a server variable for example `{URL}`. For a complete list see http://www.w3schools.com/asp/coll_servervariables.asp
@@ -432,9 +432,9 @@ The things you can put inside curly braces are:
 * `{C:n}` inserts a back reference the last condition that matched where `n` is the index of the back reference. 
 Index 0 is the whole matched string and 1..9 are the capture groups. You can also back reference capture groups from all
 conditions instead of just the last one by adding a `trackAllCaptures="true"` attribute to the `<conditions>` element.
-* `{R:n}` inserts a back reference to the match pattern where `n` is the index of the back reference. 
+* `{R:n}` inserts a back reference to the `<match>` pattern where `n` is the index of the back reference. 
 Index 0 is the whole matched string and 1..9 are the capture groups.
-* `{ToLower:}` converts the text after the colon to lower case. You can nest curly braces after the color, eg `{ToLower:{URL}}`
+* `{ToLower:}` converts the text after the colon to lower case. You can nest curly braces after the colon, eg `{ToLower:{URL}}`
 * `{UrlEncode:}` converts the text after the colon to its URL encoded form.
 * `{UrlDecode:}` converts the text after the colon to its URL decoded form.
 
@@ -490,9 +490,9 @@ element like this:
 	  <rule name="Rule 1d" />
 	</rules>
 ```
-In this version if Rule 2a matches the request this will skip the rest of the rules in List 2 and
-also pass a 'stopProcessing' indication to its parent Rule 1b, which will skip processing on the
-rest of List 1, so rule 1c and rule 1d will not be evaluated.
+In this version if `Rule 2a` matches the request this will skip the rest of the rules in `List 2` and
+also pass a 'stopProcessing' indication to its parent `Rule 1b`, which will skip processing on the
+rest of `List 1`, so `Rule 1c` and `Rule 1d` will not be evaluated.
 
 Example:
 ```
@@ -546,7 +546,7 @@ regular expressions to pick out specific parts of the url are quite complex, dif
 at runtime.
 
 This Rewrite Module takes a different approach, it parses the path into a list of strings, and parses the query 
-string into a dictionary. It does this lazily on demand so that the lists and discioranries only get created if
+string into a dictionary. It does this lazily on demand so that the lists and dictionaries only get created if
 they are required to evaluate the rules.
 
 Because the original incomming request and the rewritten version are structures that can be accessed very quickly,
@@ -566,21 +566,21 @@ matched to the request.
 The `<condition>` element can have the following attributes:
 * `scope` specifies what part of the request to compare. See below.
 * `index` for path element scope this is the numeric index of the path element. Index 0 returns the entire path.
-Index 1 is the first element of the path, index 2 the second element etc. If you pass an idex thats larger than the number
+Index 1 is the first element of the path, index 2 the second element etc. If you pass an index thats larger than the number
 of path elements then an empty string is returned for comparison. For example if the request is 
-`http://mydomain.com/path1/path2` then path1 is index position 1 amd path2 ia index position 2. You can also set 
+`http://mydomain.com/path1/path2` then `path1` is index position 1 and `path2` is index position 2. You can also set 
 the `index` attribute to a negative number to count path elements from right to left. In the previous example index 
--1 returns path2 and -2 returns path1. Larger negative values will return a blank string for comparison.
+-1 returns `path2` and -2 returns `path1`. Larger negative values will return a blank string for comparison.
 * `index` for parameter scope this is the name of the parameter. For example if the url is 
-`http://mydomain.com/path1/path2?p1=one&p2=two` you can test the value of query string parameter p2 by setting the 
+`http://mydomain.com/path1/path2?p1=one&p2=two` you can test the value of query string parameter `p2` by setting  
 `index="p2"`.
-* 'index' for header scope is the name of the header, for example 'user-agent'.
-* 'index' for server variable scope is the name of the server variable, for example 'REQUEST_METHOD'.
+* `index` for header scope is the name of the header, for example `user-agent`.
+* `index` for server variable scope is the name of the server variable, for example `REQUEST_METHOD`.
 * `test` specifies how to compare the `scope` to the `value`. The possible values are: `StartsWith`, `EndsWith`, `Contains`,
 `Equals`,  `MatchWildcard`, `MatchRegex`, `Greater`, `Less`.
 * `value` specifies the literal value to compare with the scope.
 * `ignoreCase` defaults to `true` but can be set to `false` for case sensitivity.
-* 'negate' defaults to `false` but can be set to `true` to invert the result of the test.
+* `negate` defaults to `false` but can be set to `true` to invert the result of the test.
 
 The values of the `scope` attribute can be:
 * `OriginalUrl` the full url of the original request regrdless of any rewrite actions that have executed.
@@ -601,9 +601,9 @@ name in the `index` attribute to specify the name of the parameter to compare.
 * `Header` one of the headers from the rewritten response. Pass the name of the header in the `index` attribute.
 * `OriginalServerVariable` original value one of the IIS server variables. Pass the name of the variable in the `index` parameter.
 * `ServerVariable` rewritten value of one of the IIS server variables. Pass the name of the variable in the `index` parameter.
-* `Literal` compares a hard coded value contained in the `index` attribute. This is mostly useful in the `<rewrite>` element.
-* `MatchGroup` one of the groups from the last `<match>` element that matched the request. Index 0 is the whole match, index 1 is group 1 etc. This is equivalent to the `{R:n}` syntax.
-* `ConditionGroup` one of the groups from the last `<condition>` element that matched the request. Index 0 is the whole match, index 1 is group 1 etc. This is equivalent to the `{C:n}` syntax.
+* `Literal` compares a hard coded value contained in the `index` attribute. This is mostly useful in the `<rewrite>` element. You can also use curly braces in the `index` attribute as described above.
+* `MatchGroup` one of the groups from the last `<match>` element that matched the request. Index 0 is the whole match, index 1 is group 1 etc. This is equivalent to the `{R:n}` syntax but more readable.
+* `ConditionGroup` one of the groups from the last `<condition>` element that matched the request. Index 0 is the whole match, index 1 is group 1 etc. This is equivalent to the `{C:n}` syntax but more readable.
 
 ### More complex and/or condition support and simplified conditions too
 The original version of the IIS Rewrite Module only had the `<match>` element. Version 2 introduced the optional
@@ -611,7 +611,7 @@ The original version of the IIS Rewrite Module only had the `<match>` element. V
 `<match>` element is optional and I recommend that you only use it to port existing rewrite rules. For any new rules
 the new syntax is more readable and executes much faster.
 
-There is a new `<condition>` element. Element of this type can be placed directly inside the `<rule>` element or grouped
+There is a new `<condition>` element. Elements of this type can be placed directly inside the `<rule>` element or grouped
 inside a `<conditions>` element. Furthermore `<conditions>` elements can be nested inside of other `<conditions>` elements
 to implement more complex and/or logic.
 
@@ -638,7 +638,7 @@ In the Microsoft Rewrite module when you define a rewrite action you have to pas
 that you have to use Regex back references to pick up the parts of the request you don't want to modify, and
 this complicates the original Regex as well as making the whole rule syntex much less readable.
 
-In this Rewrite Module you can specify exactly which part of the url you want to modify, you can add multiple
+In this Rewrite Module you can specify exactly which part of the url you want to modify, and you can add multiple
 `<rewrite>` elements to the `<rule>` element to make multiple modifications. The url in the `<action>` element 
 is optional for this Rewrite Module and I strongly recommend that you do not use it. You can still specify the 
 url in the `<action>` if you like for backwards compatibility but if you do this then the `<rewrite>` elements 
@@ -663,7 +663,7 @@ perform any modifications to the url that you need. It also has a <normalize> el
 URLs consistent (for example always starting the path with / and never ending the path with /).
 
 The `<delete>` element has the following attributes:
-* `scope` identifies which part of the url to delete as `Url`, `Path`, `QueryString`, `PathElement`, `Parameter`, 'Header'.
+* `scope` identifies which part of the url to delete as `Url`, `Path`, `QueryString`, `PathElement`, `Parameter`, `Header`.
 * `index` specifies the scope index if appropriate for the scope.
 
 The `<keep>` element has the following attributes:
@@ -673,8 +673,8 @@ The `<keep>` element has the following attributes:
 * `index` is a comma separated list of header names if the scope is `Header`. All other headers will be deleted.
 
 The `<insert>` element has the following attributes:
-* `scope` identifies which part of the url to insert into `Url`, `Path`, `QueryString`, `PathElement`, `Parameter`, 'Header'.
-* `index` specifies the scope index of the element to insert in front of.
+* `scope` identifies which part of the url to insert into `Url`, `Path`, `QueryString`, `PathElement`, `Parameter`, `Header`.
+* `index` specifies the scope index of the element to insert before.
 * `from` specifies the scope to get the new value from.
 * `fromIndex` specifies the the index within this scope to get the value from.
 * `operation` specifes an operation to perform on the value after reading it from the `from` scope and before writing it
@@ -682,7 +682,7 @@ to the `to` scope. Possible values are `LowerCase`, `UpperCase`, `UrlEncode`, `U
 custom operations - see below.
 
 The `<append>` element has the following attributes:
-* `scope` identifies which part of the url to append to `Url`, `Path`, `QueryString`, `PathElement`, `Parameter`, 'Header'.
+* `scope` identifies which part of the url to append to `Url`, `Path`, `QueryString`, `PathElement`, `Parameter`, `Header`.
 * `index` specifies the scope index of the element to append to.
 * `from` specifies the scope to get the new value from.
 * `fromIndex` specifies the the index within this scope to get the value from.
@@ -796,8 +796,8 @@ lines, but this will execute much faster, and we can factor out common condition
 ```
 
 Notice that when you write the rules like this you can see that rule 1 and rule 2 
-share an identical condition that path element 2 must be 'pathB'. We can avoid 
-eveluating this condition twice by grouping these rules together into a rule list like this:
+share an identical condition that path element 2 must be `pathB`. We can avoid 
+evaluating this condition twice by grouping these rules together into a rule list like this:
 
 ```
     <rules>
@@ -812,10 +812,10 @@ eveluating this condition twice by grouping these rules together into a rule lis
 	      </rule>
 	    </rules>
 	  </rule>
-	</rules>
+    </rules>
 ```
-What happens now is that rule 3 checks if path element 2 is 'pathB' and if not skips over
-rule 1 and rule 2 and we can remove this condition from both of these rules.
+What happens now is that rule 3 checks if path element 2 is `pathB` and if not skips over
+`rule 1` and `rule 2` and we can remove this condition from both of these rules.
 
 ### Optimization number 2, modify the URL don't reconstruct it
 This Rewrite Module provides a rich set of elements that can make any change to the URL
@@ -923,5 +923,5 @@ This is an example of what the execution trace looks like:
 ```
 On the very first execution you might see the redirection rule processing taking 10's milliseconds. After
 the first few requests the times should drop to below 2 milliseconds. If your rules are taking longer than
-this to execute you should look through the other optimization tipe in this document to resolve the
+this to execute you should look through the other optimization tips in this document to resolve the
 problem.
