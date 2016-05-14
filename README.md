@@ -125,7 +125,7 @@ For any path like `/company/.../*.aspx` if the session belongs to a customer app
     <rewrite>
       <rules name="root">
 
-        <assembly>
+        <assembly fileName="MyCompany.Rewrite">
           <class name="isCustomer" type="condition" className="MyCompany.Rewrite.Conditions.IsCustomer" />
         </assembly>
       
