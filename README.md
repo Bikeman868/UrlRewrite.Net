@@ -265,14 +265,19 @@ The Rewrite Module will log exceptions always, and can optionally log a trace of
 specific URLs. If you dont pass this parameter then the log will be output to `Trace`. You can see this in the Output
 window of Visual Studio whilst debugging.
 
-## `requestUrlsToTrace`
-This is a list of URLs to output trace information for. This is the incomming URL as received by the server from the
-browser or other client application. The URLs in this list are case insensitive.
+## `forwardTracePredicate`
+This function is called for each request to determine whether to output trace information for the incomming URL. 
+This function is passed the URL as received by the server from the browser and should return true to trace the
+execution of rewrite rules for this request.
 
-## `rewrittenUrlsToTrace`
-This is a list of URLs to output trace information for. This is the rewritten URL that is the result of executing
-the rewriter rules. The URLs in this list are case insensitive. Note that adding URLs to this list makes the 
-Rewrite Module execute the rules for these URLs twice.
+Passing null for this parameter will speed up processing of the requests.
+
+## `reverseTracePredicate`
+This function is called for each request to determine whether to output trace information for the rewritten reqeust.
+This function is passed the URL that results from executing the rewrite rules and should return true to re-run the 
+rules with logging enabled.
+
+Passing null for this parameter will speed up processing of the requests.
 
 ## `factory`
 Allows you to integrate an IoC container for resolving interfaces. This is covered in detail above.

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -7,8 +6,6 @@ using System.Threading;
 using System.Web;
 using UrlRewrite.Configuration;
 using UrlRewrite.Interfaces;
-using UrlRewrite.Interfaces.Actions;
-using UrlRewrite.Interfaces.Conditions;
 using UrlRewrite.Interfaces.Rules;
 using UrlRewrite.Interfaces.Utilities;
 using UrlRewrite.Utilities;
@@ -22,19 +19,18 @@ namespace UrlRewrite
         private static IFactory _factory;
 
 #if !TRACE_ALL
-        private static SortedList<string, string> _requestUrlsToTrace;
-        private static SortedList<string, string> _rewrittenUrlsToTrace;
         private static bool _tracingEnabled;
+        private static Func<string, bool> _forwardTracePredicate;
+        private static Func<string, bool> _reverseTracePredicate;
 #endif
         /// <summary>
         /// The host application must call this or no rewriting will take place
         /// </summary>
         /// <param name="log">Optional logger or null for logging to Trace output</param>
-        /// <param name="requestUrlsToTrace">A list of the urls to log traces for. 
-        /// If you have a specific URL that is not rewriting as you want then
-        /// add that url to this list to log an execution trace through the 
-        /// rewriting rules</param>
-        /// <param name="rewrittenUrlsToTrace">A list of the rewritten urls
+        /// <param name="forwardTracePredicate">A function that determines which urls to 
+        /// log traces for. If you have a specific URL that is not rewriting as you want then
+        /// add that url to this list to log an execution trace through the rewriting rules</param>
+        /// <param name="reverseTracePredicate">A list of the rewritten urls
         /// to log traces for. If your site it redirecting to an unexpected
         /// page and you want to know why it was redirected there, add the
         /// rewritten/redirected url to this list</param>
@@ -51,8 +47,8 @@ namespace UrlRewrite
         /// the Microsoft IIS Rewriter module but with many more features</param>
         public static void Initialize(
             ILog log = null,
-            List<string> requestUrlsToTrace = null,
-            List<string> rewrittenUrlsToTrace = null,
+            Func<string, bool> forwardTracePredicate = null,
+            Func<string, bool> reverseTracePredicate = null,
             IFactory factory = null, 
             Stream ruleStream = null,
             IRuleParser ruleParser = null)
@@ -94,23 +90,9 @@ namespace UrlRewrite
             }
 
 #if !TRACE_ALL
-            if (requestUrlsToTrace != null)
-            {
-                _requestUrlsToTrace = new SortedList<string, string>();
-                foreach (var url in requestUrlsToTrace)
-                    _requestUrlsToTrace.Add(url.ToLower(), url);
-            }
-
-            if (rewrittenUrlsToTrace != null)
-            {
-                _rewrittenUrlsToTrace = new SortedList<string, string>();
-                foreach (var url in rewrittenUrlsToTrace)
-                    _rewrittenUrlsToTrace.Add(url.ToLower(), url);
-            }
-
-            _tracingEnabled =
-                (requestUrlsToTrace != null && requestUrlsToTrace.Count > 0) ||
-                (rewrittenUrlsToTrace != null && rewrittenUrlsToTrace.Count > 0);
+            _forwardTracePredicate = forwardTracePredicate;
+            _reverseTracePredicate = reverseTracePredicate;
+            _tracingEnabled = forwardTracePredicate != null || reverseTracePredicate != null;
 #endif
         }
 
@@ -137,9 +119,8 @@ namespace UrlRewrite
 
 #if !TRACE_ALL
                 if (_tracingEnabled
-                    && _requestUrlsToTrace != null
-                    && _requestUrlsToTrace.Count > 0
-                    && _requestUrlsToTrace.ContainsKey(context.Request.RawUrl))
+                    && _forwardTracePredicate != null
+                    && _forwardTracePredicate(context.Request.RawUrl))
                 {
 #endif
                     requestInfo.ExecutionMode = ExecutionMode.ExecuteAndTrace;
@@ -153,14 +134,13 @@ namespace UrlRewrite
 #if !TRACE_ALL
                 if (_tracingEnabled
                     && requestInfo.ExecutionMode == ExecutionMode.ExecuteOnly
-                    && _rewrittenUrlsToTrace != null
-                    && _rewrittenUrlsToTrace.Count > 0)
+                    && _reverseTracePredicate != null)
                 {
                     var newPath = "/";
                     if (requestInfo.NewPath != null && requestInfo.NewPath.Count > 0)
                         newPath = string.Join("/", requestInfo.NewPath).ToLower();
 
-                    if (_rewrittenUrlsToTrace.ContainsKey(newPath))
+                    if (_reverseTracePredicate(newPath))
                     {
                         requestInfo.ExecutionMode = ExecutionMode.TraceOnly;
                         requestInfo.Log.TraceRequestBegin(requestInfo);
