@@ -203,6 +203,10 @@ namespace UrlRewrite.Configuration
                         case "dynamic":
                             isDynamic = attribute.Value.ToLower() == "true";
                             break;
+                        case "enabled":
+                            if (attribute.Value.ToLower() != "true")
+                                return null;
+                            break;
                     }
                 }
             }
@@ -585,7 +589,7 @@ namespace UrlRewrite.Configuration
             }
 
             var value = toScope == Scope.Literal
-                ? ParseTextWithMacros(fromIndex, context)
+                ? ParseTextWithMacros(fromIndex, context, operation)
                 : _factory.Create<IValueGetter>().Initialize(fromScope, fromIndex, operation);
 
             return _factory.Create<IInsertAction>().Initialize(toScope, toIndex, value);
@@ -627,7 +631,7 @@ namespace UrlRewrite.Configuration
             }
 
             var value = toScope == Scope.Literal
-                ? ParseTextWithMacros(fromIndex, context)
+                ? ParseTextWithMacros(fromIndex, context, operation)
                 : _factory.Create<IValueGetter>().Initialize(fromScope, fromIndex, operation);
 
             return _factory.Create<IAppendAction>().Initialize(toScope, toIndex, value);
@@ -741,11 +745,7 @@ namespace UrlRewrite.Configuration
                     switch (attribute.Name.LocalName.ToLower())
                     {
                         case "url":
-                            valueGetter = _factory.Create<IValueConcatenator>().Initialize(new List<IValueGetter>
-                            {
-                                ConstructValueGetter(Scope.Literal, "/"),
-                                ParseTextWithMacros(attribute.Value, context)
-                            });
+                            valueGetter = ParseTextWithMacros(attribute.Value, context, new AbsoluteUrlOperation());
                             break;
                         case "redirectType":
                             action = ConstructAction("Redirect", element);
@@ -874,7 +874,7 @@ namespace UrlRewrite.Configuration
             return ConstructValueGetter(Scope.ServerVariable, input);
         }
 
-        private IValueGetter ParseTextWithMacros(string input, ParserContext context)
+        private IValueGetter ParseTextWithMacros(string input, ParserContext context, IOperation operation = null)
         {
             var textAreas = SeparateMarcoText(input.Trim());
             if (textAreas == null || textAreas.Count == 0) return null;
@@ -885,7 +885,9 @@ namespace UrlRewrite.Configuration
                     : ConstructValueGetter(Scope.Literal, a.Text))
                 .ToList();
 
-            return areaGetters.Count == 1 ? areaGetters[0] : _factory.Create<IValueConcatenator>().Initialize(areaGetters);
+            return areaGetters.Count == 1  && operation == null
+                ? areaGetters[0] 
+                : _factory.Create<IValueConcatenator>().Initialize(areaGetters, null, operation);
         }
 
         #endregion

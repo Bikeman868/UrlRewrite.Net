@@ -74,7 +74,10 @@ namespace UrlRewrite.Actions
                     _redirectAction = (ri, url) => ri.Context.Response.Redirect(url);
                     break;
                 default:
-                    throw new UrlRewriteException("Unknown redirectType=\"" + _code + "\". Supported values are permanent, found, seeOther, temporary, 301, 302, 303 and 307");
+                    throw new UrlRewriteException(
+                        "Unknown redirectType=\"" 
+                        + _code 
+                        + "\". Supported values are permanent, found, seeOther, temporary, 301, 302, 303 and 307");
             }
             return base.Initialize(configuration);
         }

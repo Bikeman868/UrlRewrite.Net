@@ -15,7 +15,6 @@ namespace UrlRewrite.Utilities
             return new List<IocRegistration>
             {
                 // Singletons
-                new IocRegistration().Init<IFactory, NinjectFactory>(IocLifetime.Singleton),
                 new IocRegistration().Init<ILog, TraceLog>(IocLifetime.Singleton),
                 new IocRegistration().Init<ICustomTypeRegistrar, CustomTypeRegistrar>(IocLifetime.Singleton),
 

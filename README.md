@@ -759,7 +759,7 @@ an interface containing details of the request being processed.
 For custom operations pass the name of your operation to the `operation` attribute of the `<rewrite>` element. It will be
 passed a string and should return a modified version of that string.
 
-###Example custom operation
+###Example of a custom operation
 ```
     public class ToMyDomain: IOperation
     {
@@ -773,6 +773,11 @@ passed a string and should return a modified version of that string.
             return "ToMyDomain()";
         }
 
+        public override string ToString()
+        {
+            return "ToMyDomain()";
+        }
+
         public void Describe(TextWriter writer, string indent, string indentText)
         {
             writer.Write(indent);
@@ -781,7 +786,7 @@ passed a string and should return a modified version of that string.
     }
 ```
 
-###Example of custom condition
+###Example of a custom condition
 ```
     public class IsMyDomain : ICondition
     {
@@ -798,13 +803,18 @@ passed a string and should return a modified version of that string.
 
         public bool Test(IRequestInfo request, IRuleResult ruleResult)
         {
-            var result = !string.Equals(request.GetHeader("host"), "mydomain.com", StringComparison.InvariantCultureIgnoreCase);
+            var result = string.Equals(request.GetHeader("host"), "mydomain.com", StringComparison.InvariantCultureIgnoreCase);
             return _negate ? !result : result;
+        }
+
+        public override string ToString()
+        {
+            return "host header is" + (_negate ? " not " : " ") + "for my web site";
         }
 
         public string ToString(IRequestInfo requestInfo)
         {
-            return "host header is for my web site";
+            return ToString();
         }
 
         public void Describe(TextWriter writer, string indent, string indentText)
