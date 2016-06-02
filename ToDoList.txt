@@ -4,4 +4,3 @@ Unit tests for actions
 
 Outbound rules http://www.iis.net/learn/extensions/url-rewrite-module/creating-outbound-rules-for-url-rewrite-module
 
-<rule enabled="false">

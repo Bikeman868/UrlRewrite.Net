@@ -44,7 +44,6 @@ namespace UrlRewrite.Configuration
 
             if (_operations.TryGetValue(name.ToLower(), out type))
                 return _factory.Create(type) as IOperation;
-
             return null;
         }
 
@@ -53,8 +52,12 @@ namespace UrlRewrite.Configuration
             Type type;
 
             if (_actions.TryGetValue(name.ToLower(), out type))
-                return _factory.Create(type) as IAction;
-
+            {
+                var action = _factory.Create(type) as IAction;
+                if (action != null)
+                    action.Initialize(configuration);
+                return action;
+            }
             return null;
         }
 
@@ -63,8 +66,12 @@ namespace UrlRewrite.Configuration
             Type type;
 
             if (_conditions.TryGetValue(name.ToLower(), out type))
-                return _factory.Create(type) as ICondition;
-
+            {
+                var condition = _factory.Create(type) as ICondition;
+                if (condition!= null)
+                    condition.Initialize(configuration, valueGetter);
+                return condition;
+            }
             return null;
         }
     }
