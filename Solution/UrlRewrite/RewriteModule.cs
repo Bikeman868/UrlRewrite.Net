@@ -74,7 +74,7 @@ namespace UrlRewrite
             if (ruleStream == null)
             {
                 var filePath = HttpContext.Current.Server.MapPath("RewriteRules.config");
-                ruleStream = File.Open(filePath, FileMode.Open, FileAccess.Read);
+                ruleStream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
             }
 
             var parser = ruleParser ?? _factory.Create<StandardRuleParser>();

@@ -759,6 +759,61 @@ an interface containing details of the request being processed.
 For custom operations pass the name of your operation to the `operation` attribute of the `<rewrite>` element. It will be
 passed a string and should return a modified version of that string.
 
+###Example custom operation
+```
+    public class ToMyDomain: IOperation
+    {
+        public string Execute(string value)
+        {
+            return "http://mydomain.com/" + value;
+        }
+
+        public string ToString(IRequestInfo requestInfo)
+        {
+            return "ToMyDomain()";
+        }
+
+        public void Describe(TextWriter writer, string indent, string indentText)
+        {
+            writer.Write(indent);
+            writer.WriteLine("adds my domain name to the front of a URL");
+        }
+    }
+```
+
+###Example of custom condition
+```
+    public class IsMyDomain : ICondition
+    {
+        private bool _negate;
+
+        public ICondition Initialize(XElement configuration, IValueGetter valueGetter)
+        {
+            var negateAttribute = configuration.Attribute("negate");
+            if (negateAttribute != null)
+                _negate = string.Equals(negateAttribute.Value, "true", StringComparison.InvariantCultureIgnoreCase);
+
+            return this;
+        }
+
+        public bool Test(IRequestInfo request, IRuleResult ruleResult)
+        {
+            var result = !string.Equals(request.GetHeader("host"), "mydomain.com", StringComparison.InvariantCultureIgnoreCase);
+            return _negate ? !result : result;
+        }
+
+        public string ToString(IRequestInfo requestInfo)
+        {
+            return "host header is for my web site";
+        }
+
+        public void Describe(TextWriter writer, string indent, string indentText)
+        {
+            writer.WriteLine(indent + " If " + ToString());
+        }
+    }
+```
+
 ## Optimization techniques
 Use this section as a guide to making your redirection rules run as efficiently as possible
 

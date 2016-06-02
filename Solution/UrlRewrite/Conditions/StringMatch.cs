@@ -25,8 +25,7 @@ namespace UrlRewrite.Conditions
             string match,
             bool inverted = false,
             bool ignoreCase = true,
-            string matchGroupsName = "C")
-        {
+            string matchGroupsName = "C"){
             _match = match;
             _valueGetter = valueGetter;
             _compareOperation = compareOperation;

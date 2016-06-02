@@ -8,7 +8,7 @@ namespace UrlRewrite.Interfaces
         /// Constructs an instance of specified type using dependency injection
         /// </summary>
         /// <typeparam name="T">The type of object to construct</typeparam>
-        T Create<T>();
+        T Create<T>() where T: class;
 
         /// <summary>
         /// Constructs an instance of specified type using dependency injection

@@ -30,6 +30,11 @@ namespace UrlRewrite.Utilities
             {
                 var constructor = type.GetConstructor(Type.EmptyTypes);
                 result = constructor == null ? null : constructor.Invoke(null);
+                if (ReferenceEquals(result, null))
+                    throw new UrlRewriteException(
+                        "Failed to construct instance of " 
+                        + type.FullName 
+                        + " because it is not registered in IoC and has no default public constructor");
             }
             return result;
         }
