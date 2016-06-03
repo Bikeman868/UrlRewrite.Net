@@ -995,3 +995,67 @@ On the very first execution you might see the redirection rule processing taking
 the first few requests the times should drop to below 2 milliseconds. If your rules are taking longer than
 this to execute you should look through the other optimization tips in this document to resolve the
 problem.
+
+#Syntax Reference
+##`<rewrite>` element
+
+|Description|Root element of the document|
+|Attributes|None|
+|Parent|None|
+|Children|`<rules>` `<rewritemaps>`|
+|Rules|Can only have one `<rules>` child element. All `<rewriteMaps>` children must come before the `<rules>` child|
+
+##`<rules>` element
+
+|Description|Container for a list of `<rule>` elements|
+|Attribute|`name` only used in trace output|
+|Attribute|`stopProcessing` defaults to false, set to `true` to propogate the `stopProcessing` flag from rules within this list to the parent rule|
+|Parent|`<rewrite>` `<rule>`|
+|Children|`<rule>` `<assembly>`|
+|Rules|None|
+
+##`<rewriteMaps>` element
+
+|Description|Container for a list of `<rewriteMap>` elements|
+|Attributes|None|
+|Parent|`<rewrite>`|
+|Children|`<rewriteMap>`|
+|Rules|Children must have unique names|
+
+##`<rewriteMap>` element
+
+|Description|Defines a lookup dictionary that can be used like a function in `{}` expansion|
+|Attribute|`name` the name used to reference this map in `{}`|
+|Attribute|`defaultValue' the value to return when there is no matching entry in the dictionary|
+|Parent|`<rewriteMaps>`|
+|Children|`<add>`|
+|Rules|Children must have unique keys|
+
+##`<rewriteMap><add>` element
+
+|Description|Defines an entry in the rewrite map dictionary|
+|Attributes|`key` the dictionary key|
+|Attributes|`value' the dictionary value|
+|Parent|`<rewriteMap>`|
+|Children|none|
+|Rules|None|
+
+##`<assembly>` element
+
+|Description|Defines .Net assembly that contains custom extensions|
+|Attribute|`filename` the name of the .Net DLL without the .dll file extension|
+|Parent|`<rules>`|
+|Children|`<class>`|
+|Rules|None|
+
+##`<class>` element
+
+|Description|Defines a .Net class that implements a custom extension|
+|Attribute|`name` how this extension will be referred to within the rewrite rules|
+|Attribute|`type` must be one of these values: `operation`, `action`, `condition`|
+|Attribute|`className` the fully qualified name of this .Net class|
+|Parent|`<assembly>`|
+|Children|None|
+|Rules|The combination of `name` and `type` must be unique within the whole rewrite rule file|
+
+##`<rule>` element

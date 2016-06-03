@@ -516,6 +516,10 @@ namespace UrlRewrite.Configuration
                         case "operation":
                             operation = ConstructOperation(attribute.Value, context);
                             break;
+                        case "value":
+                            fromScope = Scope.Literal;
+                            fromIndex = attribute.Value;
+                            break;
                     }
                 }
             }
