@@ -998,6 +998,8 @@ problem.
 
 #Syntax Reference
 ##`<rewrite>` element
+
+|   |   |
 |---|---|
 |Description|Root element of the document|
 |Attributes|None|
@@ -1007,6 +1009,7 @@ problem.
 
 ##`<rules>` element
 
+|   |   |
 |---|---|
 |Description|Container for a list of `<rule>` elements|
 |Attribute|`name` only used in trace output|
@@ -1027,6 +1030,8 @@ problem.
 
 ##`<rewriteMap>` element
 
+|   |   |
+|---|---|
 |Description|Defines a lookup dictionary that can be used like a function in `{}` expansion|
 |Attribute|`name` the name used to reference this map in `{}`|
 |Attribute|`defaultValue' the value to return when there is no matching entry in the dictionary|
@@ -1036,6 +1041,8 @@ problem.
 
 ##`<rewriteMap><add>` element
 
+|   |   |
+|---|---|
 |Description|Defines an entry in the rewrite map dictionary|
 |Attributes|`key` the dictionary key|
 |Attributes|`value' the dictionary value|
@@ -1045,6 +1052,8 @@ problem.
 
 ##`<assembly>` element
 
+|   |   |
+|---|---|
 |Description|Defines .Net assembly that contains custom extensions|
 |Attribute|`filename` the name of the .Net DLL without the .dll file extension|
 |Parent|`<rules>`|
@@ -1053,10 +1062,12 @@ problem.
 
 ##`<class>` element
 
+|   |   |
+|---|---|
 |Description|Defines a .Net class that implements a custom extension|
 |Attribute|`name` how this extension will be referred to within the rewrite rules|
-|Attribute|`type` must be one of these values: `operation`, `action`, `condition`|
-|Attribute|`className` the fully qualified name of this .Net class|
+|Attribute|`type` must be `operation`, `action` or `condition`|
+|Attribute|`className` the fully qualified name of a .Net class. The class must implement `IOperation`, `IAction` or `ICondition`|
 |Parent|`<assembly>`|
 |Children|None|
 |Rules|The combination of `name` and `type` must be unique within the whole rewrite rule file|
