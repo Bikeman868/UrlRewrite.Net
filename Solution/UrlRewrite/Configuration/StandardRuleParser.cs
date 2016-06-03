@@ -142,7 +142,7 @@ namespace UrlRewrite.Configuration
         private IRuleList ParseRulesElement(XElement element, ParserContext context, string defaultName)
         {
             var name = defaultName;
-            var stopProcessing = false;
+            var stopProcessing = true;
 
             var rules = element
                 .Nodes()

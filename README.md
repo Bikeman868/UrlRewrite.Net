@@ -1,6 +1,6 @@
 # UrlRewrite.Net
 Drop in replacement for the IIS Url Rewriter that removes all the limitations and perfromance
-constraints of the the Microsoft implementation. Drop this into your web site in place of the 
+constraints of the the Microsoft implementation. Drop this into your web site in place of the stopprocessingsxfgsdfgwdg
 Microsoft Rewrite module and everything will work as before, but now you can extend, enhance
 and optimize your rules going forward.
 
@@ -466,7 +466,8 @@ rule list heirachy that minimizes the rule processing effort for the most freque
 There is no limit to how deep the nest rule lists within rules.
 
 If you set the `stopProcessing` flag on a `<rule>` to `true` this will stop the procesing of any further rules within 
-its enclosing `<rules>` element. This will not propogate to the next level up. For example if you have this structure:
+its enclosing `<rules>` element. This will only propogate to the next level up if the parent `<rules>` element also
+has  `stopProcessing` flag set to `true`. For example if you have this structure:
 ```
     <rules name="List 1">
 	  <rule name="Rule 1a" />
@@ -483,16 +484,16 @@ its enclosing `<rules>` element. This will not propogate to the next level up. F
 ```
 
 Then if `Rule 2a` matches the request (and it has the `stopProcessing` flag set) this will cause its enclosing
-`<rules name="List 2">` element to stop processing any more rules. This means that Rule 2b and Rule 2c will be 
-skipped and processing will continue with the evaluation of Rule 1c.
+`<rules name="List 2">` element to stop processing any more rules. By default the `<rules>` element will also
+propagate this flag up to its parent, so no further rules will be evaluated in this case.
 
-If you want to propogate the `stopProcessing` flag up to the parent, set the `stopProcessing="true"` on the `<rules>`
-element like this:
+If you do not want to propogate the `stopProcessing` flag up to the parent, set `stopProcessing="false"` 
+on the `<rules>`element like this:
 ```
     <rules name="List 1">
 	  <rule name="Rule 1a" />
 	  <rule name="Rule 1b" >
-        <rules name="List 2" stopProcessing="true">
+        <rules name="List 2" stopProcessing="false">
 		  <rule name="Rule 2a" stopProcessing="true">
 		  <rule name="Rule 2b">
 		  <rule name="Rule 2c">
@@ -502,9 +503,8 @@ element like this:
 	  <rule name="Rule 1d" />
 	</rules>
 ```
-In this version if `Rule 2a` matches the request this will skip the rest of the rules in `List 2` and
-also pass a 'stopProcessing' indication to its parent `Rule 1b`, which will skip processing on the
-rest of `List 1`, so `Rule 1c` and `Rule 1d` will not be evaluated.
+In this version if `Rule 2a` matches the request this will skip the rest of the rules in `List 2` but this
+will not propagate up to `<rules name="List 1">` so rule processing will continue with `<rule name="Rule 1c" />`.
 
 Example:
 ```
@@ -539,7 +539,7 @@ Example:
 	  <rule name="Form" stopProcessing="true">
 		<condition scope="OriginalPathElement" index="-1" test="EndsWith" value=".aspx"/>
 		<rules name="Form rules">
-		  <rule name="Upper case" stopProcessing="true">
+		  <rule name="Upper case">
 			<condition scope="OriginalPath" test="MatchRegex" value=".*[A-Z].*" ignoreCase="false" />
 			<rewrite to="Path" from="OriginalPath" operation="LowerCase"/>
 			<action type="Redirect" redirectType="301"/>
@@ -708,14 +708,14 @@ The `<normalize>` element has the following optional attributes:
 
 An example of a rule that makes changes to the request follows:
 ```
-    <rule name="Flatten forms permenantly" stopProcessing="true">
+    <rule name="Flatten forms permenantly">
       <condition scope="OriginalPathElement" index="-1" test="EndsWith" value=".aspx" />
       <condition scope="OriginalPathElement" index="3" test="Equals" value="" negate="true" />
       <rewrite to="Path" from="OriginalPath" operation="LowerCase" />
       <rewrite to="PathElement" toIndex="2" from="PathElement" fromIndex="-1" />
       <keep scope="Path" index="2" />
       <keep scope="Parameter" index="page" />
-      <action type="Redirect" redirectType="301" />
+      <action redirectType="301" />
     </rule>
 ```
 If this rule was run against http://mydomain.com/Companies/Quote/MyCompany.aspx?order=date&Page=3&id=99 
@@ -880,7 +880,7 @@ evaluating this condition twice by grouping these rules together into a rule lis
     <rules>
 	  <rule name="rule 3">
 	    <condition scope="pathElement" index="2" test="equals" value="pathB" />
-		<rules stopProcessing="true">
+		<rules>
 	      <rule name="rule 1">
 	        <condition scope="pathElement" index="1" test="equals" value="pathA" />
 	      </rule>
@@ -901,7 +901,7 @@ that you need as efficiently as possible.
 With the standard IIS rewrite module to modify the URL you have to capture groups in your
 regex then refer to these using curly bracket syntax. A typical example is shown below:
 ```
-    <rule name="InfoID" stopProcessing="true">
+    <rule name="InfoID">
       <match url="^newsblast/nb\.asp$" />
       <conditions logicalGrouping="MatchAll" trackAllCaptures="true">
         <add input="{QUERY_STRING}" pattern="infoid=([\d]+)" />
@@ -914,7 +914,7 @@ Not only is this rule quite hard to read - it takes more than a few seconds to f
 exactly what it does, but it is also very slow. You can refector this rule to the following
 which does exactly the same thing but is much faster and more readable:
 ```
-    <rule name="InfoID" stopProcessing="true">
+    <rule name="InfoID">
       <condition scope="path" test="equals" value="/newsblast/nb.asp" />
       <condition scope="parameter" index="infoid" test="matchRegex" value="[\d]+" />
       <condition scope="parameter" index="email" test="equals" value="" negate="true" />
@@ -939,15 +939,15 @@ Note that as a debugging aid you can add a rule with no conditions and the stopP
 set to true which will always terminate rule processing at that point.
 
 By default if the `<rules>` element finds a matching rule and this rule has the `stopProcessing="true"` 
-attribute this will make the rule list skip the rest of the rules in this list, but it will not
-pass back a `stopProcessing` flag to its parent rule, so the parent will continue executing the
-rest of the rules in the outer list.
+attribute this will make the rule list skip the rest of the rules in this list, and it will 
+pass back a `stopProcessing` flag to its parent rule, so the parent will skip the rest of its rules
+etc all the way back up the tree.
 
-To change this behavior set the `stopProcessing="true"` attribute of the `<rules>` element. In short
+To change this behavior set the `stopProcessing="false"` attribute of the `<rules>` element. In short
 when the `stopProcessing` attribute of the `<rules>` element is `true` this means "if any stop processing 
 rules in this list match the request then we are done processing the whole request". when the `stopProcessing` 
-attribute of the `<rules>` element is `false` (the default) this means "if any stop processing 
-rules in this list match the request then we are done processing rules in this list but continue
+attribute of the `<rules>` element is `false` this means "if any stop processing rules in this 
+list match the request then we are done processing rules in this list but continue
 evaluating rules at the level above".
 
 ### Optimization number 4, look at the execution trace
@@ -1020,7 +1020,7 @@ problem.
 |---|---|
 |Description|Container for a list of `<rule>` elements|
 |`name` attribute|only used in trace output|
-|`stopProcessing` attribute|defaults to false, set to `true` to propogate the `stopProcessing` flag from rules within this list to the parent rule|
+|`stopProcessing` attribute|defaults to `true`, set to `false` to stop the propogation of the `stopProcessing` flag from rules within this list to the parent rule|
 |Parent|`<rewrite>` or `<rule>`|
 |Children|`<rule>` and `<assembly>`|
 |Rules|The `<assembly>` children must come before any `<rule>` children that reference the custom extensions in the assemblies. Recommended to put all `<assembly>` children at the top|
