@@ -525,7 +525,7 @@ namespace UrlRewrite.Configuration
             }
 
             var value = toScope == Scope.Literal 
-                ? ParseTextWithMacros(fromIndex, context)
+                ? ParseTextWithMacros(fromIndex, context, operation)
                 : _factory.Create<IValueGetter>().Initialize(fromScope, fromIndex, operation);
 
             return _factory.Create<IReplaceAction>().Initialize(toScope, toIndex, value);
@@ -588,6 +588,10 @@ namespace UrlRewrite.Configuration
                         case "operation":
                             operation = ConstructOperation(attribute.Value, context);
                             break;
+                        case "value":
+                            fromScope = Scope.Literal;
+                            fromIndex = attribute.Value;
+                            break;
                     }
                 }
             }
@@ -629,6 +633,10 @@ namespace UrlRewrite.Configuration
                             break;
                         case "operation":
                             operation = ConstructOperation(attribute.Value, context);
+                            break;
+                        case "value":
+                            fromScope = Scope.Literal;
+                            fromIndex = attribute.Value;
                             break;
                     }
                 }
@@ -767,10 +775,12 @@ namespace UrlRewrite.Configuration
             var actionList = _factory.Create<IActionList>().Initialize();
 
             if (valueGetter != null)
+            {
                 actionList.Add(_factory.Create<IReplaceAction>().Initialize(Scope.Url, null, valueGetter));
 
-            if (appendQueryString)
-                actionList.Add(_factory.Create<IAppendAction>().Initialize(Scope.QueryString, null, ConstructValueGetter(Scope.OriginalQueryString)));
+                if (appendQueryString)
+                    actionList.Add(_factory.Create<IAppendAction>().Initialize(Scope.QueryString, null, ConstructValueGetter(Scope.OriginalQueryString)));
+            }
 
             if (action != null)
                 actionList.Add(action);

@@ -434,14 +434,21 @@ attribute of the `<match>` and `<action>` elements. the `input` attribute of con
 The things you can put inside curly braces are:
 * The name of a server variable for example `{URL}`. For a complete list see http://www.w3schools.com/asp/coll_servervariables.asp
 * A header from the request prefixed with `HTTP_` and with hyphens replaced with underscore, for example `{HTTP_USER_AGENT}`.
-* `{C:n}` inserts a back reference the last condition that matched where `n` is the index of the back reference. 
+* The name of a rewrite map followed by colon. This takes the value after the colon and uses it as a key into the rewrite map dictionary.
+* `{c:n}` inserts a back reference the last condition that matched where `n` is the index of the back reference. 
 Index 0 is the whole matched string and 1..9 are the capture groups. You can also back reference capture groups from all
 conditions instead of just the last one by adding a `trackAllCaptures="true"` attribute to the `<conditions>` element.
-* `{R:n}` inserts a back reference to the `<match>` pattern where `n` is the index of the back reference. 
+* `{r:n}` inserts a back reference to the `<match>` pattern where `n` is the index of the back reference. 
 Index 0 is the whole matched string and 1..9 are the capture groups.
-* `{ToLower:}` converts the text after the colon to lower case. You can nest curly braces after the colon, eg `{ToLower:{URL}}`
-* `{UrlEncode:}` converts the text after the colon to its URL encoded form.
-* `{UrlDecode:}` converts the text after the colon to its URL decoded form.
+* `{toLower:}` converts the text after the colon to lower case. You can nest curly braces after the colon, eg `{toLower:{URL}}`
+* `{urlEncode:}` converts the text after the colon to its URL encoded form. You can nest curly braces after the colon.
+* `{urlDecode:}` converts the text after the colon to its URL decoded form. You can nest curly braces after the colon.
+
+In this Rewrite Module implementation the curly brace syntax has been extended to include
+* The name of a custom operation followed by a colon. Custom operations can be registered with the `<class>` element. The value 
+after the colon will be the input to your custom function, this can be another curly brace expension, for example 
+`{myCustomOperation:{toLower:{HTTP_USER_AGENT}}}`
+* `{toUpper:}` converts the text after the colon to upper case. You can nest curly braces after the colon.
 
 ## New functionallity
 This section defines how the standard Microsoft rewriter rule syntax was extended to include the new features
@@ -1004,7 +1011,7 @@ problem.
 |Description|Root element of the document|
 |Attributes|None|
 |Parent|None|
-|Children|`<rules>` `<rewritemaps>`|
+|Children|`<rules>` `<rewriteMaps>`|
 |Rules|Can only have one `<rules>` child element. All `<rewriteMaps>` children must come before the `<rules>` child|
 
 ##`<rules>` element
@@ -1014,9 +1021,9 @@ problem.
 |Description|Container for a list of `<rule>` elements|
 |Attribute|`name` only used in trace output|
 |Attribute|`stopProcessing` defaults to false, set to `true` to propogate the `stopProcessing` flag from rules within this list to the parent rule|
-|Parent|`<rewrite>` `<rule>`|
-|Children|`<rule>` `<assembly>`|
-|Rules|None|
+|Parent|`<rewrite>` or `<rule>`|
+|Children|`<rule>` and `<assembly>`|
+|Rules|The `<assembly>` children must come before any `<rule>` children that reference the custom extensions in the assemblies. Recommended to put all `<assembly>` children at the top|
 
 ##`<rewriteMaps>` element
 
@@ -1034,7 +1041,7 @@ problem.
 |---|---|
 |Description|Defines a lookup dictionary that can be used like a function in `{}` expansion|
 |Attribute|`name` the name used to reference this map in `{}`|
-|Attribute|`defaultValue' the value to return when there is no matching entry in the dictionary|
+|Attribute|`defaultValue` the value to return when there is no matching entry in the dictionary|
 |Parent|`<rewriteMaps>`|
 |Children|`<add>`|
 |Rules|Children must have unique keys|
@@ -1044,8 +1051,8 @@ problem.
 |   |   |
 |---|---|
 |Description|Defines an entry in the rewrite map dictionary|
-|Attributes|`key` the dictionary key|
-|Attributes|`value' the dictionary value|
+|Attribute|`key` the dictionary key|
+|Attribute|`value` the dictionary value|
 |Parent|`<rewriteMap>`|
 |Children|none|
 |Rules|None|
@@ -1054,11 +1061,11 @@ problem.
 
 |   |   |
 |---|---|
-|Description|Defines .Net assembly that contains custom extensions|
+|Description|Defines a .Net assembly that contains custom extensions|
 |Attribute|`filename` the name of the .Net DLL without the .dll file extension|
 |Parent|`<rules>`|
 |Children|`<class>`|
-|Rules|None|
+|Rules|The .Net assembly should be placed in the `bin` folder of your web site|
 
 ##`<class>` element
 
@@ -1073,3 +1080,161 @@ problem.
 |Rules|The combination of `name` and `type` must be unique within the whole rewrite rule file|
 
 ##`<rule>` element
+
+|   |   |
+|---|---|
+|Description|Defines a set of actions to perform only when certain conditions are met|
+|Attribute|`name` only used in trace output to identify the rule|
+|Attribute|`stopProcessing` defaults to `false`. Set to `true` to stop processing rules in this list if the conditions for this rule are met. Note that the parent `<rules>` element can also set `stopProcessing="true"` to propogate this up to the next level. Note also that some actions cause processing to stop in which case this flag is redundant|
+|Attribute|`dynamic` defaults to `false`. Set to `true` to indicate that for the same URL, the conditions on this rule can produce different results at different times, and hence the results of the rule evaluation can not be cached|
+|Attribute|`enabled` defaults to `true`. Set to `false` to remove this rule from the rewriter|
+|Parent|`<rules>`|
+|Condition children|`<match>`, `<condition>` and `<conditions>`|
+|Action children|`<action>`, `<rewrite>`, `<rules>`, `<delete>`, `<keep>`, `<insert>`, `<append>` and `<normalize>`|
+|Rules|All condition children are evaluated before any action children. Actions are only executed if all conditions are met. Actions will be executed in the order they appear and conditions will be tested in the order they appear. If the `<rule>` contains no conditions then its actions are always executed|
+
+##`<conditions>` element
+
+|   |   |
+|---|---|
+|Description|Defines a set of conditions whose values are combined into a single boolen result|
+|Attribute|`logicalGrouping` defaults to `matchAll`. Can be set to `matchNone` or `matchAny`|
+|Attribute|`trackAllCaptures` defaults to `false` which means that the capture groups from each regular expression replace the capture groups from any prior regular expression. Setting this to `true` means that each regular expression will add its capture groups to the list rather than replacing them|
+|Parent|`<rule>` or `<conditions>`|
+|Children|`<add>`, `<condition>` and `<conditions>`|
+|Rules|None|
+
+##`<condition>` element
+
+|   |   |
+|---|---|
+|Description|Defines a condition that must be met for the actions in the rule to be executed. Note that you can put these inside a `<conditions>` element to define how logic is combined for multiple conditions|
+|Attribute|`scope` defines which part of the request to test. Can be `originalUrl`, `originalPath`, `originalQueryString`, `originalPathElement`, `originalParameter`, `originalHeader`, `url`, `path`, `matchPath`, `queryString`, `pathElement`, `parameter`, `header`, `originalServerVariable`, `serverVariable`, `literal`, `conditionGroup` or `matchGroup`|
+|Attribute|`index` expects an integer value when `scope` is `originalPathElement`, `pathElement`, `conditionGroup` or 'matchGroup`. Expects a string value when `scope` is `originalParameter`, `originalHeader`, 'parameter', 'header', 'originalServerVariable', 'serverVariable' or `literal`. For all other `scope` values the `index` is not applicable|
+|Attribute|`test` specifies the test to perform on the `scope`. Defaults to `matchRegex`. Can be `startsWith`, `endsWith`, `contains`, `equals`, `matchWildcard`, `matchRegex`, `greater` or `less`. Can also be the `name` of a custom condition defined in an `<assembly>`|
+|Attribute|`value` the value to test against. Depending on whether this is a number or a string, the values you can specify for `test` are restricted, for example you can't do a `contains` test on a number|
+|Attribute|`negate` dafaults to `false`. Set to `true` to invert the result. This is especially useful for cases like testing that a paremater is not empty|
+|Attribute|`ignoreCase` defaults to `true`. Set to `false` to have case-sensitive compare on strings. Not applicable if the `value` attribute contains a number|
+|Parent|`<rule>` or `<conditions>`|
+|Children|None|
+|Rules|None|
+
+##`<conditions><add>` element
+
+|   |   |
+|---|---|
+|Description|This is for backward compatibnility only. I do not recommend using this in any new rules that you write|
+|Attribute|`input` specifies how to retrieve the value to test from the request. Uses `{}` syntax which is described elsewhere|
+|Attribute|`matchType` can be `isFile` or `isDirectory`. These things test whether the path ends with `/` or not|
+|Attribute|`pattern` a regular expression used to match the `input` value|
+|Attribute|`negate` dafaults to `false`. Set to `true` to invert the result. This is especially useful for cases like testing that a paremater is not empty|
+|Attribute|`ignoreCase` defaults to `true`. Set to `false` to have case-sensitive compare|
+|Parent|`<conditions>`|
+|Children|None|
+|Rules|None|
+
+##`<normalize>` element
+
+|   |   |
+|---|---|
+|Description|Makes incomming requests all look the same to simplify writing rules. This is often placed inside a `<rule>` with no conditions|
+|Attribute|`pathLeadingSeparator` defaults to `none`. Can also be set to `add` or `remove`|
+|Attribute|`pathTrailingSeparator` defaults to `none`. Can also be set to `add` or `remove`|
+|Parent|`<rule>`|
+|Children|None|
+|Rules|If you specify that you want to add a separator and there is one already it will not add another separator. Likewise if you specify to remove the separator and it is not there then no changes will be made|
+
+##`<action>` element
+
+|   |   |
+|---|---|
+|Description|Most of the functionality of this element is for backwards compatibility only. Do not use the `url` attribute in new rules that you write|
+|Attribute|`url` specifies the URL to redirect to. Supports the `{}` macro expansion syntax. Adds a `/` to the front of the URL if you pass a relative URL for backwards compatibility.|
+|Attribute|`appendquerystring` defaults to `true` which copies the whole query string from the original request and appends it to the `url` attribute value. Set it to `false` to disable this behavour|
+|Attribute|`redirectType` defaults to `307`. Onlt applicable when `type="redirect"` or the `type` attribute is not specified. Specifies the HTTP response code that will be returned to the browser, Can be `301`, `302`, `303`, `307`, `permanent`, `found`, `seeother` or `temporary`|
+|Attribute|`type` should only be specified when `redirectType` is not specified. This contains the name of the action type to execute, this can be a custom action defined in a `<class>` element, or one of these built-in action types: `redirect`, `customresponse`, `abortrequest`, `none`|
+|Attribute|`statusline` is only applicable when `type="customResponse"`. It defines the first line of the HTTP response to send back to the browser|
+|Attribute|`responseline` is only applicable when `type="customResponse"`. It defines the second line of the HTTP response to send back to the browser|
+|Parent|`<rule>`|
+|Children|None|
+|Rules|The `appendquerystring` atribute is only applicable when the `url` attribute is provided. I recomend that you do not use the `url` parameter, but instead add editing actions to the rule such at `<rewrite>`, `<append>`... etc to define the changes to make to the URL prior to redirection. Note that all of the built-in action types apart from `none` stop the processing of further rules, so the `stopProcessing` flag is not necessary on the `<rule>` element. If you write your own custom actions you can decide whether to stop processing or not|
+
+##`<rewrite>` element
+
+|   |   |
+|---|---|
+|Description|Replaces part of the URL with a new value|
+|Attribute|`to` specifies the part of the URL to overwrite. Defaults to `path` but can also be `url`, `queryString`, `pathElement`, `parameter`, `header` or `serverVariable`|
+|Attribute|`toIndex` when `to="pathElement"` this is an integer index into the path with positive values being left to right and negative values being right to left. When `to` is `parameter`, `header` or `serverVariable` then this is the name of the query string parameter, header or server variable to overwrite. For all other values of `to` this attribute is not applicable|
+|Attribute|`from` specifies where to get the value from that will overwrite part of the URL. Defaults to `path` but can also be `originalUrl`, `originalPath`, `originalQueryString`, `originalPathElement`, `originalParameter`, `originalHeader`, `url`, `queryString`, `pathElement`, `parameter`, `header`, `originalServerVariable`, `serverVariable`, `literal`, `conditionGroup`, or `matchGroup`|
+|Attribute|`fromIndex` for path elements this is an index into the path. For named parts of the request this is the name of that part (for example the name of the server variable). For other scopes this attribute is not applicable|
+|Attribute|`operation` is applied to the `from` value before being written to the `to` location. Can be the name of a custom operation defined in a `<class>` element, the name of a `<rewriteMap>` element or one of the built-in operations `toLower`, `toUpper`, 'urlEncode' or `urlDecode`|
+|Attribute|`value` this is a shorthand way of setting `from="literal"` and the 'fromIndex' attribute at the same time|
+|Parent|`<rule>`|
+|Children|None|
+|Rules|When `from="literal"` you can use the `{}` macro expansion syntax in the `fromIndex` attribute|
+
+##`<append>` element
+
+|   |   |
+|---|---|
+|Description|This element is like the `<rewrite>` element except that it appends to the existing value rather then overwriting it. See the documentation for the `<rewrite>` element above for detailed descriptions of the attributes|
+|Attribute|`to` see `<rewrite>` element documentation|
+|Attribute|`toIndex` see `<rewrite>` element documentation|
+|Attribute|`from` see `<rewrite>` element documentation|
+|Attribute|`fromIndex` see `<rewrite>` element documentation|
+|Attribute|`operation` see `<rewrite>` element documentation|
+|Attribute|`value` see `<rewrite>` element documentation|
+|Parent|`<rule>`|
+|Children|None|
+|Rules|see `<rewrite>` element documentation|
+
+##`<insert>` element
+
+|   |   |
+|---|---|
+|Description|This element is like the `<rewrite>` element except that it prepends to the existing value rather then overwriting it. See the documentation for the `<rewrite>` element above for detailed descriptions of the attributes|
+|Attribute|`to` see `<rewrite>` element documentation|
+|Attribute|`toIndex` see `<rewrite>` element documentation|
+|Attribute|`from` see `<rewrite>` element documentation|
+|Attribute|`fromIndex` see `<rewrite>` element documentation|
+|Attribute|`operation` see `<rewrite>` element documentation|
+|Attribute|`value` see `<rewrite>` element documentation|
+|Parent|`<rule>`|
+|Children|None|
+|Rules|see `<rewrite>` element documentation|
+
+##`<delete>` element
+
+|   |   |
+|---|---|
+|Description|Deletes information from the original request|
+|Attribute|`scope` specifies which part of the request to delete. Defaults to `pathElement` but can also be `url`, `path`, `queryString`, `header`, `parameter` or `serverVariable`|
+|Attribute|`index` specifies an index into the path when `scope="pathElement"`. The path index of 0 deletes the entire path, 1 deletes the first element, 2 the second element etc. Negative values of path element index delete from the right hand end of the path. When the `scope` is `header`, `parameter` or `serverVariable` this attribute contains the name of the header, query string parameter or server variable to delete. Not applicable to other scopes|
+|Parent|`<rule>`|
+|Children|None|
+|Rules|None|
+
+##`<keep>` element
+
+|   |   |
+|---|---|
+|Description|Performs a delete all except type of function. For example if you want to retain only certain parameters in the query string and delete all the others this action can do that|
+|Attribute|`scope` defines which part of the request will be affected. Defaults to `parameter` but can also be `header` or `pathElement`|
+|Attribute|`index` a comma separated list of the elements to keep. For `pathElement` these are integer values, for other scopes these are names|
+|Parent|`<scope>`|
+|Children|None|
+|Rules|None|
+
+##`<match>` element
+
+|   |   |
+|---|---|
+|Description|This element exists only for backwards compatibility. I recomend that you do not use it in any new rules that you write. The element defines a condition that must be met for the rule to be applied|
+|Attribute|`url` a regular expression or wildcard expression to match against the whole URL including the query string|
+|Attribute|`patternSyntax` defaults to `ECMAScript` but can also be 'Wildcard'|
+|Attribute|`negate` defaults to `false`. Set to `true` to invert the result|
+|Attribute|`ignoreCase` defaults to `true`. Set to `false` for case-sensitive matching|
+|Parent|`<rule>`|
+|Children|None|
+|Rules|The URL will have any leading `/` removed before matching. This is for backwards compatibility|
