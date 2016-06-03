@@ -998,7 +998,7 @@ problem.
 
 #Syntax Reference
 ##`<rewrite>` element
-
+|---|---|
 |Description|Root element of the document|
 |Attributes|None|
 |Parent|None|
@@ -1007,6 +1007,7 @@ problem.
 
 ##`<rules>` element
 
+|---|---|
 |Description|Container for a list of `<rule>` elements|
 |Attribute|`name` only used in trace output|
 |Attribute|`stopProcessing` defaults to false, set to `true` to propogate the `stopProcessing` flag from rules within this list to the parent rule|
@@ -1016,6 +1017,8 @@ problem.
 
 ##`<rewriteMaps>` element
 
+|   |   |
+|---|---|
 |Description|Container for a list of `<rewriteMap>` elements|
 |Attributes|None|
 |Parent|`<rewrite>`|
