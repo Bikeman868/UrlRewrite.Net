@@ -1019,8 +1019,8 @@ problem.
 |   |   |
 |---|---|
 |Description|Container for a list of `<rule>` elements|
-|Attribute|`name` only used in trace output|
-|Attribute|`stopProcessing` defaults to false, set to `true` to propogate the `stopProcessing` flag from rules within this list to the parent rule|
+|`name` attribute|only used in trace output|
+|`stopProcessing` attribute|defaults to false, set to `true` to propogate the `stopProcessing` flag from rules within this list to the parent rule|
 |Parent|`<rewrite>` or `<rule>`|
 |Children|`<rule>` and `<assembly>`|
 |Rules|The `<assembly>` children must come before any `<rule>` children that reference the custom extensions in the assemblies. Recommended to put all `<assembly>` children at the top|
@@ -1040,8 +1040,8 @@ problem.
 |   |   |
 |---|---|
 |Description|Defines a lookup dictionary that can be used like a function in `{}` expansion|
-|Attribute|`name` the name used to reference this map in `{}`|
-|Attribute|`defaultValue` the value to return when there is no matching entry in the dictionary|
+|`name` attribute|the name used to reference this map in `{}`|
+|`defaultValue` attribute|the value to return when there is no matching entry in the dictionary|
 |Parent|`<rewriteMaps>`|
 |Children|`<add>`|
 |Rules|Children must have unique keys|
@@ -1051,8 +1051,8 @@ problem.
 |   |   |
 |---|---|
 |Description|Defines an entry in the rewrite map dictionary|
-|Attribute|`key` the dictionary key|
-|Attribute|`value` the dictionary value|
+|`key` attribute|the dictionary key|
+|`value` attribute|the dictionary value|
 |Parent|`<rewriteMap>`|
 |Children|none|
 |Rules|None|
@@ -1062,7 +1062,7 @@ problem.
 |   |   |
 |---|---|
 |Description|Defines a .Net assembly that contains custom extensions|
-|Attribute|`filename` the name of the .Net DLL without the .dll file extension|
+|`filename` attribute|the name of the .Net DLL without the .dll file extension|
 |Parent|`<rules>`|
 |Children|`<class>`|
 |Rules|The .Net assembly should be placed in the `bin` folder of your web site|
@@ -1072,9 +1072,9 @@ problem.
 |   |   |
 |---|---|
 |Description|Defines a .Net class that implements a custom extension|
-|Attribute|`name` how this extension will be referred to within the rewrite rules|
-|Attribute|`type` must be `operation`, `action` or `condition`|
-|Attribute|`className` the fully qualified name of a .Net class. The class must implement `IOperation`, `IAction` or `ICondition`|
+|`name` attribute|how this extension will be referred to within the rewrite rules|
+|`type` attribute|must be `operation`, `action` or `condition`|
+|`className` attribute|the fully qualified name of a .Net class. The class must implement `IOperation`, `IAction` or `ICondition`|
 |Parent|`<assembly>`|
 |Children|None|
 |Rules|The combination of `name` and `type` must be unique within the whole rewrite rule file|
@@ -1084,10 +1084,10 @@ problem.
 |   |   |
 |---|---|
 |Description|Defines a set of actions to perform only when certain conditions are met|
-|Attribute|`name` only used in trace output to identify the rule|
-|Attribute|`stopProcessing` defaults to `false`. Set to `true` to stop processing rules in this list if the conditions for this rule are met. Note that the parent `<rules>` element can also set `stopProcessing="true"` to propogate this up to the next level. Note also that some actions cause processing to stop in which case this flag is redundant|
-|Attribute|`dynamic` defaults to `false`. Set to `true` to indicate that for the same URL, the conditions on this rule can produce different results at different times, and hence the results of the rule evaluation can not be cached|
-|Attribute|`enabled` defaults to `true`. Set to `false` to remove this rule from the rewriter|
+|`name` attribute|only used in trace output to identify the rule|
+|`stopProcessing` attribute|defaults to `false`. Set to `true` to stop processing rules in this list if the conditions for this rule are met. Note that the parent `<rules>` element can also set `stopProcessing="true"` to propogate this up to the next level. Note also that some actions cause processing to stop in which case this flag is redundant|
+|`dynamic` attribute|defaults to `false`. Set to `true` to indicate that for the same URL, the conditions on this rule can produce different results at different times, and hence the results of the rule evaluation can not be cached|
+|`enabled` attribute|defaults to `true`. Set to `false` to remove this rule from the rewriter|
 |Parent|`<rules>`|
 |Condition children|`<match>`, `<condition>` and `<conditions>`|
 |Action children|`<action>`, `<rewrite>`, `<rules>`, `<delete>`, `<keep>`, `<insert>`, `<append>` and `<normalize>`|
@@ -1098,8 +1098,8 @@ problem.
 |   |   |
 |---|---|
 |Description|Defines a set of conditions whose values are combined into a single boolen result|
-|Attribute|`logicalGrouping` defaults to `matchAll`. Can be set to `matchNone` or `matchAny`|
-|Attribute|`trackAllCaptures` defaults to `false` which means that the capture groups from each regular expression replace the capture groups from any prior regular expression. Setting this to `true` means that each regular expression will add its capture groups to the list rather than replacing them|
+|`logicalGrouping` attribute|defaults to `matchAll`. Can be set to `matchNone` or `matchAny`|
+|`trackAllCaptures` attribute|defaults to `false` which means that the capture groups from each regular expression replace the capture groups from any prior regular expression. Setting this to `true` means that each regular expression will add its capture groups to the list rather than replacing them|
 |Parent|`<rule>` or `<conditions>`|
 |Children|`<add>`, `<condition>` and `<conditions>`|
 |Rules|None|
@@ -1109,12 +1109,12 @@ problem.
 |   |   |
 |---|---|
 |Description|Defines a condition that must be met for the actions in the rule to be executed. Note that you can put these inside a `<conditions>` element to define how logic is combined for multiple conditions|
-|Attribute|`scope` defines which part of the request to test. Can be `originalUrl`, `originalPath`, `originalQueryString`, `originalPathElement`, `originalParameter`, `originalHeader`, `url`, `path`, `matchPath`, `queryString`, `pathElement`, `parameter`, `header`, `originalServerVariable`, `serverVariable`, `literal`, `conditionGroup` or `matchGroup`|
-|Attribute|`index` expects an integer value when `scope` is `originalPathElement`, `pathElement`, `conditionGroup` or 'matchGroup`. Expects a string value when `scope` is `originalParameter`, `originalHeader`, 'parameter', 'header', 'originalServerVariable', 'serverVariable' or `literal`. For all other `scope` values the `index` is not applicable|
-|Attribute|`test` specifies the test to perform on the `scope`. Defaults to `matchRegex`. Can be `startsWith`, `endsWith`, `contains`, `equals`, `matchWildcard`, `matchRegex`, `greater` or `less`. Can also be the `name` of a custom condition defined in an `<assembly>`|
-|Attribute|`value` the value to test against. Depending on whether this is a number or a string, the values you can specify for `test` are restricted, for example you can't do a `contains` test on a number|
-|Attribute|`negate` dafaults to `false`. Set to `true` to invert the result. This is especially useful for cases like testing that a paremater is not empty|
-|Attribute|`ignoreCase` defaults to `true`. Set to `false` to have case-sensitive compare on strings. Not applicable if the `value` attribute contains a number|
+|`scope` attribute|defines which part of the request to test. Can be `originalUrl`, `originalPath`, `originalQueryString`, `originalPathElement`, `originalParameter`, `originalHeader`, `url`, `path`, `matchPath`, `queryString`, `pathElement`, `parameter`, `header`, `originalServerVariable`, `serverVariable`, `literal`, `conditionGroup` or `matchGroup`|
+|`index` attribute|expects an integer value when `scope` is `originalPathElement`, `pathElement`, `conditionGroup` or 'matchGroup`. Expects a string value when `scope` is `originalParameter`, `originalHeader`, 'parameter', 'header', 'originalServerVariable', 'serverVariable' or `literal`. For all other `scope` values the `index` is not applicable|
+|`test` attribute|specifies the test to perform on the `scope`. Defaults to `matchRegex`. Can be `startsWith`, `endsWith`, `contains`, `equals`, `matchWildcard`, `matchRegex`, `greater` or `less`. Can also be the `name` of a custom condition defined in an `<assembly>`|
+|`value` attribute|the value to test against. Depending on whether this is a number or a string, the values you can specify for `test` are restricted, for example you can't do a `contains` test on a number|
+|`negate` attribute|dafaults to `false`. Set to `true` to invert the result. This is especially useful for cases like testing that a paremater is not empty|
+|`ignoreCase` attribute|defaults to `true`. Set to `false` to have case-sensitive compare on strings. Not applicable if the `value` attribute contains a number|
 |Parent|`<rule>` or `<conditions>`|
 |Children|None|
 |Rules|None|
@@ -1124,11 +1124,11 @@ problem.
 |   |   |
 |---|---|
 |Description|This is for backward compatibnility only. I do not recommend using this in any new rules that you write|
-|Attribute|`input` specifies how to retrieve the value to test from the request. Uses `{}` syntax which is described elsewhere|
-|Attribute|`matchType` can be `isFile` or `isDirectory`. These things test whether the path ends with `/` or not|
-|Attribute|`pattern` a regular expression used to match the `input` value|
-|Attribute|`negate` dafaults to `false`. Set to `true` to invert the result. This is especially useful for cases like testing that a paremater is not empty|
-|Attribute|`ignoreCase` defaults to `true`. Set to `false` to have case-sensitive compare|
+|`input` attribute|specifies how to retrieve the value to test from the request. Uses `{}` syntax which is described elsewhere|
+|`matchType` attribute|can be `isFile` or `isDirectory`. These things test whether the path ends with `/` or not|
+|`pattern` attribute|a regular expression used to match the `input` value|
+|`negate` attribute|dafaults to `false`. Set to `true` to invert the result. This is especially useful for cases like testing that a paremater is not empty|
+|`ignoreCase` attribute|defaults to `true`. Set to `false` to have case-sensitive compare|
 |Parent|`<conditions>`|
 |Children|None|
 |Rules|None|
@@ -1138,8 +1138,8 @@ problem.
 |   |   |
 |---|---|
 |Description|Makes incomming requests all look the same to simplify writing rules. This is often placed inside a `<rule>` with no conditions|
-|Attribute|`pathLeadingSeparator` defaults to `none`. Can also be set to `add` or `remove`|
-|Attribute|`pathTrailingSeparator` defaults to `none`. Can also be set to `add` or `remove`|
+|`pathLeadingSeparator` attribute|defaults to `none`. Can also be set to `add` or `remove`|
+|`pathTrailingSeparator` attribute|defaults to `none`. Can also be set to `add` or `remove`|
 |Parent|`<rule>`|
 |Children|None|
 |Rules|If you specify that you want to add a separator and there is one already it will not add another separator. Likewise if you specify to remove the separator and it is not there then no changes will be made|
@@ -1149,12 +1149,12 @@ problem.
 |   |   |
 |---|---|
 |Description|Most of the functionality of this element is for backwards compatibility only. Do not use the `url` attribute in new rules that you write|
-|Attribute|`url` specifies the URL to redirect to. Supports the `{}` macro expansion syntax. Adds a `/` to the front of the URL if you pass a relative URL for backwards compatibility.|
-|Attribute|`appendquerystring` defaults to `true` which copies the whole query string from the original request and appends it to the `url` attribute value. Set it to `false` to disable this behavour|
-|Attribute|`redirectType` defaults to `307`. Onlt applicable when `type="redirect"` or the `type` attribute is not specified. Specifies the HTTP response code that will be returned to the browser, Can be `301`, `302`, `303`, `307`, `permanent`, `found`, `seeother` or `temporary`|
-|Attribute|`type` should only be specified when `redirectType` is not specified. This contains the name of the action type to execute, this can be a custom action defined in a `<class>` element, or one of these built-in action types: `redirect`, `customresponse`, `abortrequest`, `none`|
-|Attribute|`statusline` is only applicable when `type="customResponse"`. It defines the first line of the HTTP response to send back to the browser|
-|Attribute|`responseline` is only applicable when `type="customResponse"`. It defines the second line of the HTTP response to send back to the browser|
+|`url` attribute|specifies the URL to redirect to. Supports the `{}` macro expansion syntax. Adds a `/` to the front of the URL if you pass a relative URL for backwards compatibility.|
+|`appendquerystring` attribute|defaults to `true` which copies the whole query string from the original request and appends it to the `url` attribute value. Set it to `false` to disable this behavour|
+|`redirectType` attribute|defaults to `307`. Onlt applicable when `type="redirect"` or the `type` attribute is not specified. Specifies the HTTP response code that will be returned to the browser, Can be `301`, `302`, `303`, `307`, `permanent`, `found`, `seeother` or `temporary`|
+|`type` attribute|should only be specified when `redirectType` is not specified. This contains the name of the action type to execute, this can be a custom action defined in a `<class>` element, or one of these built-in action types: `redirect`, `customresponse`, `abortrequest`, `none`|
+|`statusline` attribute|is only applicable when `type="customResponse"`. It defines the first line of the HTTP response to send back to the browser|
+|`responseline` attribute|is only applicable when `type="customResponse"`. It defines the second line of the HTTP response to send back to the browser|
 |Parent|`<rule>`|
 |Children|None|
 |Rules|The `appendquerystring` atribute is only applicable when the `url` attribute is provided. I recomend that you do not use the `url` parameter, but instead add editing actions to the rule such at `<rewrite>`, `<append>`... etc to define the changes to make to the URL prior to redirection. Note that all of the built-in action types apart from `none` stop the processing of further rules, so the `stopProcessing` flag is not necessary on the `<rule>` element. If you write your own custom actions you can decide whether to stop processing or not|
@@ -1164,12 +1164,12 @@ problem.
 |   |   |
 |---|---|
 |Description|Replaces part of the URL with a new value|
-|Attribute|`to` specifies the part of the URL to overwrite. Defaults to `path` but can also be `url`, `queryString`, `pathElement`, `parameter`, `header` or `serverVariable`|
-|Attribute|`toIndex` when `to="pathElement"` this is an integer index into the path with positive values being left to right and negative values being right to left. When `to` is `parameter`, `header` or `serverVariable` then this is the name of the query string parameter, header or server variable to overwrite. For all other values of `to` this attribute is not applicable|
-|Attribute|`from` specifies where to get the value from that will overwrite part of the URL. Defaults to `path` but can also be `originalUrl`, `originalPath`, `originalQueryString`, `originalPathElement`, `originalParameter`, `originalHeader`, `url`, `queryString`, `pathElement`, `parameter`, `header`, `originalServerVariable`, `serverVariable`, `literal`, `conditionGroup`, or `matchGroup`|
-|Attribute|`fromIndex` for path elements this is an index into the path. For named parts of the request this is the name of that part (for example the name of the server variable). For other scopes this attribute is not applicable|
-|Attribute|`operation` is applied to the `from` value before being written to the `to` location. Can be the name of a custom operation defined in a `<class>` element, the name of a `<rewriteMap>` element or one of the built-in operations `toLower`, `toUpper`, 'urlEncode' or `urlDecode`|
-|Attribute|`value` this is a shorthand way of setting `from="literal"` and the 'fromIndex' attribute at the same time|
+|`to` attribute|specifies the part of the URL to overwrite. Defaults to `path` but can also be `url`, `queryString`, `pathElement`, `parameter`, `header` or `serverVariable`|
+|`toIndex` attribute|when `to="pathElement"` this is an integer index into the path with positive values being left to right and negative values being right to left. When `to` is `parameter`, `header` or `serverVariable` then this is the name of the query string parameter, header or server variable to overwrite. For all other values of `to` this attribute is not applicable|
+|`from` attribute|specifies where to get the value from that will overwrite part of the URL. Defaults to `path` but can also be `originalUrl`, `originalPath`, `originalQueryString`, `originalPathElement`, `originalParameter`, `originalHeader`, `url`, `queryString`, `pathElement`, `parameter`, `header`, `originalServerVariable`, `serverVariable`, `literal`, `conditionGroup`, or `matchGroup`|
+|`fromIndex` attribute|for path elements this is an index into the path. For named parts of the request this is the name of that part (for example the name of the server variable). For other scopes this attribute is not applicable|
+|`operation` attribute|is applied to the `from` value before being written to the `to` location. Can be the name of a custom operation defined in a `<class>` element, the name of a `<rewriteMap>` element or one of the built-in operations `toLower`, `toUpper`, 'urlEncode' or `urlDecode`|
+|`value` attribute|this is a shorthand way of setting `from="literal"` and the `fromIndex` attribute at the same time|
 |Parent|`<rule>`|
 |Children|None|
 |Rules|When `from="literal"` you can use the `{}` macro expansion syntax in the `fromIndex` attribute|
@@ -1179,12 +1179,12 @@ problem.
 |   |   |
 |---|---|
 |Description|This element is like the `<rewrite>` element except that it appends to the existing value rather then overwriting it. See the documentation for the `<rewrite>` element above for detailed descriptions of the attributes|
-|Attribute|`to` see `<rewrite>` element documentation|
-|Attribute|`toIndex` see `<rewrite>` element documentation|
-|Attribute|`from` see `<rewrite>` element documentation|
-|Attribute|`fromIndex` see `<rewrite>` element documentation|
-|Attribute|`operation` see `<rewrite>` element documentation|
-|Attribute|`value` see `<rewrite>` element documentation|
+|`to` attribute|see `<rewrite>` element documentation|
+|`toIndex` attribute|see `<rewrite>` element documentation|
+|`from` attribute|see `<rewrite>` element documentation|
+|`fromIndex` attribute|see `<rewrite>` element documentation|
+|`operation` attribute|see `<rewrite>` element documentation|
+|`value` attribute|see `<rewrite>` element documentation|
 |Parent|`<rule>`|
 |Children|None|
 |Rules|see `<rewrite>` element documentation|
@@ -1194,12 +1194,12 @@ problem.
 |   |   |
 |---|---|
 |Description|This element is like the `<rewrite>` element except that it prepends to the existing value rather then overwriting it. See the documentation for the `<rewrite>` element above for detailed descriptions of the attributes|
-|Attribute|`to` see `<rewrite>` element documentation|
-|Attribute|`toIndex` see `<rewrite>` element documentation|
-|Attribute|`from` see `<rewrite>` element documentation|
-|Attribute|`fromIndex` see `<rewrite>` element documentation|
-|Attribute|`operation` see `<rewrite>` element documentation|
-|Attribute|`value` see `<rewrite>` element documentation|
+|`to` attribute|see `<rewrite>` element documentation|
+|`toIndex` attribute|see `<rewrite>` element documentation|
+|`from` attribute|see `<rewrite>` element documentation|
+|`fromIndex` attribute|see `<rewrite>` element documentation|
+|`operation` attribute|see `<rewrite>` element documentation|
+|`value` attribute|see `<rewrite>` element documentation|
 |Parent|`<rule>`|
 |Children|None|
 |Rules|see `<rewrite>` element documentation|
@@ -1209,8 +1209,8 @@ problem.
 |   |   |
 |---|---|
 |Description|Deletes information from the original request|
-|Attribute|`scope` specifies which part of the request to delete. Defaults to `pathElement` but can also be `url`, `path`, `queryString`, `header`, `parameter` or `serverVariable`|
-|Attribute|`index` specifies an index into the path when `scope="pathElement"`. The path index of 0 deletes the entire path, 1 deletes the first element, 2 the second element etc. Negative values of path element index delete from the right hand end of the path. When the `scope` is `header`, `parameter` or `serverVariable` this attribute contains the name of the header, query string parameter or server variable to delete. Not applicable to other scopes|
+|`scope` attribute|specifies which part of the request to delete. Defaults to `pathElement` but can also be `url`, `path`, `queryString`, `header`, `parameter` or `serverVariable`|
+|`index` attribute|specifies an index into the path when `scope="pathElement"`. The path index of 0 deletes the entire path, 1 deletes the first element, 2 the second element etc. Negative values of path element index delete from the right hand end of the path. When the `scope` is `header`, `parameter` or `serverVariable` this attribute contains the name of the header, query string parameter or server variable to delete. Not applicable to other scopes|
 |Parent|`<rule>`|
 |Children|None|
 |Rules|None|
@@ -1220,9 +1220,9 @@ problem.
 |   |   |
 |---|---|
 |Description|Performs a delete all except type of function. For example if you want to retain only certain parameters in the query string and delete all the others this action can do that|
-|Attribute|`scope` defines which part of the request will be affected. Defaults to `parameter` but can also be `header` or `pathElement`|
-|Attribute|`index` a comma separated list of the elements to keep. For `pathElement` these are integer values, for other scopes these are names|
-|Parent|`<scope>`|
+|`scope` attribute|defines which part of the request will be affected. Defaults to `parameter` but can also be `header` or `pathElement`|
+|`index` attribute|a comma separated list of the elements to keep. For `pathElement` these are integer values, for other scopes these are names|
+|Parent|`<rule>`|
 |Children|None|
 |Rules|None|
 
@@ -1231,10 +1231,10 @@ problem.
 |   |   |
 |---|---|
 |Description|This element exists only for backwards compatibility. I recomend that you do not use it in any new rules that you write. The element defines a condition that must be met for the rule to be applied|
-|Attribute|`url` a regular expression or wildcard expression to match against the whole URL including the query string|
-|Attribute|`patternSyntax` defaults to `ECMAScript` but can also be 'Wildcard'|
-|Attribute|`negate` defaults to `false`. Set to `true` to invert the result|
-|Attribute|`ignoreCase` defaults to `true`. Set to `false` for case-sensitive matching|
+|`url` attribute|a regular expression or wildcard expression to match against the whole URL including the query string|
+|`patternSyntax` attribute|defaults to `ECMAScript` but can also be 'Wildcard'|
+|`negate` attribute|defaults to `false`. Set to `true` to invert the result|
+|`ignoreCase` attribute|defaults to `true`. Set to `false` for case-sensitive matching|
 |Parent|`<rule>`|
 |Children|None|
 |Rules|The URL will have any leading `/` removed before matching. This is for backwards compatibility|
