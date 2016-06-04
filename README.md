@@ -1151,13 +1151,13 @@ problem.
 |Description|Most of the functionality of this element is for backwards compatibility only. Do not use the `url` attribute in new rules that you write|
 |`url` attribute|specifies the URL to redirect to. Supports the `{}` macro expansion syntax. Adds a `/` to the front of the URL if you pass a relative URL for backwards compatibility.|
 |`appendquerystring` attribute|defaults to `true` which copies the whole query string from the original request and appends it to the `url` attribute value. Set it to `false` to disable this behavour|
-|`redirectType` attribute|defaults to `307`. Onlt applicable when `type="redirect"` or the `type` attribute is not specified. Specifies the HTTP response code that will be returned to the browser, Can be `301`, `302`, `303`, `307`, `permanent`, `found`, `seeother` or `temporary`|
-|`type` attribute|should only be specified when `redirectType` is not specified. This contains the name of the action type to execute, this can be a custom action defined in a `<class>` element, or one of these built-in action types: `redirect`, `customresponse`, `abortrequest`, `none`|
+|`redirectType` attribute|defaults to `307`. Only applicable when `type="redirect"` or the `type` attribute is not specified. Specifies the HTTP response code that will be returned to the browser, Can be `301`, `302`, `303`, `307`, `permanent`, `found`, `seeother` or `temporary`|
+|`type` attribute|should only be specified when `redirectType` is not specified. This contains the name of the action type to execute, this can be a custom action defined in a `<class>` element, or one of these built-in action types: `redirect`, `rewrite`, `customresponse`, `abortrequest`, `none`|
 |`statusline` attribute|is only applicable when `type="customResponse"`. It defines the first line of the HTTP response to send back to the browser|
 |`responseline` attribute|is only applicable when `type="customResponse"`. It defines the second line of the HTTP response to send back to the browser|
 |Parent|`<rule>`|
 |Children|None|
-|Rules|The `appendquerystring` atribute is only applicable when the `url` attribute is provided. I recomend that you do not use the `url` parameter, but instead add editing actions to the rule such at `<rewrite>`, `<append>`... etc to define the changes to make to the URL prior to redirection. Note that all of the built-in action types apart from `none` stop the processing of further rules, so the `stopProcessing` flag is not necessary on the `<rule>` element. If you write your own custom actions you can decide whether to stop processing or not|
+|Rules|The `appendquerystring` atribute is only applicable when the `url` attribute is provided. I recomend that you do not use the `url` parameter, but instead add editing actions to the rule such at `<rewrite>`, `<append>`... etc to define the changes to make to the URL prior to redirection. Note that all of the built-in action types apart from `none` and `rewrite` stop the processing of further rules, so the `stopProcessing` flag is not necessary on the `<rule>` element. If you write your own custom actions you can decide whether to stop processing or not|
 
 ##`<rewrite>` element
 
