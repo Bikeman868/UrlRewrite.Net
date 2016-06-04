@@ -163,7 +163,7 @@ Rewrites `/company/quote/123/march/2/2016` to `/company/quote/123`
     </rule
 ```
 
-#### Example of a rule that removes part of the path and turns in into a query string parameter
+#### Example of a rule that moves part of the path to a query string parameter
 Rewrites `/company/123` to `/company?id=123`
 
 Rewrites `/company/123/profile.aspx` to `/company/profile.aspx?id=123`
