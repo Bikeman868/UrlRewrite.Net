@@ -864,16 +864,13 @@ list match the request then we are done processing rules in this list but contin
 evaluating rules at the level above".
 
 ### Optimization number 4, look at the execution trace
+
 This Rewrite Module is capable of outputting a complete trace of rewrite requests showing full
 details of the rules that were evaluated, the conditions that were tested and the actions
 that were executed. The request log includes a timespamp on each event to allow you to identify
 any performance bottlenecks.
 
-Tracing every request is only useful in a development environment. You should never do this
-on your production servers. Because of this, the mechanism that we provide to turn this on
-requires you to recompile the source code.
-
-To enable request tracing on specific URLs you must pass a list of these URLs to the `Initialize()`
+To enable request tracing on specific URLs you must pass a Lambda expression to the `Initialize()`
 method of the Rewrite Module (see section on initialization above).
 
 By default the Rewrite Module will output trace information to the `System.Debug.Trace` output, so you
@@ -884,7 +881,7 @@ from Microsoft.
 If you don't want to attach a debugger, you can capture the execution trace by implementing the `ILog`
 interface, and passing your implementation to the `Initialize()` method.
 
-This is an example of what the execution trace looks like:
+This is an example of what the built-in execution trace looks like:
 ```
     Rewrite:    0.0mS rewriting  /rewritethree.aspx
     Rewrite:    3.6mS   list of 7 rules 'Testing'
@@ -1178,5 +1175,5 @@ Note that not all scopes are applicable in all situations. Please consult the de
 |`header`|The modified version of 'originalHeader' scope. Modifications can be made via `<rewrite>`, `<delete>` and `<keep>` actions. If you `<append>` a header, text will be added to the end of the header value|
 |`serverVariable`|Modified version of 'originalServerVariable' scope. Changing these variables only affects the current request.|
 |`literal`|Specifying this scope allows you to provide a hard-coded literal value rather than reading a value from the request. The literal value is passed in the scope index. Many actions have a `value` property that is a shorthand way of specifying `literal` scope.|
-|`matchGroup` one of the groups from the last `<match>` element that matched the request. Index 0 is the whole match, index 1 is match group 1 etc. This is equivalent to the `{r:n}` syntax but more readable. To use this feature use regulat expressions in your `<match>` and identify match groups with `()`.|
-|`conditionGroup` one of the groups from the last `<condition>` element that matched the request. Only conditions that use regular expression syntax produce match groups. Specify index 0 to match the whole matching string, index 1 is match group 1 etc. This is equivalent to the `{c:n}` syntax but more readable. To use this feature use regulat expressions in your `<condition>` and identify match groups with `()`. By default each matching condition will replace all the match groups. You can change this by setting the `trackAllCaptures` attibute of the parent `<conditions>` element.|
+|`matchGroup`|One of the groups from the last `<match>` element that matched the request. Index 0 is the whole match, index 1 is match group 1 etc. This is equivalent to the `{r:n}` syntax but more readable. To use this feature use regulat expressions in your `<match>` and identify match groups with `()`.|
+|`conditionGroup`|One of the groups from the last `<condition>` element that matched the request. Only conditions that use regular expression syntax produce match groups. Specify index 0 to match the whole matching string, index 1 is match group 1 etc. This is equivalent to the `{c:n}` syntax but more readable. To use this feature use regulat expressions in your `<condition>` and identify match groups with `()`. By default each matching condition will replace all the match groups. You can change this by setting the `trackAllCaptures` attibute of the parent `<conditions>` element.|
