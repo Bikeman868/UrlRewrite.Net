@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -14,9 +15,9 @@ namespace UrlRewrite
 {
     public class RewriteModule: IHttpModule, IDisposable
     {
-        private static IRuleList _rules;
         private static ILog _log;
         private static IFactory _factory;
+        private static IRuleList _rules;
 
 #if !TRACE_ALL
         private static bool _tracingEnabled;
@@ -72,28 +73,78 @@ namespace UrlRewrite
                 var filePath = HttpContext.Current.Server.MapPath("~/RewriteRules.config");
                 ruleStream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
             }
-
-            var parser = ruleParser ?? _factory.Create<StandardRuleParser>();
-            _rules = parser.Parse(ruleStream);
-            ruleStream.Close();
-
-            var rulesDescriptionStream = new MemoryStream();
-            using (var rulesDescriptionWriter = new StreamWriter(rulesDescriptionStream))
+            try
             {
-                _rules.Describe(rulesDescriptionWriter, "", "  ");
-                rulesDescriptionWriter.Flush();
-                var description = Encoding.ASCII.GetString(
-                    rulesDescriptionStream.GetBuffer(), 
-                    0,
-                    (int) rulesDescriptionStream.Length);
-                Trace.WriteLine(description);
+                SetRules(LoadRules(ruleStream));
             }
+            finally
+            {
+                ruleStream.Close();
+            }
+            DescribeRulesToTrace();
 
 #if !TRACE_ALL
             _forwardTracePredicate = forwardTracePredicate;
             _reverseTracePredicate = reverseTracePredicate;
             _tracingEnabled = forwardTracePredicate != null || reverseTracePredicate != null;
 #endif
+        }
+
+        /// <summary>
+        /// Takes a set of rules and writes a description of them into a stream
+        /// </summary>
+        /// <param name="rules">The rules to describe</param>
+        /// <param name="stream">The stream to write the description into</param>
+        /// <param name="encoding">The encoding to use when writing text to the stream</param>
+        public static void DescribeRules(
+            IRuleList rules, 
+            Stream stream, 
+            Encoding encoding)
+        {
+            var writer = new StreamWriter(stream, encoding);
+            if (rules == null)
+                writer.Write("There is no spoon");
+            else
+                rules.Describe(writer, "", "  ");
+            writer.Flush();
+
+            // Note, do not dispose or close the writer unless it owns the stream.
+        }
+
+        public static void DescribeRulesToTrace()
+        {
+            var encoding = Encoding.UTF8;
+            using (var stream = new MemoryStream())
+            {
+                DescribeRules(_rules, stream, encoding);
+                var description = encoding.GetString(stream.GetBuffer(), 0, (int)stream.Length);
+                Trace.WriteLine(description);
+            }
+        }
+
+        /// <summary>
+        /// Parses rules from a stream
+        /// </summary>
+        /// <param name="stream">The stream to read rules from</param>
+        /// <param name="encoding">The text encoding used in this stream, or null for UTF8</param>
+        /// <param name="ruleParser">A custom parser, or null to use the default parser</param>
+        /// <returns></returns>
+        public static IRuleList LoadRules(
+            Stream stream, 
+            Encoding encoding = null, 
+            IRuleParser ruleParser = null)
+        {
+            if (stream == null)
+                return null;
+
+            encoding = encoding ?? Encoding.UTF8;
+            var parser = ruleParser ?? _factory.Create<StandardRuleParser>();
+            return parser.Parse(stream, encoding);
+        }
+
+        public static void SetRules(IRuleList rules)
+        {
+            _rules = rules;
         }
 
         public void Init(HttpApplication application)

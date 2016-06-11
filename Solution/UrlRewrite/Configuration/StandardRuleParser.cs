@@ -30,12 +30,13 @@ namespace UrlRewrite.Configuration
             _customTypeRegistrar = customTypeRegistrar;
         }
 
-        public IRuleList Parse(Stream stream)
+        public IRuleList Parse(Stream stream, Encoding encoding)
         {
             XDocument document;
             try
             {
-                document = XDocument.Load(stream);
+                using (var reader = new StreamReader(stream, encoding))
+                    document = XDocument.Load(reader);
             }
             catch(Exception ex)
             {
