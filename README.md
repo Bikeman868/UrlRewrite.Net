@@ -45,6 +45,19 @@ then be sure to mark them as `Dynamic` so that the results will not be cached.
 3. 100% unit test coverage.
 4. Outbound rules. This is a feature of the IIS rewriter that I only just discovered.
 
+## NuGet Package Versions
+These are the versions that had major feature improvements or breaking changes you need to be aware of.
+
+|Version|Comments|
+|---|---|
+|1.0.0|First production ready release April 2016|
+|1.0.1|Adds the handler to the web.config file when it is installed|
+|1.0.6|Added support for {} in literal values|
+|1.0.7|Rules have an enabled property - useful during testing and debugging|
+|1.1.0|BREAKING CHANGE - method sugnature of the `Initialize()` method changed to provide more flexibility in selecting which requests to trace|
+|1.1.1|BREAKING CHANGE - the default value for the `stopProcessing` attribute on the `<rules>` element changed from `false` to `true`
+||Added a `value="my value"` attribute to `<rewrite>`, `<append>` and `<insert>` as a shorthand for `from="literal" fromIndex="my value"`|
+
 # Getting started
 If you already use the Microsoft URL Rewriter module, follow these steps to replace it with this modue.
 
@@ -139,13 +152,13 @@ For any path like `/company/.../*.aspx` if the session belongs to a customer app
                 <condition scope="pathElement" index="2" test="equals" value="profile" />
                 <condition scope="pathElement" index="2" test="equals" value="financials" />
               </conditions>
-              <rewrite to="pathElement" toIndex="1" from=="literal" fromIndex="entity" />
+              <rewrite to="pathElement" toIndex="1" from="literal" fromIndex="entity" />
               <action type="redirect" redirectType="301" />
       	    </rule>
 
   		    <rule name="flag customers">
   			  <condition test="isCustomer" />
-  			  <rewrite to="parameter" toIndex="customer" from="literal" fromIndex="true" />
+  			  <rewrite to="parameter" toIndex="customer" value="true" />
   		    </rule>
           </rules>
         </rule
@@ -260,40 +273,40 @@ for MVC, OWIN and other web development frameworks.
 
 The `Initialize()` method takes a number of optional parameters as follows:
 
-## `log`
+### `log`
 The Rewrite Module will log exceptions always, and can optionally log a trace of the rewrite rule execution for
 specific URLs. If you dont pass this parameter then the log will be output to `Trace`. You can see this in the Output
 window of Visual Studio whilst debugging.
 
-## `forwardTracePredicate`
+### `forwardTracePredicate`
 This function is called for each request to determine whether to output trace information for the incomming URL. 
 This function is passed the URL as received by the server from the browser and should return true to trace the
 execution of rewrite rules for this request.
 
 Passing null for this parameter will speed up processing of the requests.
 
-## `reverseTracePredicate`
+### `reverseTracePredicate`
 This function is called for each request to determine whether to output trace information for the rewritten reqeust.
 This function is passed the URL that results from executing the rewrite rules and should return true to re-run the 
 rules with logging enabled.
 
 Passing null for this parameter will speed up processing of the requests.
 
-## `factory`
+### `factory`
 Allows you to integrate an IoC container for resolving interfaces. This is covered in detail above.
 
 If you do not pass a factory there a default factory will be used. The default factory can not map interfaces to
 concrete types, it can only construct concrete types by calling the default public constructor. This
 only works if all of your custom extensions have a public constructor that takes no parameters.
 
-## `ruleStream`
+### `ruleStream`
 Pass a stream that can be used to read the rules. This can be a file stream, memory stream, network stream or whatever.
 This allows you to store your rewriter rules anywhere you like, including in a database, from an external service etc.
 
 If you do not pass a rule stream then the Rewrite module will attempt to load them from a file called `RewriteRules.config`
 in the root folder of the web site.
 
-## `ruleParser`
+### `ruleParser`
 This is a pretty advanced use case. It allows you to replace the rule syntax with your own syntax. The Rewrite Module parses
 your rule file and constructs a set of objects that can execute those rules as efficiently as possible. You dont have 
 to use the built-in XML syntax to define your rules, you can define a different syntax here if you want.
@@ -444,15 +457,16 @@ Index 0 is the whole matched string and 1..9 are the capture groups.
 * `{urlEncode:}` converts the text after the colon to its URL encoded form. You can nest curly braces after the colon.
 * `{urlDecode:}` converts the text after the colon to its URL decoded form. You can nest curly braces after the colon.
 
+## New functionallity
+This section defines how the standard Microsoft rewriter rule syntax was extended to include the new features
+available in this Rewrite Module.
+
+### Curly brace extensions
 In this Rewrite Module implementation the curly brace syntax has been extended to include
 * The name of a custom operation followed by a colon. Custom operations can be registered with the `<class>` element. The value 
 after the colon will be the input to your custom function, this can be another curly brace expension, for example 
 `{myCustomOperation:{toLower:{HTTP_USER_AGENT}}}`
 * `{toUpper:}` converts the text after the colon to upper case. You can nest curly braces after the colon.
-
-## New functionallity
-This section defines how the standard Microsoft rewriter rule syntax was extended to include the new features
-available in this Rewrite Module.
 
 ### Rules within rules
 This Rewrite Module allows you to put another `<rules>` element inside of a `<rule>` element. If the rule does not
@@ -575,48 +589,6 @@ elements the logic used to combine the conditions can be specified with the `log
 `<condition>` elements are placed directly inside the `<rule>`, all conditions must be true for the rule to be
 matched to the request.
 
-The `<condition>` element can have the following attributes:
-* `scope` specifies what part of the request to compare. See below.
-* `index` for path element scope this is the numeric index of the path element. Index 0 returns the entire path.
-Index 1 is the first element of the path, index 2 the second element etc. If you pass an index thats larger than the number
-of path elements then an empty string is returned for comparison. For example if the request is 
-`http://mydomain.com/path1/path2` then `path1` is index position 1 and `path2` is index position 2. You can also set 
-the `index` attribute to a negative number to count path elements from right to left. In the previous example index 
--1 returns `path2` and -2 returns `path1`. Larger negative values will return a blank string for comparison.
-* `index` for parameter scope this is the name of the parameter. For example if the url is 
-`http://mydomain.com/path1/path2?p1=one&p2=two` you can test the value of query string parameter `p2` by setting  
-`index="p2"`.
-* `index` for header scope is the name of the header, for example `user-agent`.
-* `index` for server variable scope is the name of the server variable, for example `REQUEST_METHOD`.
-* `test` specifies how to compare the `scope` to the `value`. The possible values are: `StartsWith`, `EndsWith`, `Contains`,
-`Equals`,  `MatchWildcard`, `MatchRegex`, `Greater`, `Less`.
-* `value` specifies the literal value to compare with the scope.
-* `ignoreCase` defaults to `true` but can be set to `false` for case sensitivity.
-* `negate` defaults to `false` but can be set to `true` to invert the result of the test.
-
-The values of the `scope` attribute can be:
-* `OriginalUrl` the full url of the original request regrdless of any rewrite actions that have executed.
-* `OriginalPath` just the path part of the original request.
-* `OriginalQueryString` just the query string part of the original request.
-* `OriginalPathElement` one element from the path part of the original request. Pass a number in the `index` 
-attribute to specify the position within the path, or pass 0 as the index to compare the entire path.
-* `OriginalParameter` the value of one parameter from the query string part of the original request. Pass a paremater 
-name in the `index` attribute to specify the name of the parameter to compare.
-* `OriginalHeader` one of the headers from the original request. Pass the name of the header in the `index` attribute.
-* `Url` the full url as modified by any rewrite actions that have executed.
-* `Path` just the path part of the rewritten url.
-* `QueryString` just the query string part of the rewrtten url.
-* `PathElement` one element from the path part of the rewritten url. Pass a number in the `index` 
-attribute to specify the position within the path, or pass 0 as the index to compare the entire path.
-* `Parameter` the value of one parameter from the query string part of the rewritten url. Pass a paremater 
-name in the `index` attribute to specify the name of the parameter to compare.
-* `Header` one of the headers from the rewritten response. Pass the name of the header in the `index` attribute.
-* `OriginalServerVariable` original value one of the IIS server variables. Pass the name of the variable in the `index` parameter.
-* `ServerVariable` rewritten value of one of the IIS server variables. Pass the name of the variable in the `index` parameter.
-* `Literal` compares a hard coded value contained in the `index` attribute. This is mostly useful in the `<rewrite>` element. You can also use curly braces in the `index` attribute as described above.
-* `MatchGroup` one of the groups from the last `<match>` element that matched the request. Index 0 is the whole match, index 1 is group 1 etc. This is equivalent to the `{R:n}` syntax but more readable.
-* `ConditionGroup` one of the groups from the last `<condition>` element that matched the request. Index 0 is the whole match, index 1 is group 1 etc. This is equivalent to the `{C:n}` syntax but more readable.
-
 ### More complex and/or condition support and simplified conditions too
 The original version of the IIS Rewrite Module only had the `<match>` element. Version 2 introduced the optional
 `<conditions><add /></conditions>` syntax but the `<match>` element is still required. In this Rewrite Module the
@@ -641,9 +613,6 @@ conditions must be true. This example would be organized as follows:
 	  </conditions>
     </conditions>
 ```
-
-The `<conditions>` element has the following attributes:
-* `logicalGrouping` can be any of `MatchAll`, `MatchAny` or `MatchNone`.
  
 ### Selectively modifying the request
 In the Microsoft Rewrite module when you define a rewrite action you have to pass the entire URL which means
@@ -654,57 +623,12 @@ In this Rewrite Module you can specify exactly which part of the url you want to
 `<rewrite>` elements to the `<rule>` element to make multiple modifications. The url in the `<action>` element 
 is optional for this Rewrite Module and I strongly recommend that you do not use it. You can still specify the 
 url in the `<action>` if you like for backwards compatibility but if you do this then the `<rewrite>` elements 
-become ineffective.
-
-The `<rewrite>` element can have the following attributes:
-* `to` specifies the scope of where to update the request. See the description of the `scope` attribute of the `<condition>`
-element above for a full definition. For this attribute you can not specify any of the Original.. scopes (you can't change
-the request that was received).
-* `toIndex` specified the index where this is applicable. For example you can overwrite a specific element in the request 
-path without having to be concerned with the rest of the path, or modify a specific parameter in the query string leaving
-all other query string parameters untouched.
-* `from` specifies the scope to get the new value from.
-* `fromIndex` specifies the the index within this scope to get the value from if applicable for the scope.
-* `operation` specifes an operation to perform on the value after reading it from the `from` scope and before writing it
-to the `to` scope. Possible values are `LowerCase`, `UpperCase`, `UrlEncode`, `UrlDecode`. This is optional. You can also 
-register your own custom operations - see below.
+become ineffective because `<action url="..." />` will replace the entire url.
 
 This Rewrite module also provides a `<delete>` element for removing parts of the request a `<keep>` element to delete
 all except certain parts of the request an `<insert>` element and an `<append>` element. These elements allow you to 
 perform any modifications to the url that you need. It also has a <normalize> element that allows you to make your
 URLs consistent (for example always starting the path with / and never ending the path with /).
-
-The `<delete>` element has the following attributes:
-* `scope` identifies which part of the url to delete as `Url`, `Path`, `QueryString`, `PathElement`, `Parameter`, `Header`.
-* `index` specifies the scope index if appropriate for the scope.
-
-The `<keep>` element has the following attributes:
-* `scope` identifies which part of the url to modify as `Path`, `QueryString`, `Header`.
-* `index` specifies the depth to trim the path to if scope is `Path` for example passing `index="2"` will remove path elements 3 onwards.
-* `index` is a comma separated list of parameter names if the scope is `QueryString`. All other parameters will be deleted.
-* `index` is a comma separated list of header names if the scope is `Header`. All other headers will be deleted.
-
-The `<insert>` element has the following attributes:
-* `scope` identifies which part of the url to insert into `Url`, `Path`, `QueryString`, `PathElement`, `Parameter`, `Header`.
-* `index` specifies the scope index of the element to insert before.
-* `from` specifies the scope to get the new value from.
-* `fromIndex` specifies the the index within this scope to get the value from.
-* `operation` specifes an operation to perform on the value after reading it from the `from` scope and before writing it
-to the `to` scope. Possible values are `LowerCase`, `UpperCase`, `UrlEncode`, `UrlDecode`. You can also register your own
-custom operations - see below.
-
-The `<append>` element has the following attributes:
-* `scope` identifies which part of the url to append to `Url`, `Path`, `QueryString`, `PathElement`, `Parameter`, `Header`.
-* `index` specifies the scope index of the element to append to.
-* `from` specifies the scope to get the new value from.
-* `fromIndex` specifies the the index within this scope to get the value from.
-* `operation` specifes an operation to perform on the value after reading it from the `from` scope and before writing it
-to the `to` scope. Possible values are `LowerCase`, `UpperCase`, `UrlEncode`, `UrlDecode`. You can also register your own
-custom operations - see below.
-
-The `<normalize>` element has the following optional attributes:
-* `pathLeadingSeparator` can be `add` or `remove`.
-* `pathTrailingSeparator` can be `add` or `remove`.
 
 An example of a rule that makes changes to the request follows:
 ```
@@ -737,16 +661,6 @@ pre-qualifies the request.
 You can register your custom class by adding an <assembly> element inside a `<rules>` element. Assemblies must be 
 registered before they are referenced, I recommend that you put them at the very top of your rule file.
 
-The `<assembly>` element has the following attributes:
-* `fileName` is the name of the assembly file without the DLL extension. Make sure this DLL is present in the `bin` folder of your web site.
-
-The `<assembly>` element can contain any number of `<class>` elements. These define your extensions. The `<class>` element 
-has the following attributes:
-* `className` contains the full namespace qualified name of the class. For example `MyCompany.Rewrite.Conditions.IsCustomer`.
-* `type` is one of `condition`, `action` or `operation`. Your class must implement the corresponsing interface 
-`UrlRewrite.Interfaces.IConditon`, `UrlRewrite.Interfaces.IAction` or `UrlRewrite.Interfaces.IOperation`.
-* `name` is the name of your extension. This is the name you will refer to in your Rewrite Module rules.
-
 This example aborts all requests that do not come from a customer:
 ```
     <rules name="root">
@@ -762,8 +676,7 @@ This example aborts all requests that do not come from a customer:
 ```
 
 For custom conditions pass the name of your condition in the `test` attribute of the `<condition>` element. In this case the
-`scope` and `index` attributes will be used to extract part of the original or rewritten request, and this will be passed
-into your custom condition which should then return a boolean result.
+`scope` and `index` attributes will determine what will be passed into your custom condition.
 
 For custom actions pass the name of your action to the `type` attribute of the `<action>` element. Your action will be passed
 an interface containing details of the request being processed.
@@ -782,7 +695,7 @@ passed a string and should return a modified version of that string.
 
         public string ToString(IRequestInfo requestInfo)
         {
-            return "ToMyDomain()";
+            return ToString();
         }
 
         public override string ToString()
@@ -951,16 +864,13 @@ list match the request then we are done processing rules in this list but contin
 evaluating rules at the level above".
 
 ### Optimization number 4, look at the execution trace
+
 This Rewrite Module is capable of outputting a complete trace of rewrite requests showing full
 details of the rules that were evaluated, the conditions that were tested and the actions
 that were executed. The request log includes a timespamp on each event to allow you to identify
 any performance bottlenecks.
 
-Tracing every request is only useful in a development environment. You should never do this
-on your production servers. Because of this, the mechanism that we provide to turn this on
-requires you to recompile the source code.
-
-To enable request tracing on specific URLs you must pass a list of these URLs to the `Initialize()`
+To enable request tracing on specific URLs you must pass a Lambda expression to the `Initialize()`
 method of the Rewrite Module (see section on initialization above).
 
 By default the Rewrite Module will output trace information to the `System.Debug.Trace` output, so you
@@ -971,7 +881,7 @@ from Microsoft.
 If you don't want to attach a debugger, you can capture the execution trace by implementing the `ILog`
 interface, and passing your implementation to the `Initialize()` method.
 
-This is an example of what the execution trace looks like:
+This is an example of what the built-in execution trace looks like:
 ```
     Rewrite:    0.0mS rewriting  /rewritethree.aspx
     Rewrite:    3.6mS   list of 7 rules 'Testing'
@@ -1194,8 +1104,8 @@ problem.
 |   |   |
 |---|---|
 |Description|This element is like the `<rewrite>` element except that it prepends to the existing value rather then overwriting it. See the documentation for the `<rewrite>` element above for detailed descriptions of the attributes|
-|`to` attribute|see `<rewrite>` element documentation|
-|`toIndex` attribute|see `<rewrite>` element documentation|
+|`to` attribute|Only `pathElement` scope is supported for this action and this is the default, so this attribute can be omitted|
+|`toIndex` attribute|The index of the element to insert in front of. Passing 1 will insert into the first element of the path pushing all other elements down by 1 position.|
 |`from` attribute|see `<rewrite>` element documentation|
 |`fromIndex` attribute|see `<rewrite>` element documentation|
 |`operation` attribute|see `<rewrite>` element documentation|
@@ -1238,3 +1148,32 @@ problem.
 |Parent|`<rule>`|
 |Children|None|
 |Rules|The URL will have any leading `/` removed before matching. This is for backwards compatibility|
+
+## Scopes
+
+The scope is used to specify what to read or modify in the request. When there are multiple of something in the request
+then the scope needs an index as well to specify which one you want to operate on. For example when the scope is `path` 
+there is only one path in the request so no indexing is needed, but when the scope is `header` you need to specify which 
+header.
+
+Note that not all scopes are applicable in all situations. Please consult the description of the element for a list of applicable scopes.
+
+| Scope | Description |
+|---|---|
+|`originalUrl`|The full url of the original request regrdless of any rewrite actions that have executed. The way that ASP works means that this will have the `http://domain` part stripped off, and will start with `/` at the beginning of the path. You can only read this scope, the original request can not be modified by design.|
+|`originalPath`|Just the path part of the original request excluding the query string. The path starts with the `/` after the domain name and ends with the last character before the `?` if there is one or the rest of the url if there is no `?`. You can only read this scope, the original request can not be modified by design.|
+|`originalQueryString`|Just the query string part of the original request. The query string starts with the first `?` and continues to the end of the url. You can only read this scope, the original request can not be modified by design.|
+|`originalPathElement`|One element from the path. Use the index associated with the scope to specify which element from the path you want to read from. An index value of 0 refers to the whole path, and is equivalent to `path` scope. A positive integer for the index will refer to elements of the path from left to right, the first element is always 1 regardless if whether the url begins with a `/` or not. A negative integer will refer to elements of the path from right to left, the last element is always -1 regardless whether the path has a trailing `/` or not.|
+|`originalParameter`|The value of a parameter from the query string part of the original request. Specify the name of the parameter in the index associated with the scope. The query string part of the url starts with the `?` symbol. Parameters in the query string are separated by `&` symbols. Each parameter is of the form `name=value`. Names and values must be encoded in the url because they can't include characters that have special meaning for urls. The Url Rewrite module will decode these for you so that you can work with the unencoded values in your rules.|
+|`originalHeader`|One of the headers from the original request. Pass the name of the header in the index associated with the scope. Headers are passed from the browser to IIS on separate lines below the url and above the body of the request. When using a browser users can not specify the headers directly, they are inserted automatically by the browser, and contain information about the browser. For a list of headers and thier meanings see https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html |
+|`originalServerVariable`|These variables do not come from the browser, and are not part of the request. These are values that IIS makes available to your software, and they contain information about the IIS environment. For a complete list see http://www.w3schools.com/asp/coll_servervariables.asp. Specify the name of the server variable in the scope index.|
+|`url`|The full url that will be passed on to rest of the request processing pipeline. To any handlers that receive this request it will appear as if this was the URL that the user typed into their browser. You can modify the entire url by modifying this scope, or you can modify specific parts of the url using other scopes and these changes will be reflected here. For example if you overwrite a `pathElement` then refer to the `url` the value read back for the url will include the path element modification.
+|`path`|Just the path part of the `url` scope not including the query string. Any changes you make to `path` will not affect the query string. If you delete the `path` it will be set to `/`|
+|`queryString`|Just the query string part of the `url` scope including the leading `?`. Any changes you make to the `queryString` will have no effect on the `path`.
+|`pathElement`|One element from the `path` scope. Pass a number for the scope index (see `originalPathElement` above for details). Note that `<insert>` for `pathElement` scope will insert a new element into the `path`, whereas `<append>` will append text to the end of the current path element text.|
+|`parameter`|The value of one parameter from the `queryString` scope. Pass a paremater name in the index associated with the scope. You can `<rewrite>`, `<delete>` and `<keep>` query string parameters. If you `<append>` a query string parameter text will be added to the end of the parameter value|
+|`header`|The modified version of 'originalHeader' scope. Modifications can be made via `<rewrite>`, `<delete>` and `<keep>` actions. If you `<append>` a header, text will be added to the end of the header value|
+|`serverVariable`|Modified version of 'originalServerVariable' scope. Changing these variables only affects the current request.|
+|`literal`|Specifying this scope allows you to provide a hard-coded literal value rather than reading a value from the request. The literal value is passed in the scope index. Many actions have a `value` property that is a shorthand way of specifying `literal` scope.|
+|`matchGroup`|One of the groups from the last `<match>` element that matched the request. Index 0 is the whole match, index 1 is match group 1 etc. This is equivalent to the `{r:n}` syntax but more readable. To use this feature use regulat expressions in your `<match>` and identify match groups with `()`.|
+|`conditionGroup`|One of the groups from the last `<condition>` element that matched the request. Only conditions that use regular expression syntax produce match groups. Specify index 0 to match the whole matching string, index 1 is match group 1 etc. This is equivalent to the `{c:n}` syntax but more readable. To use this feature use regulat expressions in your `<condition>` and identify match groups with `()`. By default each matching condition will replace all the match groups. You can change this by setting the `trackAllCaptures` attibute of the parent `<conditions>` element.|
