@@ -53,6 +53,15 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Ioc.Modules">
+      <HintPath>..\packages\Ioc.Modules.1.0.5\lib\Ioc.Modules.dll</HintPath>
+    </Reference>
+    <Reference Include="Ioc.Modules.Ninject">
+      <HintPath>..\packages\Ioc.Modules.Ninject.1.0.2\lib\Ioc.Modules.Ninject.dll</HintPath>
+    </Reference>
+    <Reference Include="Ninject, Version=3.2.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ninject.3.2.2.0\lib\net40\Ninject.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
@@ -61,6 +70,10 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="UrlRewrite, Version=1.1.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Debug-Net40\UrlRewrite.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actions\Action.cs" />
@@ -121,6 +134,7 @@
     <Compile Include="Operations\UrlEncodeOperation.cs" />
     <Compile Include="Operations\UpperCaseOperation.cs" />
     <Compile Include="Operations\LowerCaseOperation.cs" />
+    <Compile Include="Package.cs" />
     <Compile Include="Request\RequestInfo.cs" />
     <Compile Include="RewriteModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -129,21 +143,14 @@
     <Compile Include="Rules\RuleResult.cs" />
     <Compile Include="Rules\Rule.cs" />
     <Compile Include="Configuration\CustomTypeRegistrar.cs" />
-    <Compile Include="Utilities\IocRegistrations.cs" />
-    <Compile Include="Utilities\NinjectUrlRewriteModule.cs" />
     <Compile Include="Utilities\TraceLog.cs" />
     <Compile Include="Utilities\NinjectFactory.cs" />
-    <Compile Include="Utilities\IocLifetime.cs" />
-    <Compile Include="Utilities\IocRegistration.cs" />
     <Compile Include="Utilities\PerformanceTimer.cs" />
     <Compile Include="Utilities\PropertyBag.cs" />
     <Compile Include="Request\RequestLog.cs" />
     <Compile Include="Utilities\UrlRewriteException.cs" />
   </ItemGroup>
   <ItemGroup Condition=" '$(Configuration)' == 'Debug-Net40' Or '$(Configuration)' == 'Release-Net40'">
-    <Reference Include="Ninject">
-      <HintPath>..\packages\Ninject.3.2.2.0\lib\net40\Ninject.dll</HintPath>
-    </Reference>
     <None Include="packages-Net40.config" />
   </ItemGroup>
   <ItemGroup Condition=" '$(Configuration)' == 'Debug-Net45' Or '$(Configuration)' == 'Release-Net45'">

@@ -30,8 +30,8 @@
     </references>
   </metadata>
   <files>
-    <file src="..\Solution\UrlRewrite\bin\Release-Net40\UrlRewrite.dll" target="lib\net40"/>
-    <file src="..\Solution\UrlRewrite\bin\Release-Net45\UrlRewrite.dll" target="lib\net45"/>
+    <file src="..\Solution\UrlRewrite-Net40\bin\Release\UrlRewrite.dll" target="lib\net40"/>
+    <file src="..\Solution\UrlRewrite-Net45\bin\Release\UrlRewrite.dll" target="lib\net45"/>
     <file src="..\*.md" target=""/>
     <file src="..\*.txt" target=""/>
     <file src="*.xdt" target="content"/>

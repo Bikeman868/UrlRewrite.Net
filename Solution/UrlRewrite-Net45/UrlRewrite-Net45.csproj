@@ -1,0 +1,287 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{5049C3C1-AA24-42E7-A4D7-0581B76C14D8}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>UrlRewrite</RootNamespace>
+    <AssemblyName>UrlRewrite</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;TRACE_ALL</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Ioc.Modules">
+      <HintPath>..\packages\Ioc.Modules.1.0.5\lib\Ioc.Modules.dll</HintPath>
+    </Reference>
+    <Reference Include="Ioc.Modules.Ninject">
+      <HintPath>..\packages\Ioc.Modules.Ninject.1.0.2\lib\Ioc.Modules.Ninject.dll</HintPath>
+    </Reference>
+    <Reference Include="Ninject">
+      <HintPath>..\packages\Ninject.3.2.2.0\lib\net45-full\Ninject.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\UrlRewrite-Net40\Actions\AbortRequest.cs">
+      <Link>Actions\AbortRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Actions\Action.cs">
+      <Link>Actions\Action.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Actions\ActionList.cs">
+      <Link>Actions\ActionList.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Actions\Append.cs">
+      <Link>Actions\Append.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Actions\CustomResponse.cs">
+      <Link>Actions\CustomResponse.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Actions\Delete.cs">
+      <Link>Actions\Delete.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Actions\Insert.cs">
+      <Link>Actions\Insert.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Actions\Keep.cs">
+      <Link>Actions\Keep.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Actions\None.cs">
+      <Link>Actions\None.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Actions\Normalize.cs">
+      <Link>Actions\Normalize.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Actions\Redirect.cs">
+      <Link>Actions\Redirect.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Actions\Replace.cs">
+      <Link>Actions\Replace.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Actions\Truncate.cs">
+      <Link>Actions\Truncate.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Conditions\ConditionList.cs">
+      <Link>Conditions\ConditionList.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Conditions\NumberMatch.cs">
+      <Link>Conditions\NumberMatch.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Conditions\StringMatch.cs">
+      <Link>Conditions\StringMatch.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Conditions\ValueConcatenator.cs">
+      <Link>Conditions\ValueConcatenator.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Conditions\ValueGetter.cs">
+      <Link>Conditions\ValueGetter.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Configuration\CustomTypeRegistrar.cs">
+      <Link>Configuration\CustomTypeRegistrar.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Configuration\StandardRuleParser.cs">
+      <Link>Configuration\StandardRuleParser.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Actions\IAction.cs">
+      <Link>Interfaces\Actions\IAction.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Actions\IActionList.cs">
+      <Link>Interfaces\Actions\IActionList.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Actions\IAppendAction.cs">
+      <Link>Interfaces\Actions\IAppendAction.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Actions\IDeleteAction.cs">
+      <Link>Interfaces\Actions\IDeleteAction.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Actions\IInsertAction.cs">
+      <Link>Interfaces\Actions\IInsertAction.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Actions\IKeepAction.cs">
+      <Link>Interfaces\Actions\IKeepAction.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Actions\INormalizeAction.cs">
+      <Link>Interfaces\Actions\INormalizeAction.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Actions\IReplaceAction.cs">
+      <Link>Interfaces\Actions\IReplaceAction.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Actions\ITruncateAction.cs">
+      <Link>Interfaces\Actions\ITruncateAction.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Conditions\CombinationLogic.cs">
+      <Link>Interfaces\Conditions\CombinationLogic.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Conditions\CompareOperation.cs">
+      <Link>Interfaces\Conditions\CompareOperation.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Conditions\ICondition.cs">
+      <Link>Interfaces\Conditions\ICondition.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Conditions\IConditionList.cs">
+      <Link>Interfaces\Conditions\IConditionList.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Conditions\INumberMatch.cs">
+      <Link>Interfaces\Conditions\INumberMatch.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Conditions\IStringMatch.cs">
+      <Link>Interfaces\Conditions\IStringMatch.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Conditions\IValueConcatenator.cs">
+      <Link>Interfaces\Conditions\IValueConcatenator.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Conditions\IValueGetter.cs">
+      <Link>Interfaces\Conditions\IValueGetter.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Conditions\Scope.cs">
+      <Link>Interfaces\Conditions\Scope.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\ExecutionMode.cs">
+      <Link>Interfaces\ExecutionMode.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\ICustomTypeRegistrar.cs">
+      <Link>Interfaces\ICustomTypeRegistrar.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\IFactory.cs">
+      <Link>Interfaces\IFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\IRequestInfo.cs">
+      <Link>Interfaces\IRequestInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Operations\IOperation.cs">
+      <Link>Interfaces\Operations\IOperation.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Rules\IRule.cs">
+      <Link>Interfaces\Rules\IRule.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Rules\IRuleElement.cs">
+      <Link>Interfaces\Rules\IRuleElement.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Rules\IRuleList.cs">
+      <Link>Interfaces\Rules\IRuleList.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Rules\IRuleListResult.cs">
+      <Link>Interfaces\Rules\IRuleListResult.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Rules\IRuleParser.cs">
+      <Link>Interfaces\Rules\IRuleParser.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Rules\IRuleResult.cs">
+      <Link>Interfaces\Rules\IRuleResult.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Utilities\IDescribable.cs">
+      <Link>Interfaces\Utilities\IDescribable.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Utilities\ILog.cs">
+      <Link>Interfaces\Utilities\ILog.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Utilities\IPropertyBag.cs">
+      <Link>Interfaces\Utilities\IPropertyBag.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Utilities\IRequestLog.cs">
+      <Link>Interfaces\Utilities\IRequestLog.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Operations\AbsoluteUrlOperation.cs">
+      <Link>Operations\AbsoluteUrlOperation.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Operations\LowerCaseOperation.cs">
+      <Link>Operations\LowerCaseOperation.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Operations\RewriteMapOperation.cs">
+      <Link>Operations\RewriteMapOperation.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Operations\UpperCaseOperation.cs">
+      <Link>Operations\UpperCaseOperation.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Operations\UrlDecodeOperation.cs">
+      <Link>Operations\UrlDecodeOperation.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Operations\UrlEncodeOperation.cs">
+      <Link>Operations\UrlEncodeOperation.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Package.cs">
+      <Link>Package.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Properties\AssemblyInfo.cs">
+      <Link>AssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Request\RequestInfo.cs">
+      <Link>Request\RequestInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Request\RequestLog.cs">
+      <Link>Request\RequestLog.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\RewriteModule.cs">
+      <Link>RewriteModule.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Rules\Rule.cs">
+      <Link>Rules\Rule.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Rules\RuleList.cs">
+      <Link>Rules\RuleList.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Rules\RuleListResult.cs">
+      <Link>Rules\RuleListResult.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Rules\RuleResult.cs">
+      <Link>Rules\RuleResult.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Utilities\NinjectFactory.cs">
+      <Link>Utilities\NinjectFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Utilities\PerformanceTimer.cs">
+      <Link>Utilities\PerformanceTimer.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Utilities\PropertyBag.cs">
+      <Link>Utilities\PropertyBag.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Utilities\TraceLog.cs">
+      <Link>Utilities\TraceLog.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Utilities\UrlRewriteException.cs">
+      <Link>Utilities\UrlRewriteException.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,11 +1,7 @@
 ﻿using System;
+using Ioc.Modules;
 using Ninject;
-using Ninject.Modules;
 using UrlRewrite.Interfaces;
-using UrlRewrite.Interfaces.Actions;
-using UrlRewrite.Interfaces.Conditions;
-using UrlRewrite.Interfaces.Rules;
-using UrlRewrite.Interfaces.Utilities;
 
 namespace UrlRewrite.Utilities
 {
@@ -15,7 +11,9 @@ namespace UrlRewrite.Utilities
 
         public NinjectFactory()
         {
-            _ninject = new StandardKernel(new NinjectUrlRewriteModule(this));
+            var packageLocator = new PackageLocator().ProbeBinFolderAssemblies();
+            _ninject = new StandardKernel(new Ioc.Modules.Ninject.Module(packageLocator));
+            _ninject.Rebind<IFactory>().ToConstant(this);
         }
 
         T IFactory.Create<T>()
