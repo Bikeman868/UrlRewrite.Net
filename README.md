@@ -1142,7 +1142,7 @@ problem.
 |---|---|
 |Description|This element exists only for backwards compatibility. I recomend that you do not use it in any new rules that you write. The element defines a condition that must be met for the rule to be applied|
 |`url` attribute|a regular expression or wildcard expression to match against the whole URL including the query string|
-|`patternSyntax` attribute|defaults to `ECMAScript` but can also be 'Wildcard'|
+|`patternSyntax` attribute|defaults to `ECMAScript` but can also be `Wildcard`|
 |`negate` attribute|defaults to `false`. Set to `true` to invert the result|
 |`ignoreCase` attribute|defaults to `true`. Set to `false` for case-sensitive matching|
 |Parent|`<rule>`|
@@ -1174,6 +1174,6 @@ Note that not all scopes are applicable in all situations. Please consult the de
 |`parameter`|The value of one parameter from the `queryString` scope. Pass a paremater name in the index associated with the scope. You can `<rewrite>`, `<delete>` and `<keep>` query string parameters. If you `<append>` a query string parameter text will be added to the end of the parameter value|
 |`header`|The modified version of 'originalHeader' scope. Modifications can be made via `<rewrite>`, `<delete>` and `<keep>` actions. If you `<append>` a header, text will be added to the end of the header value|
 |`serverVariable`|Modified version of 'originalServerVariable' scope. Changing these variables only affects the current request.|
-|`literal`|Specifying this scope allows you to provide a hard-coded literal value rather than reading a value from the request. The literal value is passed in the scope index. Many actions have a `value` property that is a shorthand way of specifying `literal` scope.|
-|`matchGroup`|One of the groups from the last `<match>` element that matched the request. Index 0 is the whole match, index 1 is match group 1 etc. This is equivalent to the `{r:n}` syntax but more readable. To use this feature use regulat expressions in your `<match>` and identify match groups with `()`.|
+|`literal`|Specifying this scope allows you to provide a hard-coded literal value rather than reading a value from the request. The literal value is passed in the scope index. Many actions have a `value` atttribute that is a shorthand way of specifying `literal` scope.|
+|`matchGroup`|One of the groups from the last `<match>` element that matched the request. Index 0 is the whole match, index 1 is match group 1 etc. This is equivalent to the `{r:n}` syntax but more readable. To use this feature use regular expressions in your `<match>` and identify match groups with `()`.|
 |`conditionGroup`|One of the groups from the last `<condition>` element that matched the request. Only conditions that use regular expression syntax produce match groups. Specify index 0 to match the whole matching string, index 1 is match group 1 etc. This is equivalent to the `{c:n}` syntax but more readable. To use this feature use regulat expressions in your `<condition>` and identify match groups with `()`. By default each matching condition will replace all the match groups. You can change this by setting the `trackAllCaptures` attibute of the parent `<conditions>` element.|

@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>UrlRewrite.Net</id>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
     <title>UrlRewrite.Net</title>
     <authors>Martin Halliday</authors>
     <owners>Martin Halliday</owners>
@@ -30,7 +30,8 @@
     </references>
   </metadata>
   <files>
-    <file src="..\Solution\UrlRewrite\bin\Release\UrlRewrite.dll" target="lib"/>
+    <file src="..\Solution\UrlRewrite\bin\Release-Net40\UrlRewrite.dll" target="lib\net40"/>
+    <file src="..\Solution\UrlRewrite\bin\Release-Net45\UrlRewrite.dll" target="lib\net45"/>
     <file src="..\*.md" target=""/>
     <file src="..\*.txt" target=""/>
     <file src="*.xdt" target="content"/>
