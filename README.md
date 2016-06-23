@@ -57,6 +57,7 @@ These are the versions that had major feature improvements or breaking changes y
 |1.1.0|BREAKING CHANGE - method sugnature of the `Initialize()` method changed to provide more flexibility in selecting which requests to trace|
 |1.1.1|BREAKING CHANGE - the default value for the `stopProcessing` attribute on the `<rules>` element changed from `false` to `true`
 ||Added a `value="my value"` attribute to `<rewrite>`, `<append>` and `<insert>` as a shorthand for `from="literal" fromIndex="my value"`|
+|1.1.2|Added support for version 4.0 and 4.5 of the .Net Framework|
 
 # Getting started
 If you already use the Microsoft URL Rewriter module, follow these steps to replace it with this modue.
@@ -83,17 +84,23 @@ Merge this into your web.config file
    </system.webServer>
 ```
 
-- Note that your web site needs to be running in Integrated Pipeline mode and not Classic. This is a setting on the App Pool in IIS.
+> Note that your web site needs to be running in Integrated Pipeline mode and not Classic. This is a setting on the App Pool in IIS.
+
+> Note that the NuGet package installer will attempt to make this change for you but I recommend 
+> that you check that the changes were made correctly.
 
 ## Move your rewrite rules to a separate file
-In .Net applications config files can store sections of the config file in separate files. If you already have your rewriter
-rules in a separate file then you can skip this step. If your existing rules are inline within your web.config file then you
-need to do this step. Note that if you are including rewriter rules into your application for the first time, you can simply
-create a file in the root of your site called `RewriteRules.config` and skip the rest of this step.
+In .Net applications config files can store sections of the config file in separate files. If you have 
+already configured your application like this, then then you should rename the file containig your
+rules to `RewriteRules.config`.
 
-To move the rewriting rules into a separate file, open the `web.config` file and find the `<rewrite>` element. You need
-to copy this element and paste it into a new file called `RewriteRules.config`, then you need to replace
-the contents of this section with a reference to the file like this:
+If you are starting from scratch then create a file called `RewriteRules.config` in the root folder of your
+web site and type your rules into it as described in the rest of this document.
+
+If you use the Microsoft Url rewriter already and have the rules directly in your `web.config file`, then
+you will need to cut the `<rewrite>` section from your `web.config` file and paste them into a new 
+file called `RewriteRules.config`. In this case if you want to be able to switch back to the Microsoft
+Url rewriter, then replace the `<rewrite>` section in your `web.config` which this:
 ```
     <rewrite configSource="RewriteRules.config" />
 ```
