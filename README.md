@@ -249,6 +249,17 @@ devices from the USER_AGENT header in the request.
     </rule>
 ```
 
+#### Example of a rule that maps all virtual URLs (no physical file) to index.html.
+```
+    <rule name="AngularJS">
+		<conditions logicalGrouping="MatchAll">
+			<add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
+			<add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />
+		</conditions>
+		<action type="Rewrite" url="/index.html" />    
+	</rule>
+```
+
 # Integrating your IoC container
 
 You can optionally integrate the Rewrite Module with an IoC container. You might do this if you want to:
