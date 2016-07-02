@@ -17,7 +17,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Net40\Debug\</OutputPath>
+    <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>TRACE;DEBUG;TRACE_ALL</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -25,7 +25,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Net40\Release\</OutputPath>
+    <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -67,6 +67,7 @@
     <Compile Include="Actions\Truncate.cs" />
     <Compile Include="Conditions\ConditionList.cs" />
     <Compile Include="Conditions\NumberMatch.cs" />
+    <Compile Include="Conditions\StaticFileMatch.cs" />
     <Compile Include="Conditions\ValueConcatenator.cs" />
     <Compile Include="Conditions\ValueGetter.cs" />
     <Compile Include="Conditions\StringMatch.cs" />
@@ -81,6 +82,7 @@
     <Compile Include="Interfaces\Actions\IKeepAction.cs" />
     <Compile Include="Interfaces\Conditions\CombinationLogic.cs" />
     <Compile Include="Interfaces\Conditions\IConditionList.cs" />
+    <Compile Include="Interfaces\Conditions\IStaticFileMatch.cs" />
     <Compile Include="Interfaces\Conditions\IValueConcatenator.cs" />
     <Compile Include="Interfaces\ExecutionMode.cs" />
     <Compile Include="Interfaces\ICustomTypeRegistrar.cs" />

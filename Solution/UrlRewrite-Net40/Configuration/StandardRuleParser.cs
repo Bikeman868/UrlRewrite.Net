@@ -435,11 +435,13 @@ namespace UrlRewrite.Configuration
         private ICondition ParseConditionsAddElement(XElement element, ParserContext context)
         {
             IValueGetter valueGetter = null;
-            var scope = Scope.Url;
+            var defaultScope = Scope.Url; // only applies when there is no "input" attribute
             var compareOperation = CompareOperation.MatchRegex;
             var inverted = false;
             var ignoreCase = true;
             var text = ".*";
+            var isFileMatch = false;
+            var isDirectoryMatch = false;
 
             if (element.HasAttributes)
             {
@@ -450,21 +452,12 @@ namespace UrlRewrite.Configuration
                         case "input":
                             valueGetter = ParseTextWithMacros(attribute.Value, context);
                             break;
-                        case "matchType":
+                        case "matchtype":
+                            defaultScope = Scope.Path;
                             if (attribute.Value.ToLower() == "isfile")
-                            {
-                                scope = Scope.Path;
-                                compareOperation = CompareOperation.EndsWith;
-                                text = "/";
-                                inverted = true;
-                            }
+                                isFileMatch = true;
                             else if (attribute.Value.ToLower() == "isdirectory")
-                            {
-                                scope = Scope.Path;
-                                compareOperation = CompareOperation.EndsWith;
-                                text = "/";
-                                inverted = false;
-                            }
+                                isDirectoryMatch = true;
                             break;
                         case "pattern":
                             text = attribute.Value;
@@ -480,10 +473,11 @@ namespace UrlRewrite.Configuration
             }
 
             if (valueGetter == null)
-                valueGetter = ConstructValueGetter(scope);
+                valueGetter = ConstructValueGetter(defaultScope);
 
-            var stringMatch = _factory.Create<IStringMatch>().Initialize(valueGetter, compareOperation, text, inverted, ignoreCase);
-            return stringMatch;
+            if (isFileMatch || isDirectoryMatch)
+                return _factory.Create<IStaticFileMatch>().Initialize(valueGetter, isDirectoryMatch, inverted);
+            return _factory.Create<IStringMatch>().Initialize(valueGetter, compareOperation, text, inverted, ignoreCase);
         }
 
         private IAction ParseRewriteElement(XElement element, ParserContext context)

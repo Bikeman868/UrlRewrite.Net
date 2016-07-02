@@ -58,6 +58,7 @@ These are the versions that had major feature improvements or breaking changes y
 |1.1.1|BREAKING CHANGE - the default value for the `stopProcessing` attribute on the `<rules>` element changed from `false` to `true`
 ||Added a `value="my value"` attribute to `<rewrite>`, `<append>` and `<insert>` as a shorthand for `from="literal" fromIndex="my value"`|
 |1.1.2|Added support for version 4.0 and 4.5 of the .Net Framework|
+|1.2.0|The IsFile and IsDirectory matchType now check for the existence of a physical file on disk|
 
 # Getting started
 If you already use the Microsoft URL Rewriter module, follow these steps to replace it with this modue.

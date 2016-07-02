@@ -21,8 +21,8 @@ namespace UrlRewrite
             {
                 return new List<IocRegistration>
                 {
-                    new IocRegistration().Init<ILog, TraceLog>(IocLifetime.SingleInstance),
-                    new IocRegistration().Init<ICustomTypeRegistrar, CustomTypeRegistrar>(IocLifetime.SingleInstance),
+                    new IocRegistration().Init<ILog, TraceLog>(),
+                    new IocRegistration().Init<ICustomTypeRegistrar, CustomTypeRegistrar>(),
 
                     // Input values and comparison
                     new IocRegistration().Init<IValueGetter, Conditions.ValueGetter>(IocLifetime.MultiInstance),
@@ -30,15 +30,18 @@ namespace UrlRewrite
                     new IocRegistration().Init<INumberMatch, Conditions.NumberMatch>(IocLifetime.MultiInstance),
                     new IocRegistration().Init<IConditionList, Conditions.ConditionList>(IocLifetime.MultiInstance),
                     new IocRegistration().Init<IValueConcatenator, Conditions.ValueConcatenator>(IocLifetime.MultiInstance),
+                    new IocRegistration().Init<IStaticFileMatch, Conditions.StaticFileMatch>(IocLifetime.MultiInstance),
 
                     // Request handling
                     new IocRegistration().Init<IRequestInfo, Request.RequestInfo>(IocLifetime.MultiInstance),
 
                     // Actions
                     new IocRegistration().Init<IActionList, Actions.ActionList>(IocLifetime.MultiInstance),
-                    new IocRegistration().Init<IKeepAction, Actions.Keep>(IocLifetime.MultiInstance),
                     new IocRegistration().Init<IAppendAction, Actions.Append>(IocLifetime.MultiInstance),
                     new IocRegistration().Init<IDeleteAction, Actions.Delete>(IocLifetime.MultiInstance),
+                    new IocRegistration().Init<IInsertAction, Actions.Insert>(IocLifetime.MultiInstance),
+                    new IocRegistration().Init<IKeepAction, Actions.Keep>(IocLifetime.MultiInstance),
+                    new IocRegistration().Init<INormalizeAction, Actions.Normalize>(IocLifetime.MultiInstance),
                     new IocRegistration().Init<IReplaceAction, Actions.Replace>(IocLifetime.MultiInstance),
                     new IocRegistration().Init<ITruncateAction, Actions.Truncate>(IocLifetime.MultiInstance),
 
@@ -49,7 +52,7 @@ namespace UrlRewrite
 
                     // Utility
                     new IocRegistration().Init<IPropertyBag, PropertyBag>(IocLifetime.MultiInstance),
-                    new IocRegistration().Init<IFactory, NinjectFactory>(IocLifetime.MultiInstance),
+                    new IocRegistration().Init<IFactory, NinjectFactory>(),
                 };
             }
         }
