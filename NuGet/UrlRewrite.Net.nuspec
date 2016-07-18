@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>UrlRewrite.Net</id>
-    <version>1.2.0</version>
+    <version>1.2.1</version>
     <title>UrlRewrite.Net</title>
     <authors>Martin Halliday</authors>
     <owners>Martin Halliday</owners>
@@ -24,6 +24,8 @@
     <licenseUrl>http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html</licenseUrl>
     <tags>IIS rewrite url-rewriter urlrewrite</tags>
     <dependencies>
+      <dependency id="Ioc.Modules" version="1.1.2" />
+      <dependency id="Ioc.Modules.Ninject" version="1.1.0" />
       <dependency id="Ninject" version="3.0.0.0" />
     </dependencies>
     <references>
