@@ -1055,7 +1055,7 @@ problem.
 |---|---|
 |Description|This is for backward compatibnility only. I do not recommend using this in any new rules that you write|
 |`input` attribute|specifies how to retrieve the value to test from the request. Uses `{}` syntax which is described elsewhere|
-|`matchType` attribute|can be `isFile` or `isDirectory`. These things test whether the path ends with `/` or not|
+|`matchType` attribute|can be `isFile` or `isDirectory`. This attribute causes the rewrite module to test for the existence of a file or directory in the file system|
 |`pattern` attribute|a regular expression used to match the `input` value|
 |`negate` attribute|dafaults to `false`. Set to `true` to invert the result. This is especially useful for cases like testing that a paremater is not empty|
 |`ignoreCase` attribute|defaults to `true`. Set to `false` to have case-sensitive compare|
