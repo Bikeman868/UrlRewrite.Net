@@ -1,6 +1,6 @@
 # UrlRewrite.Net
 Drop in replacement for the IIS Url Rewriter that removes all the limitations and perfromance
-constraints of the the Microsoft implementation. Drop this into your web site in place of the stopprocessingsxfgsdfgwdg
+constraints of the the Microsoft implementation. Drop this into your web site in place of the
 Microsoft Rewrite module and everything will work as before, but now you can extend, enhance
 and optimize your rules going forward.
 
