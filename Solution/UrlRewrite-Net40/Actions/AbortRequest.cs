@@ -1,11 +1,17 @@
 ﻿using System.IO;
 using UrlRewrite.Interfaces;
+using UrlRewrite.Interfaces.Actions;
 using UrlRewrite.Interfaces.Rules;
 
 namespace UrlRewrite.Actions
 {
-    internal class AbortRequest: Action
+    internal class AbortRequest: Action, IAbortAction
     {
+        public IAbortAction Initialize()
+        {
+            return this;
+        }
+
         public override void PerformAction(
             IRequestInfo requestInfo,
             IRuleResult ruleResult,

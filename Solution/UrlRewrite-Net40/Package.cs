@@ -36,12 +36,16 @@ namespace UrlRewrite
                     new IocRegistration().Init<IRequestInfo, Request.RequestInfo>(IocLifetime.MultiInstance),
 
                     // Actions
+                    new IocRegistration().Init<IAbortAction, Actions.AbortRequest>(IocLifetime.MultiInstance),
                     new IocRegistration().Init<IActionList, Actions.ActionList>(IocLifetime.MultiInstance),
                     new IocRegistration().Init<IAppendAction, Actions.Append>(IocLifetime.MultiInstance),
+                    new IocRegistration().Init<ICustomResponse, Actions.CustomResponse>(IocLifetime.MultiInstance),
                     new IocRegistration().Init<IDeleteAction, Actions.Delete>(IocLifetime.MultiInstance),
                     new IocRegistration().Init<IInsertAction, Actions.Insert>(IocLifetime.MultiInstance),
                     new IocRegistration().Init<IKeepAction, Actions.Keep>(IocLifetime.MultiInstance),
+                    new IocRegistration().Init<IDoNothingAction, Actions.None>(IocLifetime.MultiInstance),
                     new IocRegistration().Init<INormalizeAction, Actions.Normalize>(IocLifetime.MultiInstance),
+                    new IocRegistration().Init<IRedirectAction, Actions.Redirect>(IocLifetime.MultiInstance),
                     new IocRegistration().Init<IReplaceAction, Actions.Replace>(IocLifetime.MultiInstance),
                     new IocRegistration().Init<ITruncateAction, Actions.Truncate>(IocLifetime.MultiInstance),
 

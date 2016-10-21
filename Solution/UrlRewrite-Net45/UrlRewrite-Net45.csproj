@@ -32,12 +32,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Ioc.Modules">
-      <HintPath>..\packages\Ioc.Modules.1.1.2\lib\net45\Ioc.Modules.dll</HintPath>
-    </Reference>
-    <Reference Include="Ioc.Modules.Ninject, Version=1.1.2.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Ioc.Modules, Version=1.1.3.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Ioc.Modules.Ninject.1.1.2\lib\net45\Ioc.Modules.Ninject.dll</HintPath>
+      <HintPath>..\packages\Ioc.Modules.1.1.3\lib\net45\Ioc.Modules.dll</HintPath>
+    </Reference>
+    <Reference Include="Ioc.Modules.Ninject, Version=1.1.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Ioc.Modules.Ninject.1.1.3\lib\net45\Ioc.Modules.Ninject.dll</HintPath>
     </Reference>
     <Reference Include="Ninject">
       <HintPath>..\packages\Ninject.3.2.2.0\lib\net45-full\Ninject.dll</HintPath>
@@ -118,6 +119,9 @@
     <Compile Include="..\UrlRewrite-Net40\Configuration\StandardRuleParser.cs">
       <Link>Configuration\StandardRuleParser.cs</Link>
     </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Actions\IAbortAction.cs">
+      <Link>Actions\IAbortAction.cs</Link>
+    </Compile>
     <Compile Include="..\UrlRewrite-Net40\Interfaces\Actions\IAction.cs">
       <Link>Interfaces\Actions\IAction.cs</Link>
     </Compile>
@@ -127,8 +131,14 @@
     <Compile Include="..\UrlRewrite-Net40\Interfaces\Actions\IAppendAction.cs">
       <Link>Interfaces\Actions\IAppendAction.cs</Link>
     </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Actions\ICustomResponse.cs">
+      <Link>Actions\ICustomResponse.cs</Link>
+    </Compile>
     <Compile Include="..\UrlRewrite-Net40\Interfaces\Actions\IDeleteAction.cs">
       <Link>Interfaces\Actions\IDeleteAction.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Actions\IDoNothingAction.cs">
+      <Link>Actions\IDoNothingAction.cs</Link>
     </Compile>
     <Compile Include="..\UrlRewrite-Net40\Interfaces\Actions\IInsertAction.cs">
       <Link>Interfaces\Actions\IInsertAction.cs</Link>
@@ -138,6 +148,9 @@
     </Compile>
     <Compile Include="..\UrlRewrite-Net40\Interfaces\Actions\INormalizeAction.cs">
       <Link>Interfaces\Actions\INormalizeAction.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Actions\IRedirectAction.cs">
+      <Link>Interfaces\Actions\IRedirectAction.cs</Link>
     </Compile>
     <Compile Include="..\UrlRewrite-Net40\Interfaces\Actions\IReplaceAction.cs">
       <Link>Interfaces\Actions\IReplaceAction.cs</Link>

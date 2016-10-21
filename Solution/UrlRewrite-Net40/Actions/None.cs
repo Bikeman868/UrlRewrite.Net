@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using UrlRewrite.Interfaces;
+using UrlRewrite.Interfaces.Actions;
 using UrlRewrite.Interfaces.Rules;
 
 namespace UrlRewrite.Actions
@@ -7,8 +8,13 @@ namespace UrlRewrite.Actions
     /// <summary>
     /// Truncates the path of the URL to specified number of elements
     /// </summary>
-    internal class None: Action
+    internal class None : Action, IDoNothingAction
     {
+        public IDoNothingAction Initialize()
+        {
+            return this;
+        }
+
         public override void PerformAction(
             IRequestInfo requestInfo,
             IRuleResult ruleResult,

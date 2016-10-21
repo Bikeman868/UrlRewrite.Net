@@ -29,7 +29,7 @@ namespace TestSite.App_Code
 
             UrlRewrite.RewriteModule.Initialize(
                 null, 
-                url => rawUrlsToTrace.Contains(url.ToLower()),
+                url => true /*rawUrlsToTrace.Contains(url.ToLower())*/,
                 url => rewrittenUrlsToTrace.Contains(url.ToLower()));
         }
     }

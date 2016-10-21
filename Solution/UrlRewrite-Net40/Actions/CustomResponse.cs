@@ -7,21 +7,15 @@ using UrlRewrite.Interfaces.Rules;
 
 namespace UrlRewrite.Actions
 {
-    internal class CustomResponse: Action
+    internal class CustomResponse : Action, ICustomResponse
     {
         private string _statusLine;
         private string _responseLine;
 
-        public CustomResponse() : this(true, true) { }
-
-        public CustomResponse(bool stopProcessing, bool endRequest)
+        public ICustomResponse Initialize(XElement configuration, bool stopProcessing, bool endRequest)
         {
             _stopProcessing = stopProcessing;
             _endRequest = endRequest;
-        }
-
-        public override IAction Initialize(XElement configuration)
-        {
             _statusLine = "HTTP/1.1 200 OK";
             _responseLine = "OK";
 
@@ -40,7 +34,8 @@ namespace UrlRewrite.Actions
                     }
                 }
             }
-            return base.Initialize(configuration);
+            base.Initialize(configuration);
+            return this;
         }
 
         public override void PerformAction(

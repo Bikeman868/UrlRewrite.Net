@@ -8,17 +8,16 @@ using UrlRewrite.Utilities;
 
 namespace UrlRewrite.Actions
 {
-    internal class Redirect : Action
+    internal class Redirect : Action, IRedirectAction
     {
         private Action<IRequestInfo, string> _redirectAction;
         private string _code;
 
-        public Redirect() : this(true, true) { }
-
-        public Redirect(bool stopProcessing , bool endRequest)
+        public IRedirectAction Initialize(bool stopProcessing, bool endRequest)
         {
             _stopProcessing = stopProcessing;
             _endRequest = endRequest;
+            return this;
         }
 
         public override void PerformAction(

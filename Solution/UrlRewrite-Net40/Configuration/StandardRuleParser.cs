@@ -67,28 +67,19 @@ namespace UrlRewrite.Configuration
 
         private IAction ConstructAction(string actionName, XElement configuration)
         {
-            Type type;
             switch (actionName.ToLower())
             {
                 case "redirect":
-                    type = typeof(Actions.Redirect);
-                    break;
+                    return _factory.Create<IRedirectAction>().Initialize(true, true);
                 case "customresponse":
-                    type = typeof(Actions.CustomResponse);
-                    break;
+                    return _factory.Create<ICustomResponse>().Initialize(configuration);
                 case "abortrequest":
-                    type = typeof(Actions.AbortRequest);
-                    break;
+                    return _factory.Create<IAbortAction>().Initialize();
                 case "none":
-                    type = typeof(Actions.None);
-                    break;
+                    return _factory.Create<IDoNothingAction>().Initialize();
                 default:
                     return _customTypeRegistrar.ConstructAction(actionName, configuration);
             }
-
-            var action = _factory.Create(type) as IAction;
-            if (action != null) action.Initialize(configuration);
-            return action;
         }
 
         private IOperation ConstructOperation(string operationName, ParserContext context)
