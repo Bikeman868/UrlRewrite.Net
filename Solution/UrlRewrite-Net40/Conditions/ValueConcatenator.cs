@@ -78,6 +78,11 @@ namespace UrlRewrite.Conditions
             return result;
         }
 
+        public string ToString(IRequestInfo requestInfo)
+        {
+            return ToString();
+        }
+
         public void Describe(System.IO.TextWriter writer, string indent, string indentText)
         {
             if (_values != null && _values.Count > 0)

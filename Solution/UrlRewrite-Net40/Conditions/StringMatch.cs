@@ -154,7 +154,10 @@ namespace UrlRewrite.Conditions
 
         public string ToString(IRequestInfo request)
         {
-            return ToString();
+            var description = "request " + _valueGetter.ToString(request);
+            description += (_inverted ? " not" : "") + " " + _compareOperation + " '" + _match + "'";
+            description += _ignoreCase ? "" : " (case sensitive)";
+            return description;
         }
 
         public void Describe(TextWriter writer, string indent, string indentText)

@@ -11,5 +11,7 @@ namespace UrlRewrite.Interfaces.Conditions
 
         string GetString(IRequestInfo requestInfo, IRuleResult ruleResult);
         int GetInt(IRequestInfo requestInfo, IRuleResult ruleResult, int defaultValue);
+
+        string ToString(IRequestInfo request);
     }
 }

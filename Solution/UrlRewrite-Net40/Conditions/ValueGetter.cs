@@ -281,6 +281,12 @@ namespace UrlRewrite.Conditions
             return description;
         }
 
+        public string ToString(IRequestInfo requestInfo)
+        {
+            var ruleResult = new Rules.RuleResult();
+            return ToString() + "='" + GetString(requestInfo, ruleResult) + "'";
+        }
+
         public string GetString(IRequestInfo requestInfo, IRuleResult ruleResult)
         {
             var value = _getValueFunc(requestInfo, ruleResult);
