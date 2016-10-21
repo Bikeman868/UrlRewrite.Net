@@ -6,8 +6,13 @@ using UrlRewrite.Interfaces.Operations;
 
 namespace UrlRewrite.Operations
 {
-    public class UrlEncodeOperation: IOperation
+    public class UrlEncodeOperation : IUrlEncodeOperation
     {
+        public IUrlEncodeOperation Initialize()
+        {
+            return this;
+        }
+
         public string Execute(string value)
         {
             return ReferenceEquals(value, null) ? string.Empty : HttpUtility.UrlEncode(value);

@@ -7,7 +7,7 @@ using UrlRewrite.Utilities;
 
 namespace UrlRewrite.Operations
 {
-    public class RewriteMapOperation: IOperation
+    public class RewriteMapOperation : IRewriteMapOperation
     {
         public string Name { get; private set; }
 
@@ -23,7 +23,7 @@ namespace UrlRewrite.Operations
             return _map.TryGetValue(value.ToLower(), out result) ? result : _defaultValue;
         }
 
-        public RewriteMapOperation Initialize(XElement element)
+        public IRewriteMapOperation Initialize(XElement element)
         {
             _map = new Dictionary<string, string>();
             Name = string.Empty;

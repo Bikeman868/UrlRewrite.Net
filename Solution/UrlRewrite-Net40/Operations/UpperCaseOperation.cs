@@ -5,8 +5,13 @@ using UrlRewrite.Interfaces.Operations;
 
 namespace UrlRewrite.Operations
 {
-    public class UpperCaseOperation: IOperation
+    public class UpperCaseOperation : IUpperCaseOperation
     {
+        public IUpperCaseOperation Initialize()
+        {
+            return this;
+        }
+
         public string Execute(string value)
         {
             return ReferenceEquals(value, null) ? string.Empty : value.ToUpper();

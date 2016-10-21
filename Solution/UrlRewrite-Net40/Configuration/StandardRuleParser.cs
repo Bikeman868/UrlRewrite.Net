@@ -12,7 +12,6 @@ using UrlRewrite.Interfaces.Actions;
 using UrlRewrite.Interfaces.Conditions;
 using UrlRewrite.Interfaces.Operations;
 using UrlRewrite.Interfaces.Rules;
-using UrlRewrite.Operations;
 using UrlRewrite.Utilities;
 
 namespace UrlRewrite.Configuration
@@ -89,13 +88,13 @@ namespace UrlRewrite.Configuration
             switch (operationName)
             {
                 case "tolower":
-                    return _factory.Create(typeof(LowerCaseOperation)) as IOperation;
+                    return _factory.Create<ILowerCaseOperation>().Initialize();
                 case "toupper":
-                    return _factory.Create(typeof(UpperCaseOperation)) as IOperation;
+                    return _factory.Create<IUpperCaseOperation>().Initialize();
                 case "urlencode":
-                    return _factory.Create(typeof(UrlEncodeOperation)) as IOperation;
+                    return _factory.Create<IUrlEncodeOperation>().Initialize();
                 case "urldecode":
-                    return _factory.Create(typeof(UrlDecodeOperation)) as IOperation;
+                    return _factory.Create<IUrlDecodeOperation>().Initialize();
             }
             
             if (context.RewriteMaps.ContainsKey(operationName))
@@ -124,8 +123,7 @@ namespace UrlRewrite.Configuration
             {
                 if (child.Name.LocalName.ToLower() == "rewritemap")
                 {
-                    var rewriteMap = new RewriteMapOperation();
-                    rewriteMap.Initialize(child);
+                    var rewriteMap = _factory.Create<IRewriteMapOperation>().Initialize(child);
                     context.RewriteMaps[rewriteMap.Name.ToLower()] = rewriteMap;
                 }
             }
@@ -743,7 +741,7 @@ namespace UrlRewrite.Configuration
                     switch (attribute.Name.LocalName.ToLower())
                     {
                         case "url":
-                            valueGetter = ParseTextWithMacros(attribute.Value, context, new AbsoluteUrlOperation());
+                            valueGetter = ParseTextWithMacros(attribute.Value, context, _factory.Create<IAbsoluteUrlOperation>().Initialize());
                             break;
                         case "redirectType":
                             action = ConstructAction("Redirect", element);

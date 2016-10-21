@@ -200,8 +200,26 @@
     <Compile Include="..\UrlRewrite-Net40\Interfaces\IRequestInfo.cs">
       <Link>Interfaces\IRequestInfo.cs</Link>
     </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Operations\IAbsoluteUrlOperation.cs">
+      <Link>Interfaces\Operations\IAbsoluteUrlOperation.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Operations\ILowerCaseOperation.cs">
+      <Link>Interfaces\Operations\ILowerCaseOperation.cs</Link>
+    </Compile>
     <Compile Include="..\UrlRewrite-Net40\Interfaces\Operations\IOperation.cs">
       <Link>Interfaces\Operations\IOperation.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Operations\IRewriteMapOperation.cs">
+      <Link>Interfaces\Operations\IRewriteMapOperation.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Operations\IUpperCaseOperation.cs">
+      <Link>Interfaces\Operations\IUpperCaseOperation.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Operations\IUrlDecodeOperation.cs">
+      <Link>Interfaces\Operations\IUrlDecodeOperation.cs</Link>
+    </Compile>
+    <Compile Include="..\UrlRewrite-Net40\Interfaces\Operations\IUrlEncodeOperation.cs">
+      <Link>Interfaces\Operations\IUrlEncodeOperation.cs</Link>
     </Compile>
     <Compile Include="..\UrlRewrite-Net40\Interfaces\Rules\IRule.cs">
       <Link>Interfaces\Rules\IRule.cs</Link>

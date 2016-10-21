@@ -5,8 +5,13 @@ using UrlRewrite.Interfaces.Operations;
 
 namespace UrlRewrite.Operations
 {
-    public class AbsoluteUrlOperation: IOperation
+    public class AbsoluteUrlOperation : IAbsoluteUrlOperation
     {
+        public IAbsoluteUrlOperation Initialize()
+        {
+            return this;
+        }
+
         public string Execute(string value)
         {
             if (ReferenceEquals(value, null) || value.Length == 0) return "/";

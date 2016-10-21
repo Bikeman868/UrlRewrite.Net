@@ -91,6 +91,12 @@
     <Compile Include="Interfaces\Conditions\IValueConcatenator.cs" />
     <Compile Include="Interfaces\ExecutionMode.cs" />
     <Compile Include="Interfaces\ICustomTypeRegistrar.cs" />
+    <Compile Include="Interfaces\Operations\IAbsoluteUrlOperation.cs" />
+    <Compile Include="Interfaces\Operations\ILowerCaseOperation.cs" />
+    <Compile Include="Interfaces\Operations\IRewriteMapOperation.cs" />
+    <Compile Include="Interfaces\Operations\IUrlDecodeOperation.cs" />
+    <Compile Include="Interfaces\Operations\IUrlEncodeOperation.cs" />
+    <Compile Include="Interfaces\Operations\IUpperCaseOperation.cs" />
     <Compile Include="Interfaces\Utilities\IDescribable.cs" />
     <Compile Include="Interfaces\Utilities\IPropertyBag.cs" />
     <Compile Include="Interfaces\Rules\IRuleList.cs" />

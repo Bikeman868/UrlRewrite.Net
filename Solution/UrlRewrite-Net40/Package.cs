@@ -4,6 +4,7 @@ using UrlRewrite.Configuration;
 using UrlRewrite.Interfaces;
 using UrlRewrite.Interfaces.Actions;
 using UrlRewrite.Interfaces.Conditions;
+using UrlRewrite.Interfaces.Operations;
 using UrlRewrite.Interfaces.Rules;
 using UrlRewrite.Interfaces.Utilities;
 using UrlRewrite.Utilities;
@@ -53,6 +54,14 @@ namespace UrlRewrite
                     new IocRegistration().Init<IRuleResult, Rules.RuleResult>(IocLifetime.MultiInstance),
                     new IocRegistration().Init<IRuleList, Rules.RuleList>(IocLifetime.MultiInstance),
                     new IocRegistration().Init<IRule, Rules.Rule>(IocLifetime.MultiInstance),
+
+                    // Operations
+                    new IocRegistration().Init<IAbsoluteUrlOperation, Operations.AbsoluteUrlOperation>(IocLifetime.MultiInstance),
+                    new IocRegistration().Init<ILowerCaseOperation, Operations.LowerCaseOperation>(IocLifetime.MultiInstance),
+                    new IocRegistration().Init<IRewriteMapOperation, Operations.RewriteMapOperation>(IocLifetime.MultiInstance),
+                    new IocRegistration().Init<IUpperCaseOperation, Operations.UpperCaseOperation>(IocLifetime.MultiInstance),
+                    new IocRegistration().Init<IUrlDecodeOperation, Operations.UrlDecodeOperation>(IocLifetime.MultiInstance),
+                    new IocRegistration().Init<IUrlEncodeOperation, Operations.UrlEncodeOperation>(IocLifetime.MultiInstance),
 
                     // Utility
                     new IocRegistration().Init<IPropertyBag, PropertyBag>(IocLifetime.MultiInstance),
