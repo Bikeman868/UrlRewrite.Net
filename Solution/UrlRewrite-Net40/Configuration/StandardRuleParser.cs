@@ -70,7 +70,7 @@ namespace UrlRewrite.Configuration
             switch (actionName.ToLower())
             {
                 case "redirect":
-                    return _factory.Create<IRedirectAction>().Initialize(true, true);
+                    return _factory.Create<IRedirectAction>().Initialize(configuration);
                 case "customresponse":
                     return _factory.Create<ICustomResponse>().Initialize(configuration);
                 case "abortrequest":

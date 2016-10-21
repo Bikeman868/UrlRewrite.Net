@@ -5,6 +5,6 @@ namespace UrlRewrite.Interfaces.Actions
 {
     public interface IRedirectAction: IAction
     {
-        IRedirectAction Initialize(bool stopProcessing = true, bool endRequest = true);
+        IRedirectAction Initialize(XElement configuration, bool stopProcessing = true, bool endRequest = true);
     }
 }

@@ -13,13 +13,6 @@ namespace UrlRewrite.Actions
         private Action<IRequestInfo, string> _redirectAction;
         private string _code;
 
-        public IRedirectAction Initialize(bool stopProcessing, bool endRequest)
-        {
-            _stopProcessing = stopProcessing;
-            _endRequest = endRequest;
-            return this;
-        }
-
         public override void PerformAction(
             IRequestInfo requestInfo,
             IRuleResult ruleResult,
@@ -36,8 +29,11 @@ namespace UrlRewrite.Actions
             endRequest = _endRequest;
         }
 
-        public override IAction Initialize(XElement configuration)
+        public IRedirectAction Initialize(XElement configuration, bool stopProcessing, bool endRequest)
         {
+            _stopProcessing = stopProcessing;
+            _endRequest = endRequest;
+
             var redirectTypeAttribute = configuration.Attributes().FirstOrDefault(a => a.Name.LocalName.ToLower() == "redirecttype");
             _code = redirectTypeAttribute == null ? "307" : redirectTypeAttribute.Value;
 
@@ -78,7 +74,8 @@ namespace UrlRewrite.Actions
                         + _code 
                         + "\". Supported values are permanent, found, seeOther, temporary, 301, 302, 303 and 307");
             }
-            return base.Initialize(configuration);
+            base.Initialize(configuration);
+            return this;
         }
 
         public override string ToString()
