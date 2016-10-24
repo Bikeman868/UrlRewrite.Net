@@ -59,6 +59,9 @@ These are the versions that had major feature improvements or breaking changes y
 ||Added a `value="my value"` attribute to `<rewrite>`, `<append>` and `<insert>` as a shorthand for `from="literal" fromIndex="my value"`|
 |1.1.2|Added support for version 4.0 and 4.5 of the .Net Framework|
 |1.2.0|The IsFile and IsDirectory matchType now check for the existence of a physical file on disk|
+|1.2.1|Uodated version numebr of dependant packages|
+|1.2.2|Trace log includes both values in comparison operations|
+|1.2.3|Made it easier to write your own custom parser by using IoC to construct actions and conditions|
 
 # Getting started
 If you already use the Microsoft URL Rewriter module, follow these steps to replace it with this modue.
