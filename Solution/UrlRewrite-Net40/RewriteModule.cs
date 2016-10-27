@@ -73,14 +73,16 @@ namespace UrlRewrite
                 var filePath = HttpContext.Current.Server.MapPath("~/RewriteRules.config");
                 ruleStream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
             }
+
             try
             {
-                SetRules(LoadRules(ruleStream));
+                SetRules(LoadRules(ruleStream, null, ruleParser));
             }
             finally
             {
                 ruleStream.Close();
             }
+
             DescribeRulesToTrace();
 
 #if !TRACE_ALL
