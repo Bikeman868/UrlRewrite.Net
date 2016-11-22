@@ -51,7 +51,7 @@ namespace UrlRewrite.Conditions
                 || conditionList._logic != _logic 
                 || conditionList._trackAllCaptures != _trackAllCaptures)
                 _conditions.Add(condition);
-            else
+            else if (conditionList._conditions != null)
                 _conditions.AddRange(conditionList._conditions);
 
             return this;
