@@ -13,6 +13,7 @@
         <p>Raw URL: <%=Request.RawUrl%></p>
         <p>Path: <%=Request.Path%></p>
         <p>QueryString: <%=Request.QueryString%></p>
+        <p>ServerVariables: <%=ServerVariables%></p>
     </div>
     </form>
 </body>

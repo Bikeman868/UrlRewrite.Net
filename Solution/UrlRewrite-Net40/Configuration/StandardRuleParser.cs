@@ -165,6 +165,10 @@ namespace UrlRewrite.Configuration
                         case "stopprocessing":
                             stopProcessing = attribute.Value.ToLower() == "true";
                             break;
+                        case "enabled":
+                            if (attribute.Value.ToLower() != "true")
+                                return null;
+                            break;
                     }
                 }
             }
@@ -508,7 +512,7 @@ namespace UrlRewrite.Configuration
                 }
             }
 
-            var value = toScope == Scope.Literal 
+            var value = fromScope == Scope.Literal 
                 ? ParseTextWithMacros(fromIndex, context, operation)
                 : _factory.Create<IValueGetter>().Initialize(fromScope, fromIndex, operation);
 
@@ -580,7 +584,7 @@ namespace UrlRewrite.Configuration
                 }
             }
 
-            var value = toScope == Scope.Literal
+            var value = fromScope == Scope.Literal
                 ? ParseTextWithMacros(fromIndex, context, operation)
                 : _factory.Create<IValueGetter>().Initialize(fromScope, fromIndex, operation);
 
@@ -602,9 +606,11 @@ namespace UrlRewrite.Configuration
                     switch (attribute.Name.LocalName.ToLower())
                     {
                         case "scope":
+                        case "to":
                             if (!Enum.TryParse(attribute.Value, true, out toScope))
                                 throw new UrlRewriteException(attribute.Value + " is not a valid scope");
                             break;
+                        case "toindex":
                         case "index":
                             toIndex = attribute.Value;
                             break;
@@ -626,7 +632,7 @@ namespace UrlRewrite.Configuration
                 }
             }
 
-            var value = toScope == Scope.Literal
+            var value = fromScope == Scope.Literal
                 ? ParseTextWithMacros(fromIndex, context, operation)
                 : _factory.Create<IValueGetter>().Initialize(fromScope, fromIndex, operation);
 

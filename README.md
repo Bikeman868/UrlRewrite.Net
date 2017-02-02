@@ -62,6 +62,7 @@ These are the versions that had major feature improvements or breaking changes y
 |1.2.1|Uodated version numebr of dependant packages|
 |1.2.2|Trace log includes both values in comparison operations|
 |1.2.3|Made it easier to write your own custom parser by using IoC to construct actions and conditions|
+|1.2.4|Fixed bugs found by raerae1616 in https://github.com/Bikeman868/UrlRewrite.Net/issues/10 |
 
 # Getting started
 If you already use the Microsoft URL Rewriter module, follow these steps to replace it with this modue.

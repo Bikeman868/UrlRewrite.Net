@@ -13,5 +13,13 @@ namespace TestSite
         {
 
         }
+
+        protected string ServerVariables
+        {
+            get
+            {
+                return string.Join("<br>", Request.ServerVariables.AllKeys.Select(k => k + " = " + Request.ServerVariables[k]));
+            }
+        }
     }
 }

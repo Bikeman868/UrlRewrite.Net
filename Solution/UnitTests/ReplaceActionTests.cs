@@ -162,5 +162,17 @@ namespace UnitTests
             Assert.AreEqual("/", _request4.NewPathString);
         }
 
+        [TestMethod]
+        public void ShouldReplaceServerVariables()
+        {
+            bool stopProcessing;
+            bool endRequest;
+
+            _replaceAction.Initialize(Scope.ServerVariable, "CHANNEL_PATH", _valueGetter);
+            _replaceAction.PerformAction(_request1, _ruleResult, out stopProcessing, out endRequest);
+
+            Assert.AreEqual("NewValue", _request1.GetServerVariable("CHANNEL_PATH"));
+        }
+
     }
 }
