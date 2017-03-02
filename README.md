@@ -44,6 +44,7 @@ each time they are run (because they lookup in a database, or use the current ti
 then be sure to mark them as `Dynamic` so that the results will not be cached.
 3. 100% unit test coverage.
 4. Outbound rules. This is a feature of the IIS rewriter that I only just discovered.
+5. Ability to rewrite the 'host' part of the request.
 
 ## NuGet Package Versions
 These are the versions that had major feature improvements or breaking changes you need to be aware of.
@@ -63,13 +64,14 @@ These are the versions that had major feature improvements or breaking changes y
 |1.2.2|Trace log includes both values in comparison operations|
 |1.2.3|Made it easier to write your own custom parser by using IoC to construct actions and conditions|
 |1.2.4|Fixed bugs found by raerae1616 in https://github.com/Bikeman868/UrlRewrite.Net/issues/10 |
+|1.2.5|Fixed bug with macro expansion in literals |
 
 # Getting started
 If you already use the Microsoft URL Rewriter module, follow these steps to replace it with this modue.
 
 1. Add a reference to the UrlRewrite.dll assembly. You can compile the source, or install the NuGet package `UrlRewrite.Net`.
 2. Add the Rewrite Module to your web.config file.
-3. Move your rewriting rules into a separate file (your config could already be set up like this).
+3. Move your rewriting rules into a separate file (unless your config file is already set up like this).
 4. Initialize the Rewrite Module in your application startup code.
 
 These steps are described in more detail below.
@@ -343,7 +345,7 @@ pass in both the stream and the parser, you can take complete control over the g
 ## Backward Compatibility
 For backward compatibility the Rewrite Module supports all of the syntax that is defined for the Microsoft IIS Rewriter module.
 This symtax is summarized below for convenience and also documented by Microsoft here 
-http://www.iis.net/learn/extensions/url-rewrite-module/url-rewrite-module-configuration-reference.
+http://www.iis.net/learn/extensions/url-rewrite-module/url-rewrite-module-configuration-reference. Note that the Microsoft documentation is very thin and full of holes, so you might find that there are behaviours of the Microsoft implementation that you rely on but I did not realize existed because they arn't documented. In these cases please let me know so I can get as close as possible to 100% backward compatibility.
 
 ### Example file
 This shows the overall structure of the rules file:
