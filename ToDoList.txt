@@ -4,3 +4,4 @@ Unit tests for actions
 
 Outbound rules http://www.iis.net/learn/extensions/url-rewrite-module/creating-outbound-rules-for-url-rewrite-module
 
+Support for rewriting the host name in the request. See https://github.com/Bikeman868/UrlRewrite.Net/issues/11
