@@ -893,7 +893,7 @@ evaluating rules at the level above".
 
 This Rewrite Module is capable of outputting a complete trace of rewrite requests showing full
 details of the rules that were evaluated, the conditions that were tested and the actions
-that were executed. The request log includes a timespamp on each event to allow you to identify
+that were executed. The request log includes a timestamp on each event to allow you to identify
 any performance bottlenecks.
 
 To enable request tracing on specific URLs you must pass a Lambda expression to the `Initialize()`
