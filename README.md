@@ -1126,7 +1126,7 @@ problem.
 |   |   |
 |---|---|
 |Description|This element is like the `<rewrite>` element except that it appends to the existing value rather then overwriting it.|
-|`to` attribute|Specifies which part of the url should be appended to. Appending to the path assumes that you are adding a new path element, and will add a path separator to the path if necessary. Appending to a path element will add text to the end of the path element without changing the length of the path. Path elements can be referenced from left to right with positive indexes or right to left with negative indexes. Appending to path element 0 is the same as appending to the while path. Appending to other things like headers, query string parameters and server variables will add text to the end of the header, query string or server variable value.|
+|`to` attribute|Specifies which part of the url should be appended to. Appending to the path assumes that you are adding a new path element, and will add a path separator to the path if necessary. Appending to a path element will add text to the end of the path element without changing the number of elements in the path. Path elements can be referenced from left to right with positive indexes or right to left with negative indexes. Appending to path element 0 is the same as appending to the whole path. Appending to other things like headers, query string parameters and server variables will add text to the end of the header, query string or server variable value.|
 |`toIndex` attribute|see `<rewrite>` element documentation|
 |`from` attribute|see `<rewrite>` element documentation|
 |`fromIndex` attribute|see `<rewrite>` element documentation|
@@ -1142,7 +1142,7 @@ problem.
 |---|---|
 |Description|This element inserts a new path element into the middle of the path. You reference an existing path element the new value will be inserted in that position moving the current value in that position to the right.|
 |`to` attribute|Only `pathElement` scope is supported for this action and this is the default, so this attribute can be omitted|
-|`toIndex` attribute|The index of the existing path element to replace. Passing 1 will insert the new value into path element 1, pushing all other elements down by 1 position. Passing a value of -1 will replace the last element in the path with a new value, pushing the current last path element right by 1. If you reference a non-existent path element no action will be taken, i.e. if you specify a index value of 2 and the path only contains 1 element then the url will not be modified.|
+|`toIndex` attribute|The index of the existing path element to replace. Passing 1 will insert the new value into path element 1, pushing all other elements to the right by 1 position. Passing a value of -1 will replace the last element in the path with a new value, pushing the current last path element right by 1. If you reference a non-existent path element no action will be taken, i.e. if you specify a index value of 2 and the path only contains 1 element then the url will not be modified.|
 |`from` attribute|see `<rewrite>` element documentation|
 |`fromIndex` attribute|see `<rewrite>` element documentation|
 |`operation` attribute|see `<rewrite>` element documentation|
