@@ -56,8 +56,8 @@ These are the versions that had major feature improvements or breaking changes y
 |1.0.6|Added support for {} in literal values|
 |1.0.7|Rules have an enabled property - useful during testing and debugging|
 |1.1.0|BREAKING CHANGE - method sugnature of the `Initialize()` method changed to provide more flexibility in selecting which requests to trace|
-|1.1.1|BREAKING CHANGE - the default value for the `stopProcessing` attribute on the `<rules>` element changed from `false` to `true`
-||Added a `value="my value"` attribute to `<rewrite>`, `<append>` and `<insert>` as a shorthand for `from="literal" fromIndex="my value"`|
+|1.1.1|BREAKING CHANGE - the default value for the `stopProcessing` attribute on the `<rules>` element changed from `false` to `true`|
+|     |Added a `value="my value"` attribute to `<rewrite>`, `<append>` and `<insert>` as a shorthand for `from="literal" fromIndex="my value"`|
 |1.1.2|Added support for version 4.0 and 4.5 of the .Net Framework|
 |1.2.0|The IsFile and IsDirectory matchType now check for the existence of a physical file on disk|
 |1.2.1|Uodated version numebr of dependant packages|
@@ -65,6 +65,7 @@ These are the versions that had major feature improvements or breaking changes y
 |1.2.3|Made it easier to write your own custom parser by using IoC to construct actions and conditions|
 |1.2.4|Fixed bugs found by raerae1616 in https://github.com/Bikeman868/UrlRewrite.Net/issues/10 |
 |1.2.5|Fixed bug with macro expansion in literals |
+|1.2.6|Added support for negative indexes when appending to a path element|
 
 # Getting started
 If you already use the Microsoft URL Rewriter module, follow these steps to replace it with this modue.
@@ -190,6 +191,15 @@ Rewrites `/company/quote/123/march/2/2016` to `/company/quote/123`
     </rule
 ```
 
+#### Example of a rule that appends a default page to an empty path
+Rewrites `/` to `/home.aspx`
+```
+    <rule name="default home page">
+      <condition scope="pathElement" index="1" test="equals" value="" />
+      <append scope="path" value="home.aspx" />
+    </rule
+```
+
 #### Example of a rule that moves part of the path to a query string parameter
 Rewrites `/company/123` to `/company?id=123`
 
@@ -209,7 +219,7 @@ Does not rewrite `/company` or `/company/`
 ```
     <rule name="treat all PUT as POST">
       <condition scope="serverVariable" index="REQUEST_METHOD" test="equals" value="PUT" />
-      <rewrite to="serverVariable" toIndex="REQUEST_METHOD" from="literal" fromIndex="POST" />
+      <rewrite to="serverVariable" toIndex="REQUEST_METHOD" value="POST" />
     </rule
 ```
 
@@ -258,11 +268,11 @@ devices from the USER_AGENT header in the request.
 #### Example of a rule that maps all virtual URLs (no physical file) to index.html.
 ```
     <rule name="AngularJS">
-		<conditions logicalGrouping="MatchAll">
-			<add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
-			<add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />
-		</conditions>
-		<action type="Rewrite" url="/index.html" />    
+      <conditions logicalGrouping="MatchAll">
+        <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
+        <add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />
+      </conditions>
+      <action type="Rewrite" url="/index.html" />    
 	</rule>
 ```
 
@@ -616,10 +626,10 @@ elements the logic used to combine the conditions can be specified with the `log
 matched to the request.
 
 ### More complex and/or condition support and simplified conditions too
-The original version of the IIS Rewrite Module only had the `<match>` element. Version 2 introduced the optional
-`<conditions><add /></conditions>` syntax but the `<match>` element is still required. In this Rewrite Module the
-`<match>` element is optional and I recommend that you only use it to port existing rewrite rules. For any new rules
-the new syntax is more readable and executes much faster.
+The first version of the Microsoft IIS Rewrite Module only had the `<match>` element. In version Version 2 
+Microsoft introduced the optional `<conditions><add /></conditions>` syntax but the `<match>` element is still
+required. In this Rewrite Module the `<match>` element is optional and I recommend that you only use it to port 
+existing rewrite rules. For any new rules the new syntax is more readable and executes much faster.
 
 There is a new `<condition>` element. Elements of this type can be placed directly inside the `<rule>` element or grouped
 inside a `<conditions>` element. Furthermore `<conditions>` elements can be nested inside of other `<conditions>` elements
@@ -1108,14 +1118,14 @@ problem.
 |`value` attribute|this is a shorthand way of setting `from="literal"` and the `fromIndex` attribute at the same time|
 |Parent|`<rule>`|
 |Children|None|
-|Rules|When `from="literal"` you can use the `{}` macro expansion syntax in the `fromIndex` attribute|
+|Rules|When `from="literal"` you can use the `{}` macro expansion syntax in the `fromIndex` attribute. Macro expansion is described in more detail elsewhere in this documentation. This also applies to the `value` attribute|
 
 ##`<append>` element
 
 |   |   |
 |---|---|
-|Description|This element is like the `<rewrite>` element except that it appends to the existing value rather then overwriting it. See the documentation for the `<rewrite>` element above for detailed descriptions of the attributes|
-|`to` attribute|see `<rewrite>` element documentation|
+|Description|This element is like the `<rewrite>` element except that it appends to the existing value rather then overwriting it.|
+|`to` attribute|Specifies which part of the url should be appended to. Appending to the path assumes that you are adding a new path element, and will add a path separator to the path if necessary. Appending to a path element will add text to the end of the path element without changing the length of the path. Path elements can be referenced from left to right with positive indexes or right to left with negative indexes. Appending to path element 0 is the same as appending to the while path. Appending to other things like headers, query string parameters and server variables will add text to the end of the header, query string or server variable value.|
 |`toIndex` attribute|see `<rewrite>` element documentation|
 |`from` attribute|see `<rewrite>` element documentation|
 |`fromIndex` attribute|see `<rewrite>` element documentation|
@@ -1129,9 +1139,9 @@ problem.
 
 |   |   |
 |---|---|
-|Description|This element is like the `<rewrite>` element except that it inserts into the middle of the path rather then overwriting it. See the documentation for the `<rewrite>` element above for detailed descriptions of the attributes. If you reference an existing path element the new value will be inserted in that position moving the current value in that position to the right.|
+|Description|This element inserts a new path element into the middle of the path. You reference an existing path element the new value will be inserted in that position moving the current value in that position to the right.|
 |`to` attribute|Only `pathElement` scope is supported for this action and this is the default, so this attribute can be omitted|
-|`toIndex` attribute|The index of the existing path element to replace. Passing 1 will insert the new value into path element 1, pushing all other elements down by 1 position. Passing a value of -1 will replace the last element in the path with a new value, pushing the current last path element. If you reference a non-existent path element no action will be taken.|
+|`toIndex` attribute|The index of the existing path element to replace. Passing 1 will insert the new value into path element 1, pushing all other elements down by 1 position. Passing a value of -1 will replace the last element in the path with a new value, pushing the current last path element right by 1. If you reference a non-existent path element no action will be taken, i.e. if you specify a index value of 2 and the path only contains 1 element then the url will not be modified.|
 |`from` attribute|see `<rewrite>` element documentation|
 |`fromIndex` attribute|see `<rewrite>` element documentation|
 |`operation` attribute|see `<rewrite>` element documentation|

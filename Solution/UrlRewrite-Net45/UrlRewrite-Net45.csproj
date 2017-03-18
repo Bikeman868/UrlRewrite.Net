@@ -270,9 +270,6 @@
     <Compile Include="..\UrlRewrite-Net40\Package.cs">
       <Link>Package.cs</Link>
     </Compile>
-    <Compile Include="..\UrlRewrite-Net40\Properties\AssemblyInfo.cs">
-      <Link>AssemblyInfo.cs</Link>
-    </Compile>
     <Compile Include="..\UrlRewrite-Net40\Request\RequestInfo.cs">
       <Link>Request\RequestInfo.cs</Link>
     </Compile>
@@ -309,10 +306,9 @@
     <Compile Include="..\UrlRewrite-Net40\Utilities\UrlRewriteException.cs">
       <Link>Utilities\UrlRewriteException.cs</Link>
     </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
