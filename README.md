@@ -949,8 +949,9 @@ the first few requests the times should drop to below 2 milliseconds. If your ru
 this to execute you should look through the other optimization tips in this document to resolve the
 problem.
 
-#Syntax Reference
-##`<rewrite>` element
+# Syntax Reference
+
+## `<rewrite>` element
 
 |   |   |
 |---|---|
@@ -960,7 +961,7 @@ problem.
 |Children|`<rules>` `<rewriteMaps>`|
 |Rules|Can only have one `<rules>` child element. All `<rewriteMaps>` children must come before the `<rules>` child|
 
-##`<rules>` element
+## `<rules>` element
 
 |   |   |
 |---|---|
@@ -971,7 +972,7 @@ problem.
 |Children|`<rule>` and `<assembly>`|
 |Rules|The `<assembly>` children must come before any `<rule>` children that reference the custom extensions in the assemblies. Recommended to put all `<assembly>` children at the top|
 
-##`<rewriteMaps>` element
+## `<rewriteMaps>` element
 
 |   |   |
 |---|---|
@@ -981,7 +982,7 @@ problem.
 |Children|`<rewriteMap>`|
 |Rules|Children must have unique names|
 
-##`<rewriteMap>` element
+## `<rewriteMap>` element
 
 |   |   |
 |---|---|
@@ -992,7 +993,7 @@ problem.
 |Children|`<add>`|
 |Rules|Children must have unique keys|
 
-##`<rewriteMap><add>` element
+## `<rewriteMap><add>` element
 
 |   |   |
 |---|---|
@@ -1003,7 +1004,7 @@ problem.
 |Children|none|
 |Rules|None|
 
-##`<assembly>` element
+## `<assembly>` element
 
 |   |   |
 |---|---|
@@ -1013,7 +1014,7 @@ problem.
 |Children|`<class>`|
 |Rules|The .Net assembly should be placed in the `bin` folder of your web site|
 
-##`<class>` element
+## `<class>` element
 
 |   |   |
 |---|---|
@@ -1025,7 +1026,7 @@ problem.
 |Children|None|
 |Rules|The combination of `name` and `type` must be unique within the whole rewrite rule file|
 
-##`<rule>` element
+## `<rule>` element
 
 |   |   |
 |---|---|
@@ -1039,7 +1040,7 @@ problem.
 |Action children|`<action>`, `<rewrite>`, `<rules>`, `<delete>`, `<keep>`, `<insert>`, `<append>` and `<normalize>`|
 |Rules|All condition children are evaluated before any action children. Actions are only executed if all conditions are met. Actions will be executed in the order they appear and conditions will be tested in the order they appear. If the `<rule>` contains no conditions then its actions are always executed|
 
-##`<conditions>` element
+## `<conditions>` element
 
 |   |   |
 |---|---|
@@ -1050,7 +1051,7 @@ problem.
 |Children|`<add>`, `<condition>` and `<conditions>`|
 |Rules|None|
 
-##`<condition>` element
+## `<condition>` element
 
 |   |   |
 |---|---|
@@ -1065,7 +1066,7 @@ problem.
 |Children|None|
 |Rules|None|
 
-##`<conditions><add>` element
+## `<conditions><add>` element
 
 |   |   |
 |---|---|
@@ -1079,7 +1080,7 @@ problem.
 |Children|None|
 |Rules|None|
 
-##`<normalize>` element
+## `<normalize>` element
 
 |   |   |
 |---|---|
@@ -1090,7 +1091,7 @@ problem.
 |Children|None|
 |Rules|If you specify that you want to add a separator and there is one already it will not add another separator. Likewise if you specify to remove the separator and it is not there then no changes will be made|
 
-##`<action>` element
+## `<action>` element
 
 |   |   |
 |---|---|
@@ -1105,7 +1106,7 @@ problem.
 |Children|None|
 |Rules|The `appendquerystring` atribute is only applicable when the `url` attribute is provided. I recomend that you do not use the `url` parameter, but instead add editing actions to the rule such at `<rewrite>`, `<append>`... etc to define the changes to make to the URL prior to redirection. Note that all of the built-in action types apart from `none` and `rewrite` stop the processing of further rules, so the `stopProcessing` flag is not necessary on the `<rule>` element. If you write your own custom actions you can decide whether to stop processing or not|
 
-##`<rewrite>` element
+## `<rewrite>` element
 
 |   |   |
 |---|---|
@@ -1120,7 +1121,7 @@ problem.
 |Children|None|
 |Rules|When `from="literal"` you can use the `{}` macro expansion syntax in the `fromIndex` attribute. Macro expansion is described in more detail elsewhere in this documentation. This also applies to the `value` attribute|
 
-##`<append>` element
+## `<append>` element
 
 |   |   |
 |---|---|
@@ -1135,7 +1136,7 @@ problem.
 |Children|None|
 |Rules|see `<rewrite>` element documentation|
 
-##`<insert>` element
+## `<insert>` element
 
 |   |   |
 |---|---|
@@ -1150,7 +1151,7 @@ problem.
 |Children|None|
 |Rules|see `<rewrite>` element documentation|
 
-##`<delete>` element
+## `<delete>` element
 
 |   |   |
 |---|---|
@@ -1161,7 +1162,7 @@ problem.
 |Children|None|
 |Rules|None|
 
-##`<keep>` element
+## `<keep>` element
 
 |   |   |
 |---|---|
@@ -1172,7 +1173,7 @@ problem.
 |Children|None|
 |Rules|None|
 
-##`<match>` element
+## `<match>` element
 
 |   |   |
 |---|---|
