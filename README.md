@@ -1129,9 +1129,9 @@ problem.
 
 |   |   |
 |---|---|
-|Description|This element is like the `<rewrite>` element except that it prepends to the existing value rather then overwriting it. See the documentation for the `<rewrite>` element above for detailed descriptions of the attributes|
+|Description|This element is like the `<rewrite>` element except that it inserts into the middle of the path rather then overwriting it. See the documentation for the `<rewrite>` element above for detailed descriptions of the attributes. If you reference an existing path element the new value will be inserted in that position moving the current value in that position to the right.|
 |`to` attribute|Only `pathElement` scope is supported for this action and this is the default, so this attribute can be omitted|
-|`toIndex` attribute|The index of the element to insert in front of. Passing 1 will insert into the first element of the path pushing all other elements down by 1 position.|
+|`toIndex` attribute|The index of the existing path element to replace. Passing 1 will insert the new value into path element 1, pushing all other elements down by 1 position. Passing a value of -1 will replace the last element in the path with a new value, pushing the current last path element. If you reference a non-existent path element no action will be taken.|
 |`from` attribute|see `<rewrite>` element documentation|
 |`fromIndex` attribute|see `<rewrite>` element documentation|
 |`operation` attribute|see `<rewrite>` element documentation|

@@ -21,6 +21,7 @@ namespace UnitTests
         private IRequestInfo _request2;
         private IRequestInfo _request3;
         private IRequestInfo _request4;
+        private IRequestInfo _request5;
 
         [TestInitialize]
         public void Initialize()
@@ -28,7 +29,8 @@ namespace UnitTests
             _request1 = new MockRequestInfo("/path1/path2/path3?param=value");
             _request2 = new MockRequestInfo("/path1/path2", "https", "secure.test.com", 443);
             _request3 = new MockRequestInfo("/path1/path2/");
-            _request4 = new MockRequestInfo("/");
+            _request4 = new MockRequestInfo("/path1/");
+            _request5 = new MockRequestInfo("/");
 
             IFactory factory = new NinjectFactory();
             _insertAction = factory.Create<IInsertAction>();
@@ -48,11 +50,13 @@ namespace UnitTests
             _insertAction.PerformAction(_request2, _ruleResult, out stopProcessing, out endRequest);
             _insertAction.PerformAction(_request3, _ruleResult, out stopProcessing, out endRequest);
             _insertAction.PerformAction(_request4, _ruleResult, out stopProcessing, out endRequest);
+            _insertAction.PerformAction(_request5, _ruleResult, out stopProcessing, out endRequest);
 
             Assert.AreEqual("/NewValue/path1/path2/path3", _request1.NewPathString);
             Assert.AreEqual("/path1/path2", _request2.NewPathString);
             Assert.AreEqual("/path1/path2/", _request3.NewPathString);
-            Assert.AreEqual("/", _request4.NewPathString);
+            Assert.AreEqual("/path1/", _request4.NewPathString);
+            Assert.AreEqual("/", _request5.NewPathString);
         }
 
         [TestMethod]
@@ -66,11 +70,13 @@ namespace UnitTests
             _insertAction.PerformAction(_request2, _ruleResult, out stopProcessing, out endRequest);
             _insertAction.PerformAction(_request3, _ruleResult, out stopProcessing, out endRequest);
             _insertAction.PerformAction(_request4, _ruleResult, out stopProcessing, out endRequest);
+            _insertAction.PerformAction(_request5, _ruleResult, out stopProcessing, out endRequest);
 
             Assert.AreEqual("/path1/NewValue/path2/path3", _request1.NewPathString);
             Assert.AreEqual("/NewValue/path1/path2", _request2.NewPathString);
             Assert.AreEqual("/NewValue/path1/path2/", _request3.NewPathString);
-            Assert.AreEqual("/", _request4.NewPathString);
+            Assert.AreEqual("/path1/", _request4.NewPathString);
+            Assert.AreEqual("/", _request5.NewPathString);
         }
 
         [TestMethod]
@@ -84,11 +90,13 @@ namespace UnitTests
             _insertAction.PerformAction(_request2, _ruleResult, out stopProcessing, out endRequest);
             _insertAction.PerformAction(_request3, _ruleResult, out stopProcessing, out endRequest);
             _insertAction.PerformAction(_request4, _ruleResult, out stopProcessing, out endRequest);
+            _insertAction.PerformAction(_request5, _ruleResult, out stopProcessing, out endRequest);
 
             Assert.AreEqual("/path1/path2/NewValue/path3", _request1.NewPathString);
             Assert.AreEqual("/path1/NewValue/path2", _request2.NewPathString);
             Assert.AreEqual("/path1/NewValue/path2/", _request3.NewPathString);
-            Assert.AreEqual("/", _request4.NewPathString);
+            Assert.AreEqual("/NewValue/path1/", _request4.NewPathString);
+            Assert.AreEqual("/", _request5.NewPathString);
         }
 
         [TestMethod]
@@ -102,11 +110,13 @@ namespace UnitTests
             _insertAction.PerformAction(_request2, _ruleResult, out stopProcessing, out endRequest);
             _insertAction.PerformAction(_request3, _ruleResult, out stopProcessing, out endRequest);
             _insertAction.PerformAction(_request4, _ruleResult, out stopProcessing, out endRequest);
+            _insertAction.PerformAction(_request5, _ruleResult, out stopProcessing, out endRequest);
 
             Assert.AreEqual("/NewValue/path1/path2/path3", _request1.NewPathString);
             Assert.AreEqual("/NewValue/path1/path2", _request2.NewPathString);
             Assert.AreEqual("/NewValue/path1/path2/", _request3.NewPathString);
-            Assert.AreEqual("/NewValue", _request4.NewPathString);
+            Assert.AreEqual("/NewValue/path1/", _request4.NewPathString);
+            Assert.AreEqual("/NewValue", _request5.NewPathString);
         }
 
         [TestMethod]
@@ -120,11 +130,13 @@ namespace UnitTests
             _insertAction.PerformAction(_request2, _ruleResult, out stopProcessing, out endRequest);
             _insertAction.PerformAction(_request3, _ruleResult, out stopProcessing, out endRequest);
             _insertAction.PerformAction(_request4, _ruleResult, out stopProcessing, out endRequest);
+            _insertAction.PerformAction(_request5, _ruleResult, out stopProcessing, out endRequest);
 
             Assert.AreEqual("/NewValue/path1/path2/path3", _request1.NewPathString);
             Assert.AreEqual("/NewValue/path1/path2", _request2.NewPathString);
             Assert.AreEqual("/NewValue/path1/path2/", _request3.NewPathString);
-            Assert.AreEqual("/", _request4.NewPathString);
+            Assert.AreEqual("/NewValue/path1/", _request4.NewPathString);
+            Assert.AreEqual("/", _request5.NewPathString);
         }
 
         [TestMethod]
@@ -138,11 +150,13 @@ namespace UnitTests
             _insertAction.PerformAction(_request2, _ruleResult, out stopProcessing, out endRequest);
             _insertAction.PerformAction(_request3, _ruleResult, out stopProcessing, out endRequest);
             _insertAction.PerformAction(_request4, _ruleResult, out stopProcessing, out endRequest);
+            _insertAction.PerformAction(_request5, _ruleResult, out stopProcessing, out endRequest);
 
             Assert.AreEqual("/path1/NewValue/path2/path3", _request1.NewPathString);
             Assert.AreEqual("/path1/NewValue/path2", _request2.NewPathString);
             Assert.AreEqual("/path1/NewValue/path2/", _request3.NewPathString);
-            Assert.AreEqual("/", _request4.NewPathString);
+            Assert.AreEqual("/path1/", _request4.NewPathString);
+            Assert.AreEqual("/", _request5.NewPathString);
         }
 
         [TestMethod]
@@ -156,11 +170,13 @@ namespace UnitTests
             _insertAction.PerformAction(_request2, _ruleResult, out stopProcessing, out endRequest);
             _insertAction.PerformAction(_request3, _ruleResult, out stopProcessing, out endRequest);
             _insertAction.PerformAction(_request4, _ruleResult, out stopProcessing, out endRequest);
+            _insertAction.PerformAction(_request5, _ruleResult, out stopProcessing, out endRequest);
 
             Assert.AreEqual("/path1/path2/NewValue/path3", _request1.NewPathString);
             Assert.AreEqual("/path1/path2", _request2.NewPathString);
             Assert.AreEqual("/path1/path2/", _request3.NewPathString);
-            Assert.AreEqual("/", _request4.NewPathString);
+            Assert.AreEqual("/path1/", _request4.NewPathString);
+            Assert.AreEqual("/", _request5.NewPathString);
         }
 
     }
