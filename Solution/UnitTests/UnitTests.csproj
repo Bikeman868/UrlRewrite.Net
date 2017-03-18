@@ -42,6 +42,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="DeleteActionTests.cs" />
+    <Compile Include="AppendActionTests.cs" />
     <Compile Include="NormalizeActionTests.cs" />
     <Compile Include="ReplaceActionTests.cs" />
     <Compile Include="KeepActionTests.cs" />

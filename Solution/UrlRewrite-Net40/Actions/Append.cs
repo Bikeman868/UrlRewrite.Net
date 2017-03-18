@@ -38,10 +38,9 @@ namespace UrlRewrite.Actions
             }
             else
             {
-                if (!int.TryParse(scopeIndex, out _scopeIndexValue))
-                {
-                    if (scope == Scope.PathElement) _scope = Scope.Path;
-                }
+                int.TryParse(scopeIndex, out _scopeIndexValue);
+                if (_scopeIndexValue == 0 && scope == Scope.PathElement)
+                    _scope = Scope.Path;
             }
 
             return this;
@@ -77,9 +76,30 @@ namespace UrlRewrite.Actions
                     requestInfo.ParametersChanged();
                     break;
                 case Scope.PathElement:
-                    requestInfo.NewPath[_scopeIndexValue] = requestInfo.NewPath[_scopeIndexValue] + value;
-                    requestInfo.PathChanged();
-                    break;
+                    {
+                        var count = requestInfo.NewPath.Count;
+                        if (string.IsNullOrEmpty(requestInfo.NewPath[count - 1]))
+                            count--;
+                        if (_scopeIndexValue > 0)
+                        {
+                            if (_scopeIndexValue < count)
+                            {
+                                requestInfo.NewPath[_scopeIndexValue] = requestInfo.NewPath[_scopeIndexValue] + value;
+                                requestInfo.PathChanged();
+                            }
+                        }
+                        else
+                        {
+                            var index = count + _scopeIndexValue;
+                            if (index > 0)
+                            {
+                                requestInfo.NewPath[index] = requestInfo.NewPath[index] + value;
+                                requestInfo.PathChanged();
+                            }
+                        }
+                        requestInfo.PathChanged();
+                        break;
+                    }
                 case Scope.ServerVariable:
                     requestInfo.SetServerVariable(_scopeIndex, requestInfo.GetServerVariable(_scopeIndex) + value);
                     break;
