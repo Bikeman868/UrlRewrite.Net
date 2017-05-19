@@ -564,6 +564,7 @@ namespace UrlRewrite.Configuration
                                 throw new UrlRewriteException(attribute.Value + " is not a valid scope");
                             break;
                         case "index":
+                        case "toindex":
                             toIndex = attribute.Value;
                             break;
                         case "from":
