@@ -66,6 +66,7 @@ These are the versions that had major feature improvements or breaking changes y
 |1.2.4|Fixed bugs found by raerae1616 in https://github.com/Bikeman868/UrlRewrite.Net/issues/10 |
 |1.2.5|Fixed bug with macro expansion in literals |
 |1.2.6|Added support for negative indexes when appending to a path element|
+|1.2.7|Fixed a bug in the `<insert>` action which was expecting an `index` attribute rather than `toIndex` as documented. `index` still works for backward compatibility.|
 
 # Getting started
 If you already use the Microsoft URL Rewriter module, follow these steps to replace it with this modue.
