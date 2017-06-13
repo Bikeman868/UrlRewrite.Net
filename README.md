@@ -643,11 +643,11 @@ conditions must be true. This example would be organized as follows:
       <conditions logicalGrouping="MatchAll">
         <condition />
         <condition />
-	  </conditions>
+      </conditions>
       <conditions logicalGrouping="MatchAll">
         <condition />
         <condition />
-	  </conditions>
+      </conditions>
     </conditions>
 ```
  
@@ -701,15 +701,15 @@ registered before they are referenced, I recommend that you put them at the very
 This example aborts all requests that do not come from a customer:
 ```
     <rules name="root">
-	  <assembly fileName="MyCompany.Rewrite">
-	    <class name="isCustomer" type="condition" className="MyCompany.Rewrite.Conditions.IsCustomer" />
-	  </assembly>
-
-	  <rule>
-		<condition scope="parameter" index="userId" test="isCustomer" negate="true" />
-	    <action type="AbortRequest" />
-	  </rule>
-	<rules>
+      <assembly fileName="MyCompany.Rewrite">
+        <class name="isCustomer" type="condition" className="MyCompany.Rewrite.Conditions.IsCustomer" />
+      </assembly>
+      
+      <rule>
+        <condition scope="parameter" index="userId" test="isCustomer" negate="true" />
+        <action type="AbortRequest" />
+      </rule>
+    <rules>
 ```
 
 For custom conditions pass the name of your condition in the `test` attribute of the `<condition>` element. In this case the
@@ -721,7 +721,7 @@ an interface containing details of the request being processed.
 For custom operations pass the name of your operation to the `operation` attribute of the `<rewrite>` element. It will be
 passed a string and should return a modified version of that string.
 
-###Example of a custom operation
+### Example of a custom operation
 ```
     public class ToMyDomain: IOperation
     {
@@ -748,7 +748,7 @@ passed a string and should return a modified version of that string.
     }
 ```
 
-###Example of a custom condition
+### Example of a custom condition
 ```
     public class IsMyDomain : ICondition
     {
