@@ -6,7 +6,7 @@ using UrlRewrite.Interfaces.Utilities;
 
 namespace UnitTests.Mocks
 {
-    internal class MockRequestInfo: IRequestInfo
+    public class MockRequestInfo: IRequestInfo
     {
         private System.Web.HttpContext _context;
         private System.Web.HttpApplication _application;

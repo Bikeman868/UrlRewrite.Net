@@ -12,7 +12,7 @@ namespace UrlRewrite.Conditions
     /// <summary>
     /// Implements IValueGetter by taking a list of IValueGetter and concetenating their output
     /// </summary>
-    internal class ValueConcatenator : IValueConcatenator
+    public class ValueConcatenator : IValueConcatenator
     {
         private IList<IValueGetter> _values;
         private string _separator;

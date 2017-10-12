@@ -16,7 +16,7 @@ using UrlRewrite.Utilities;
 
 namespace UrlRewrite.Configuration
 {
-    internal class StandardRuleParser: IRuleParser
+    public class StandardRuleParser: IRuleParser
     {
         private readonly IFactory _factory;
         private readonly ICustomTypeRegistrar _customTypeRegistrar;

@@ -7,7 +7,7 @@ using UrlRewrite.Interfaces.Rules;
 
 namespace UrlRewrite.Actions
 {
-    internal class CustomResponse : Action, ICustomResponse
+    public class CustomResponse : Action, ICustomResponse
     {
         private string _statusLine;
         private string _responseLine;

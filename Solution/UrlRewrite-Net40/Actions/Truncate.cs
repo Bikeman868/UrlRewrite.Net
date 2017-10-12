@@ -9,7 +9,7 @@ namespace UrlRewrite.Actions
     /// <summary>
     /// Truncates the path of the URL to specified number of elements
     /// </summary>
-    internal class Truncate: Action, ITruncateAction
+    public class Truncate: Action, ITruncateAction
     {
         private int _maximumDepth;
 

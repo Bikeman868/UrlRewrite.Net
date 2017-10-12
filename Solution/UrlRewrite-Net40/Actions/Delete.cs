@@ -7,7 +7,7 @@ using UrlRewrite.Utilities;
 
 namespace UrlRewrite.Actions
 {
-    internal class Delete: Action, IDeleteAction
+    public class Delete: Action, IDeleteAction
     {
         private Scope _scope;
         private string _scopeIndex;

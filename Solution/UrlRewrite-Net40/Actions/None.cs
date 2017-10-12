@@ -8,7 +8,7 @@ namespace UrlRewrite.Actions
     /// <summary>
     /// Truncates the path of the URL to specified number of elements
     /// </summary>
-    internal class None : Action, IDoNothingAction
+    public class None : Action, IDoNothingAction
     {
         public IDoNothingAction Initialize()
         {
