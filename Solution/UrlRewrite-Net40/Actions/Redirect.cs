@@ -8,7 +8,7 @@ using UrlRewrite.Utilities;
 
 namespace UrlRewrite.Actions
 {
-    internal class Redirect : Action, IRedirectAction
+    public class Redirect : Action, IRedirectAction
     {
         private Action<IRequestInfo, string> _redirectAction;
         private string _code;

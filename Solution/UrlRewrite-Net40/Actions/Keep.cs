@@ -9,7 +9,7 @@ using UrlRewrite.Utilities;
 
 namespace UrlRewrite.Actions
 {
-    internal class Keep: Action, IKeepAction
+    public class Keep: Action, IKeepAction
     {
         private Scope _scope;
         private List<string> _scopeIndex;

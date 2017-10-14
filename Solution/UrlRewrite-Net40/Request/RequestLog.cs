@@ -13,7 +13,7 @@ using UrlRewrite.Utilities;
 
 namespace UrlRewrite.Request
 {
-    internal class RequestLog : IRequestLog
+    public class RequestLog : IRequestLog
     {
         private readonly PerformanceTimer _timer = new PerformanceTimer();
         private readonly List<string> _output = new List<string>();

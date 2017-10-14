@@ -9,7 +9,7 @@ using UrlRewrite.Utilities;
 
 namespace UrlRewrite.Request
 {
-    internal class RequestInfo : IRequestInfo
+    public class RequestInfo : IRequestInfo
     {
         public HttpApplication Application { get; private set; }
         public HttpContext Context { get; private set; }
