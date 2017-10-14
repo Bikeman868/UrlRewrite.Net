@@ -352,6 +352,7 @@ public class Package: IPackage
             {
                 new IocRegistration().Init<IMyCustomAction, MyCustomAction>(IocLifetime.MultiInstance),
                 new IocRegistration().Init<IMySingleton, MySingleton>(),
+                new IocRegistration().Init<IStringMatch>()
             }
         }
     }
@@ -360,6 +361,8 @@ public class Package: IPackage
 ```
 
 This example defines a custom action that will be registered with IoC to construct a new instance on each usage. IoC will inject dependencies by constructing a new instance of `IStringMatch` and passing a singleton instance of `MySingleton` when `MyCustomAction` is constructed.
+
+This `Package` class also specifies that this package has a dependency on `IStringMatch`. If there are no dlls in the application that provide an implementation of this interface then `Ioc.Modules` will throw an exception at startup containing a helpful message. In this case an `IStringMatch` implmentation is provided by the Rewrite Module.
 
 This works because the Rewrite Module uses `Ioc.Modules` internally. `Ioc.Modules` will probe all assemblies in your application at startup looking for classes that have the `[Package]` attribute attached and implement the `IPackage` interface. These classes define the IoC needs of the application. The Rewrite Module constructs a Ninject container and configures it using the information from these `Package` classes.
 
