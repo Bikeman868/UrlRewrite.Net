@@ -289,11 +289,7 @@ To integrate your IoC container you need to:
 * Pass an instance of your factory class to the `Initialize()` method of the Rewrite Module.
 * Register the intefaces that the Rewrite Module uses with your IoC container so that they are resolvable using the factory.
 
-The Rewrite Module uses the `Ioc.Modules` NuGet package to configure IoC. If you also use this method within your application
-then IoC configuration will happen automatically because IoC Modules will discover the `Package` class in the Rewrite Module
-and register its IoC needs with your application container.
-
-If you don't pass a `IFactory` implementation when you initialize the Rewrite Module, then it will use Ninject internally.
+If you don't pass an `IFactory` implementation when you initialize the Rewrite Module, then it will use `Ioc.Modules` to configure Ninject. This means that you can override IoC mappings by adding `Package` classes to your application. These package classes will be discovered by `Ioc.Modules` when it initializes.
 
 Note that if you use Ninject, then you can more easily register all the Rewrire Module classes with the Ninject IoC container 
 by passing an instance of the `UrlRewrite.Utilities.RewriteNinjectModule` class to the Ninject kernel constructor like this:
