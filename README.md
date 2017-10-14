@@ -172,15 +172,15 @@ For any path like `/company/.../*.aspx` if the session belongs to a customer app
               <action type="redirect" redirectType="301" />
       	    </rule>
 
-  		    <rule name="flag customers">
-  			  <condition test="isCustomer" />
-  			  <rewrite to="parameter" toIndex="customer" value="true" />
-  		    </rule>
+            <rule name="flag customers">
+              <condition test="isCustomer" />
+              <rewrite to="parameter" toIndex="customer" value="true" />
+            </rule>
           </rules>
         </rule
       
       </rules>
-	</rewrite>
+   </rewrite>
 ```
 
 #### Example of a rule that truncates any path deeper than 3 levels
@@ -290,6 +290,136 @@ To integrate your IoC container you need to:
 * Register the interfaces that the Rewrite Module uses with your IoC container so that they are resolvable using the factory.
 
 If you don't pass an `IFactory` implementation when you initialize the Rewrite Module, then it will use `Ioc.Modules` to configure Ninject. This means that you can override IoC mappings by adding a `Package` classes to your application. This package classes will be discovered by `Ioc.Modules` when the Rewrite Module is initialized.
+
+There are several levels of IoC integration that you can consider as follows:
+
+## Level 1 - most basic
+
+The simplest integration is to do almost nothing. In  this scenario you call the Rewrite Module static `Initialize()` method with no parameters, and you do not need to add any other code. In this scenario you can still define your own custom actions etc but
+
+1. Your custom actions must have a public constructor that takes no parameters
+2. When you register your custom classes in your rules file, you must register the concrete class (not an interface).
+
+## Level 2 - with dependency injection
+
+The next level of IoC integration is to add a `Package` class to your application. This allows you to:
+
+1. Inject dependencies into the constructors of your custom actions, operations and conditions.
+2. Register your custom actions, operations and conditions in the rules file by their interfaces rather than concrete types.
+3. Have actions, operations and conditions that are singletons (one shared instance).
+
+Here is some boilerplate code for this integration.
+
+```
+public interface IMyCustomAction: IAction
+{
+}
+
+public interface IMySingleton
+{
+}
+
+public class MyCustomAction: IMyCustomAction
+{
+    private readonly IStringMatch _stringMatch;
+    private readonly IMySingleton _mySingleton;
+
+    public CustomAction(
+        IStringMatch stringMatch,
+	IMySingleton mySingleton)
+    {
+        _stringMatch = stringMatch;
+	_mySingleton = mySingleton;
+    }
+    
+    /* Implementation of IAction */
+}
+
+public class MySingelton: IMySingleton
+{
+}
+
+[Package]
+public class Package: IPackage
+{
+    public string Name { get { return "My custom package"; } }
+
+    public IList<IocRegistration> IocRegistrations
+    {
+        get
+        {
+            return new List<IocRegistration>
+            {
+                new IocRegistration().Init<IMyCustomAction, MyCustomAction>(IocLifetime.MultiInstance),
+                new IocRegistration().Init<IMySingleton, MySingleton>(),
+            }
+        }
+    }
+}
+
+```
+
+This example defines a custom action that will be registered with IoC to construct a new instance on each usage. IoC will inject dependencies by constructing a new instance of `IStringMatch` and passing a singleton instance of `MySingleton` when `MyCustomAction` is constructed.
+
+This works because the Rewrite Module uses `Ioc.Modules` internally. `Ioc.Modules` will probe all assemblies in your application at startup looking for classes that have the `[Package]` attribute attached and implement the `IPackage` interface. These classes define the IoC needs of the application. The Rewrite Module constructs a Ninject container and configures it using the information from these `Package` classes.
+
+## Level 3 - using a different container with Ioc.Modules
+
+If you don't want to use Ninject as the IoC container then you will have to pass an implementation of `IFactory` to the `Initialize` method of the Rewrite Module. Everything else from the level 2 integration is still needed, in addition you will need a class similar to the one below but with Ninject replaced with whatever IoC container you want:
+
+```
+public class MyFactory: IFactory
+{
+    private readonly IKernel _ninject;
+
+    public MyFactory()
+    {
+        var packageLocator = new PackageLocator().ProbeBinFolderAssemblies();
+        _ninject = new StandardKernel(new Ioc.Modules.Ninject.Module(packageLocator));
+        _ninject.Rebind<IFactory>().ToConstant(this);
+    }
+
+    T IFactory.Create<T>()
+    {
+        return _ninject.Get<T>();
+    }
+
+    object IFactory.Create(Type type)
+    {
+        return _ninject.Get(type);
+    }
+}
+```
+
+## Level 4 - without using Ioc.Modules
+
+If you want to avoid using `Ioc.Modules` altogether, you can still register the types within the Rewrite Module with your IoC container by constructing an instance of the `Package` class within the Rewrite Module and reading the `IocRegistrations` property to get a list of the class/interface mappings that it needs. In this case you will still need to pass an implementation of `IFactory` to the `Initialize` method of the Rewrite Module, but it doesn't even have to use IoC if that's what you want.
+
+The code below is a starting point for such a factory class:
+
+```
+public class MyFactory: IFactory
+{
+    public MyFactory()
+    {
+        var urlRewritePackage = new UrlRewrite.Package();
+        foreach (var registration in urlRewritePackage.IocRegistrations)
+        {
+            // Register class/interface with IoC container
+        }
+    }
+
+    T IFactory.Create<T>()
+    {
+        // Custom type resolution here
+    }
+
+    object IFactory.Create(Type type)
+    {
+        // Custom type resolution here
+    }
+}
+```
 
 # Initializing the Rewrite Module
 You must call the Rewrite Module static `Initialize()` method once only when your application starts up. You can do this
