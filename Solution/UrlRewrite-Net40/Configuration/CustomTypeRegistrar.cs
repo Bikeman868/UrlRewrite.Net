@@ -8,7 +8,7 @@ using UrlRewrite.Interfaces.Operations;
 
 namespace UrlRewrite.Configuration
 {
-    public class CustomTypeRegistrar : ICustomTypeRegistrar
+    internal class CustomTypeRegistrar : ICustomTypeRegistrar
     {
         private readonly IFactory _factory;
         private readonly IDictionary<string, Type> _conditions;

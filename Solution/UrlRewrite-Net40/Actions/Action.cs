@@ -6,7 +6,7 @@ using UrlRewrite.Interfaces.Rules;
 
 namespace UrlRewrite.Actions
 {
-    public abstract class Action: IAction
+    public abstract class Action : IAction
     {
         protected bool _stopProcessing;
         protected bool _endRequest;

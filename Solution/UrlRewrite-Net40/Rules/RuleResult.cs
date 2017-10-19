@@ -4,7 +4,7 @@ using UrlRewrite.Utilities;
 
 namespace UrlRewrite.Rules
 {
-    public class RuleResult: IRuleResult
+    internal class RuleResult : IRuleResult
     {
         public bool StopProcessing { get; set; }
         public bool EndRequest { get; set; }

@@ -8,7 +8,7 @@ using UrlRewrite.Interfaces.Rules;
 
 namespace UrlRewrite.Rules
 {
-    public class Rule: IRule
+    internal class Rule : IRule
     {
         private string _name;
         private ICondition _condition;

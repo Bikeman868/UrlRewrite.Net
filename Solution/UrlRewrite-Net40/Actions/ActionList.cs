@@ -10,7 +10,7 @@ namespace UrlRewrite.Actions
     /// This action executes a list of other actions. This exists to simplify rules which
     /// now only have to have a single action to execute where that action can be an ActionList
     /// </summary>
-    public class ActionList: Action, IActionList
+    internal class ActionList : Action, IActionList
     {
         private List<IAction> _actions;
 

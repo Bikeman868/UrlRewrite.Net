@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 using UrlRewrite.Actions;
 using UrlRewrite.Conditions;
 using UrlRewrite.Interfaces;

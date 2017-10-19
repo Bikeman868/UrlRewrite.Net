@@ -7,7 +7,7 @@ using UrlRewrite.Interfaces.Rules;
 
 namespace UrlRewrite.Conditions
 {
-    public class StaticFileMatch : IStaticFileMatch
+    internal class StaticFileMatch : IStaticFileMatch
     {
         private IValueGetter _valueGetter;
         private bool _inverted;

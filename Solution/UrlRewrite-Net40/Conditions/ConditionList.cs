@@ -8,7 +8,7 @@ using UrlRewrite.Interfaces.Rules;
 
 namespace UrlRewrite.Conditions
 {
-    public class ConditionList : IConditionList
+    internal class ConditionList : IConditionList
     {
         private CombinationLogic _logic;
         private bool _trackAllCaptures;

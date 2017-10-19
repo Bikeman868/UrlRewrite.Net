@@ -2,7 +2,7 @@
 
 namespace UrlRewrite.Utilities
 {
-    public class UrlRewriteException: Exception
+    internal class UrlRewriteException : Exception
     {
         public UrlRewriteException(string message) : base(message)
         {

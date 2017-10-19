@@ -5,7 +5,7 @@ using UrlRewrite.Interfaces.Rules;
 
 namespace UrlRewrite.Actions
 {
-    public class AbortRequest: Action, IAbortAction
+    internal class AbortRequest: Action, IAbortAction
     {
         public IAbortAction Initialize()
         {

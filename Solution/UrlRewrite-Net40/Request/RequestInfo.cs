@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Web;
 using UrlRewrite.Interfaces;
 using UrlRewrite.Interfaces.Utilities;
-using UrlRewrite.Utilities;
 
 namespace UrlRewrite.Request
 {
-    public class RequestInfo : IRequestInfo
+    internal class RequestInfo : IRequestInfo
     {
         public HttpApplication Application { get; private set; }
         public HttpContext Context { get; private set; }

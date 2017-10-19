@@ -8,7 +8,7 @@ using UrlRewrite.Utilities;
 
 namespace UrlRewrite.Actions
 {
-    public class Insert : Action, IInsertAction
+    internal class Insert : Action, IInsertAction
     {
         private Scope _scope;
         private string _scopeIndex;

@@ -1,11 +1,10 @@
 ﻿using System.IO;
-using System.Xml.Linq;
 using UrlRewrite.Interfaces;
 using UrlRewrite.Interfaces.Operations;
 
 namespace UrlRewrite.Operations
 {
-    public class UpperCaseOperation : IUpperCaseOperation
+    internal class UpperCaseOperation : IUpperCaseOperation
     {
         public IUpperCaseOperation Initialize()
         {

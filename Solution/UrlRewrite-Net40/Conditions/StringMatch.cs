@@ -10,7 +10,7 @@ using UrlRewrite.Utilities;
 
 namespace UrlRewrite.Conditions
 {
-    public class StringMatch: IStringMatch
+    internal class StringMatch : IStringMatch
     {
         private string _match;
         private IValueGetter _valueGetter;

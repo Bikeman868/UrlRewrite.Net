@@ -7,7 +7,7 @@ using UrlRewrite.Utilities;
 
 namespace UrlRewrite.Operations
 {
-    public class RewriteMapOperation : IRewriteMapOperation
+    internal class RewriteMapOperation : IRewriteMapOperation
     {
         public string Name { get; private set; }
 

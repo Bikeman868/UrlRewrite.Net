@@ -8,7 +8,7 @@ using UrlRewrite.Utilities;
 
 namespace UrlRewrite.Conditions
 {
-    public class NumberMatch: INumberMatch
+    internal class NumberMatch : INumberMatch
     {
         private int _match;
         private IValueGetter _valueGetter;

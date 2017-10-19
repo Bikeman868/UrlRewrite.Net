@@ -6,7 +6,7 @@ using UrlRewrite.Interfaces.Rules;
 
 namespace UrlRewrite.Actions
 {
-    public class Normalize: Action, INormalizeAction
+    internal class Normalize : Action, INormalizeAction
     {
         private NormalizeAction _leadingPathSeparator;
         private NormalizeAction _trailingPathSeparator;

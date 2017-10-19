@@ -1,12 +1,11 @@
 ﻿using System.IO;
 using System.Web;
-using System.Xml.Linq;
 using UrlRewrite.Interfaces;
 using UrlRewrite.Interfaces.Operations;
 
 namespace UrlRewrite.Operations
 {
-    public class UrlDecodeOperation : IUrlDecodeOperation
+    internal class UrlDecodeOperation : IUrlDecodeOperation
     {
         public IUrlDecodeOperation Initialize()
         {
