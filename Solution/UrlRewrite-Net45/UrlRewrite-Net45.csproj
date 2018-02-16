@@ -32,8 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Ioc.Modules">
-      <HintPath>..\packages\Ioc.Modules.1.1.4\lib\net45\Ioc.Modules.dll</HintPath>
+    <Reference Include="Ioc.Modules, Version=1.2.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ioc.Modules.1.2.1\lib\net45\Ioc.Modules.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Ioc.Modules.Ninject">
       <HintPath>..\packages\Ioc.Modules.Ninject.1.1.3\lib\net45\Ioc.Modules.Ninject.dll</HintPath>
@@ -243,9 +244,6 @@
     <Compile Include="..\UrlRewrite-Net40\Interfaces\Utilities\ILog.cs">
       <Link>Interfaces\Utilities\ILog.cs</Link>
     </Compile>
-    <Compile Include="..\UrlRewrite-Net40\Interfaces\Utilities\IPropertyBag.cs">
-      <Link>Interfaces\Utilities\IPropertyBag.cs</Link>
-    </Compile>
     <Compile Include="..\UrlRewrite-Net40\Interfaces\Utilities\IRequestLog.cs">
       <Link>Interfaces\Utilities\IRequestLog.cs</Link>
     </Compile>
@@ -296,9 +294,6 @@
     </Compile>
     <Compile Include="..\UrlRewrite-Net40\Utilities\PerformanceTimer.cs">
       <Link>Utilities\PerformanceTimer.cs</Link>
-    </Compile>
-    <Compile Include="..\UrlRewrite-Net40\Utilities\PropertyBag.cs">
-      <Link>Utilities\PropertyBag.cs</Link>
     </Compile>
     <Compile Include="..\UrlRewrite-Net40\Utilities\TraceLog.cs">
       <Link>Utilities\TraceLog.cs</Link>

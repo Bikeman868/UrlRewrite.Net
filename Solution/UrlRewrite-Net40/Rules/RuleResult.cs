@@ -1,6 +1,5 @@
-﻿using UrlRewrite.Interfaces.Rules;
-using UrlRewrite.Interfaces.Utilities;
-using UrlRewrite.Utilities;
+﻿using Ioc.Modules;
+using UrlRewrite.Interfaces.Rules;
 
 namespace UrlRewrite.Rules
 {

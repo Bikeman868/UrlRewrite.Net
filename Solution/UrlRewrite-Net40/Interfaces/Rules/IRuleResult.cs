@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using UrlRewrite.Interfaces.Actions;
-using UrlRewrite.Interfaces.Utilities;
+﻿using Ioc.Modules;
 
 namespace UrlRewrite.Interfaces.Rules
 {

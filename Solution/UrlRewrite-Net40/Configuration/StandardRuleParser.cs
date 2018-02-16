@@ -303,7 +303,7 @@ namespace UrlRewrite.Configuration
                     {
                         case "logicalgrouping":
                             CombinationLogic logicalgrouping;
-                            if (Enum.TryParse(attribute.Value, out logicalgrouping))
+                            if (Enum.TryParse(attribute.Value, true, out logicalgrouping))
                                 logic = logicalgrouping;
                             break;
                         case "trackallcaptures":
