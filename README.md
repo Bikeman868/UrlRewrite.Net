@@ -907,6 +907,38 @@ passed a string and should return a modified version of that string.
     }
 ```
 
+### Example of a custom action
+```
+    public class CustomAction: IAction
+    {
+        public IAction Initialize(XElement configuration)
+        {
+            return this;
+        }
+
+        public void PerformAction(IRequestInfo request, IRuleResult ruleResult, out bool stopProcessing, out bool endRequest)
+        {
+            stopProcessing = false;
+            endRequest = false;
+        }
+
+        public string ToString(IRequestInfo requestInfo)
+        {
+            return ToString();
+        }
+
+        public override string ToString()
+        {
+            return "Application defined custom action";
+        }
+
+        public void Describe(TextWriter writer, string indent, string indentText)
+        {
+            writer.WriteLine(indent + ToString());
+        }
+    }
+```
+
 ## Optimization techniques
 Use this section as a guide to making your redirection rules run as efficiently as possible
 
