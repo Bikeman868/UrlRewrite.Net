@@ -12,7 +12,7 @@ allows lists of rules to be inside a parent rule, and it supports faster compari
 
 ## Features
 * All the capabilities of the standard Microsoft IIS rewriter module. See http://www.iis.net/learn/extensions/url-rewrite-module/using-the-url-rewrite-module
-* Heirachical rules, ie rules within rules. This allows you to short circuit rule evaluation.
+* Hierarchical rules, ie rules within rules. This allows you to short circuit rule evaluation.
 * Regex is supported for backward compatibility but much faster alternatives are provided.
 * Can modify query string parameters whereas the Microsoft one only provides an option to append the whole query string or not.
 * Ability to replace specific parts of the path or query string without the clunky regex back reference syntax.
@@ -28,7 +28,7 @@ allows lists of rules to be inside a parent rule, and it supports faster compari
 Version 1.0.0 was functionally complete except for the caching of non-dynamic requests. This
 version was published to NuGet so that I can get feedback on backwards compatibility.
 
-The standard IIS rewrite module is not very precicely documented so I need some people out there
+The standard IIS rewrite module is not very precisely documented so I need some people out there
 to try is with their rewrite rules and let me know where the behaviour is different between this
 Rewrite Module and the Microsoft one. I am aiming for 100% backwards compatibility.
 
@@ -55,7 +55,7 @@ These are the versions that had major feature improvements or breaking changes y
 |1.0.1|Adds the handler to the web.config file when it is installed|
 |1.0.6|Added support for {} in literal values|
 |1.0.7|Rules have an enabled property - useful during testing and debugging|
-|1.1.0|BREAKING CHANGE - method sugnature of the `Initialize()` method changed to provide more flexibility in selecting which requests to trace|
+|1.1.0|BREAKING CHANGE - method signature of the `Initialize()` method changed to provide more flexibility in selecting which requests to trace|
 |1.1.1|BREAKING CHANGE - the default value for the `stopProcessing` attribute on the `<rules>` element changed from `false` to `true`|
 |     |Added a `value="my value"` attribute to `<rewrite>`, `<append>` and `<insert>` as a shorthand for `from="literal" fromIndex="my value"`|
 |1.1.2|Added support for version 4.0 and 4.5 of the .Net Framework|
@@ -139,11 +139,11 @@ Note that these examples use made up sample data. Your rules must be written to 
 your web site receives.
 
 #### Example of a rules file that uses some of the most common syntax
-Permenantly redirects `/company/quote/page3.aspx?date=now` to `/entity/quote/page3.aspx?date=now`
+Permanently redirects `/company/quote/page3.aspx?date=now` to `/entity/quote/page3.aspx?date=now`
 
-Permenantly redirects `/company/profile/page1.aspx?date=now` to `/entity/profile/page1.aspx?date=now`
+Permanently redirects `/company/profile/page1.aspx?date=now` to `/entity/profile/page1.aspx?date=now`
 
-Permenantly redirects `/company/financials/page2.aspx?date=now` to `/entity/financials/page2.aspx?date=now`
+Permanently redirects `/company/financials/page2.aspx?date=now` to `/entity/financials/page2.aspx?date=now`
 
 Does not redirect `/company/history/page1.aspx`
 
@@ -162,7 +162,7 @@ For any path like `/company/.../*.aspx` if the session belongs to a customer app
           <condition scope="pathElement" index="1" test="equals" value="company" />
           <condition scope="pathElement" index="-1" test="endsWith" value=".aspx" />
           <rules name="company page rules>
-            <rule name="permenantly redirect urls from v1 site">
+            <rule name="permanently redirect urls from v1 site">
               <conditions logicalGrouping="matchAny">
                 <condition scope="pathElement" index="2" test="equals" value="quote" />
                 <condition scope="pathElement" index="2" test="equals" value="profile" />
@@ -335,7 +335,7 @@ public class MyCustomAction: IMyCustomAction
     /* Implementation of IAction */
 }
 
-public class MySingelton: IMySingleton
+public class MySingleton: IMySingleton
 {
 }
 
@@ -362,7 +362,7 @@ public class Package: IPackage
 
 This example defines a custom action that will be registered with IoC to construct a new instance on each usage. IoC will inject dependencies by constructing a new instance of `IStringMatch` and passing a singleton instance of `MySingleton` when `MyCustomAction` is constructed.
 
-This `Package` class also specifies that this package has a dependency on `IStringMatch`. If there are no dlls in the application that provide an implementation of this interface then `Ioc.Modules` will throw an exception at startup containing a helpful message. In this case an `IStringMatch` implmentation is provided by the Rewrite Module.
+This `Package` class also specifies that this package has a dependency on `IStringMatch`. If there are no dlls in the application that provide an implementation of this interface then `Ioc.Modules` will throw an exception at startup containing a helpful message. In this case an `IStringMatch` implementation is provided by the Rewrite Module.
 
 This works because the Rewrite Module uses `Ioc.Modules` internally. `Ioc.Modules` will probe all assemblies in your application at startup looking for classes that have the `[Package]` attribute attached and implement the `IPackage` interface. These classes define the IoC needs of the application. The Rewrite Module constructs a Ninject container and configures it using the information from these `Package` classes.
 
@@ -444,7 +444,7 @@ execution of rewrite rules for this request.
 Passing null for this parameter will speed up processing of the requests.
 
 ### `reverseTracePredicate`
-This function is called for each request to determine whether to output trace information for the rewritten reqeust.
+This function is called for each request to determine whether to output trace information for the rewritten request.
 This function is passed the URL that results from executing the rewrite rules and should return true to re-run the 
 rules with logging enabled.
 
@@ -476,8 +476,8 @@ pass in both the stream and the parser, you can take complete control over the g
 
 ## Backward Compatibility
 For backward compatibility the Rewrite Module supports all of the syntax that is defined for the Microsoft IIS Rewriter module.
-This symtax is summarized below for convenience and also documented by Microsoft here 
-http://www.iis.net/learn/extensions/url-rewrite-module/url-rewrite-module-configuration-reference. Note that the Microsoft documentation is very thin and full of holes, so you might find that there are behaviours of the Microsoft implementation that you rely on but I did not realize existed because they arn't documented. In these cases please let me know so I can get as close as possible to 100% backward compatibility.
+This syntax is summarized below for convenience and also documented by Microsoft here 
+http://www.iis.net/learn/extensions/url-rewrite-module/url-rewrite-module-configuration-reference. Note that the Microsoft documentation is very thin and full of holes, so you might find that there are behaviours of the Microsoft implementation that you rely on but I did not realize existed because they aren't documented. In these cases please let me know so I can get as close as possible to 100% backward compatibility.
 
 ### Example file
 This shows the overall structure of the rules file:
@@ -512,16 +512,16 @@ that you write.
 
 ### The `<rule>` element
 Defines a rule. Rules are executed in order until a rule matches and has `stopProcessing` set to true, or
-the end of the rule list is reached. If the `<match>` and `<conditions>` match the incomming request 
+the end of the rule list is reached. If the `<match>` and `<conditions>` match the incoming request 
 then the `<action>` elements are executed otherwise they are skipped.
 
 Attributes:
 * `name` is useful in trace output to identify the rule that was being executed. If you dont specify a name it will be a GUID.
-* `stopProcessing` when true, if this rule matches the incomming request no further rules will be evaluated.
+* `stopProcessing` when true, if this rule matches the incoming request no further rules will be evaluated.
 
 ### The `<match>` element
 This is mostly for backward compatibility with the Microsoft rewriter V1.0 which did not have the `<conditions>` 
-element. If this element matches the incomming request then the `<conditions>` are evaluated. If both `<match>` 
+element. If this element matches the incoming request then the `<conditions>` are evaluated. If both `<match>` 
 and `<conditions>` match the request, then the rule's `<action>` elements are executed.
 
 Attributes:
@@ -533,7 +533,7 @@ is a flavour of Regular Expression. Wildcard uses the same wildcard scheme as th
 * `negate` when true inverts the logic so the rule matches the request when the url is not a match
 
 ### The `<conditions>` element
-Defines additional conditions that have to be met for the rule to match the incomming request. This element
+Defines additional conditions that have to be met for the rule to match the incoming request. This element
 is optional because it was not present in V1.0 of the Microsoft IIS Rewrite module. This element can contain
 `<add>` elements to add conditions. You can set the `<conditions>` element to have `AND` or `OR` logic between
 the conditions.
@@ -542,7 +542,7 @@ Attributes:
 * `logicalGrouping` can be `MatchAll` or `MatchAny`.
 
 ### The `<add>` elements inside of `<conditions>`
-Adds a condition that must be met for the rule to match the incomming request.
+Adds a condition that must be met for the rule to match the incoming request.
 
 Attributes:
 * `input` specifies what should be compared. Note that this supports curly brace replacements.
@@ -560,7 +560,7 @@ return a response back to the client even if the `stopProcessing` attribute of t
 
 Attributes:
 * `type` must be one of `Rewrite`, `Redirect`, `CustomResponse`, `AbortRequest` or `None`. Note that `None` is
-supported in this Rewrite Module for backward compatibility only, you can achieve the same result by ommitting the `<action>` element. 
+supported in this Rewrite Module for backward compatibility only, you can achieve the same result by omitting the `<action>` element. 
 Note that this Rewrite Module depreciates the `Rewrite` action type in favor of a more powerful `<rewrite>` element.
 * `redirectType` can be 301, 302, 303 or 307. The default is 307 if this attribute is omitted. See https://en.wikipedia.org/wiki/List_of_HTTP_status_codes for more information.
 * `url` the URL to redirect or rewrite. If this is not provided the last rewrite action will define the url to redirect to.
@@ -615,7 +615,7 @@ Index 0 is the whole matched string and 1..9 are the capture groups.
 * `{urlEncode:}` converts the text after the colon to its URL encoded form. You can nest curly braces after the colon.
 * `{urlDecode:}` converts the text after the colon to its URL decoded form. You can nest curly braces after the colon.
 
-## New functionallity
+## New functionality
 This section defines how the standard Microsoft rewriter rule syntax was extended to include the new features
 available in this Rewrite Module.
 
@@ -633,12 +633,12 @@ rules together and make the path through the rules as short as possible. The `<r
 action and will be evaluated in sequence along with the other actions if the rule matches the request.
 
 The recommended best practice is to profile traffic to your site and prioritize requests by frequency, then devise a
-rule list heirachy that minimizes the rule processing effort for the most frequently occurring requests.
+rule list hierarchy that minimizes the rule processing effort for the most frequently occurring requests.
 
 There is no limit to how deep the nest rule lists within rules.
 
-If you set the `stopProcessing` flag on a `<rule>` to `true` this will stop the procesing of any further rules within 
-its enclosing `<rules>` element. This will only propogate to the next level up if the parent `<rules>` element also
+If you set the `stopProcessing` flag on a `<rule>` to `true` this will stop the processing of any further rules within 
+its enclosing `<rules>` element. This will only propagate to the next level up if the parent `<rules>` element also
 has  `stopProcessing` flag set to `true`. For example if you have this structure:
 ```
     <rules name="List 1">
@@ -659,7 +659,7 @@ Then if `Rule 2a` matches the request (and it has the `stopProcessing` flag set)
 `<rules name="List 2">` element to stop processing any more rules. By default the `<rules>` element will also
 propagate this flag up to its parent, so no further rules will be evaluated in this case.
 
-If you do not want to propogate the `stopProcessing` flag up to the parent, set `stopProcessing="false"` 
+If you do not want to propagate the `stopProcessing` flag up to the parent, set `stopProcessing="false"` 
 on the `<rules>`element like this:
 ```
     <rules name="List 1">
@@ -733,7 +733,7 @@ This Rewrite Module takes a different approach, it parses the path into a list o
 string into a dictionary. It does this lazily on demand so that the lists and dictionaries only get created if
 they are required to evaluate the rules.
 
-Because the original incomming request and the rewritten version are structures that can be accessed very quickly,
+Because the original incoming request and the rewritten version are structures that can be accessed very quickly,
 it allows the rules to be written in a way that is much more readable, and execute much faster. It is much faster
 to compare the third element in a list than it is to write and evaluate a regular expression that will do this.
 The regular expression will also be cryptic and hard to decipher.
@@ -741,7 +741,7 @@ The regular expression will also be cryptic and hard to decipher.
 Note that all of the original syntax from the Microsoft implementation is fully supported, this is an extension to
 that syntax.
 
-This functionallity can be accessed by adding the new `<condition>` element to your rules. These elements can be
+This functionality can be accessed by adding the new `<condition>` element to your rules. These elements can be
 placed inside of `<rule>` elements and inside of `<conditions>` element. When placed inside `<conditions>`
 elements the logic used to combine the conditions can be specified with the `logicalGrouping` attribute. When
 `<condition>` elements are placed directly inside the `<rule>`, all conditions must be true for the rule to be
@@ -790,7 +790,7 @@ URLs consistent (for example always starting the path with / and never ending th
 
 An example of a rule that makes changes to the request follows:
 ```
-    <rule name="Flatten forms permenantly">
+    <rule name="Flatten forms permanently">
       <condition scope="OriginalPathElement" index="-1" test="EndsWith" value=".aspx" />
       <condition scope="OriginalPathElement" index="3" test="Equals" value="" negate="true" />
       <rewrite to="Path" from="OriginalPath" operation="LowerCase" />
@@ -801,7 +801,7 @@ An example of a rule that makes changes to the request follows:
     </rule>
 ```
 If this rule was run against http://mydomain.com/Companies/Quote/MyCompany.aspx?order=date&Page=3&id=99 
-the request would be permenantly redirected to http://mydomain.com/companies/mycompany.aspx?Page=3 because it
+the request would be permanently redirected to http://mydomain.com/companies/mycompany.aspx?Page=3 because it
 matches any request where the path is 3 or more deep and where the last element of the path ends in .aspx, then
 it makes the path part of the url all lower case, and copies the last element of the path to the second element
 and deletes all subsequent elements in the path. It also removes all query string parameters except for `page`.
@@ -1214,7 +1214,7 @@ problem.
 |`index` attribute|expects an integer value when `scope` is `originalPathElement`, `pathElement`, `conditionGroup` or `matchGroup`. Expects a string value when `scope` is `originalParameter`, `originalHeader`, `parameter`, `header`, `originalServerVariable`, `serverVariable` or `literal`. For all other `scope` values the `index` is not applicable|
 |`test` attribute|specifies the test to perform on the `scope`. Defaults to `matchRegex`. Can be `startsWith`, `endsWith`, `contains`, `equals`, `matchWildcard`, `matchRegex`, `greater` or `less`. Can also be the `name` of a custom condition defined in an `<assembly>`|
 |`value` attribute|the value to test against. Depending on whether this is a number or a string, the values you can specify for `test` are restricted, for example you can't do a `contains` test on a number|
-|`negate` attribute|dafaults to `false`. Set to `true` to invert the result. This is especially useful for cases like testing that a paremater is not empty|
+|`negate` attribute|defaults to `false`. Set to `true` to invert the result. This is especially useful for cases like testing that a parameter is not empty|
 |`ignoreCase` attribute|defaults to `true`. Set to `false` to have case-sensitive compare on strings. Not applicable if the `value` attribute contains a number|
 |Parent|`<rule>` or `<conditions>`|
 |Children|None|
@@ -1224,11 +1224,11 @@ problem.
 
 |   |   |
 |---|---|
-|Description|This is for backward compatibnility only. I do not recommend using this in any new rules that you write|
+|Description|This is for backward compatibility only. I do not recommend using this in any new rules that you write|
 |`input` attribute|specifies how to retrieve the value to test from the request. Uses `{}` syntax which is described elsewhere|
 |`matchType` attribute|can be `isFile` or `isDirectory`. This attribute causes the rewrite module to test for the existence of a file or directory in the file system|
 |`pattern` attribute|a regular expression used to match the `input` value|
-|`negate` attribute|dafaults to `false`. Set to `true` to invert the result. This is especially useful for cases like testing that a paremater is not empty|
+|`negate` attribute|defaults to `false`. Set to `true` to invert the result. This is especially useful for cases like testing that a parameter is not empty|
 |`ignoreCase` attribute|defaults to `true`. Set to `false` to have case-sensitive compare|
 |Parent|`<conditions>`|
 |Children|None|
@@ -1238,7 +1238,7 @@ problem.
 
 |   |   |
 |---|---|
-|Description|Makes incomming requests all look the same to simplify writing rules. This is often placed inside a `<rule>` with no conditions|
+|Description|Makes incoming requests all look the same to simplify writing rules. This is often placed inside a `<rule>` with no conditions|
 |`pathLeadingSeparator` attribute|defaults to `none`. Can also be set to `add` or `remove`|
 |`pathTrailingSeparator` attribute|defaults to `none`. Can also be set to `add` or `remove`|
 |Parent|`<rule>`|
@@ -1251,14 +1251,14 @@ problem.
 |---|---|
 |Description|Most of the functionality of this element is for backwards compatibility only. Do not use the `url` attribute in new rules that you write|
 |`url` attribute|specifies the URL to redirect to. Supports the `{}` macro expansion syntax. Adds a `/` to the front of the URL if you pass a relative URL for backwards compatibility.|
-|`appendquerystring` attribute|defaults to `true` which copies the whole query string from the original request and appends it to the `url` attribute value. Set it to `false` to disable this behavour|
+|`appendquerystring` attribute|defaults to `true` which copies the whole query string from the original request and appends it to the `url` attribute value. Set it to `false` to disable this behavior|
 |`redirectType` attribute|defaults to `307`. Only applicable when `type="redirect"` or the `type` attribute is not specified. Specifies the HTTP response code that will be returned to the browser, Can be `301`, `302`, `303`, `307`, `permanent`, `found`, `seeother` or `temporary`|
 |`type` attribute|should only be specified when `redirectType` is not specified. This contains the name of the action type to execute, this can be a custom action defined in a `<class>` element, or one of these built-in action types: `redirect`, `rewrite`, `customresponse`, `abortrequest`, `none`|
 |`statusline` attribute|is only applicable when `type="customResponse"`. It defines the first line of the HTTP response to send back to the browser|
 |`responseline` attribute|is only applicable when `type="customResponse"`. It defines the second line of the HTTP response to send back to the browser|
 |Parent|`<rule>`|
 |Children|None|
-|Rules|The `appendquerystring` atribute is only applicable when the `url` attribute is provided. I recomend that you do not use the `url` parameter, but instead add editing actions to the rule such at `<rewrite>`, `<append>`... etc to define the changes to make to the URL prior to redirection. Note that all of the built-in action types apart from `none` and `rewrite` stop the processing of further rules, so the `stopProcessing` flag is not necessary on the `<rule>` element. If you write your own custom actions you can decide whether to stop processing or not|
+|Rules|The `appendquerystring` atribute is only applicable when the `url` attribute is provided. I recommend that you do not use the `url` parameter, but instead add editing actions to the rule such at `<rewrite>`, `<append>`... etc to define the changes to make to the URL prior to redirection. Note that all of the built-in action types apart from `none` and `rewrite` stop the processing of further rules, so the `stopProcessing` flag is not necessary on the `<rule>` element. If you write your own custom actions you can decide whether to stop processing or not|
 
 ## `<rewrite>` element
 
@@ -1331,7 +1331,7 @@ problem.
 
 |   |   |
 |---|---|
-|Description|This element exists only for backwards compatibility. I recomend that you do not use it in any new rules that you write. The element defines a condition that must be met for the rule to be applied|
+|Description|This element exists only for backwards compatibility. I recommend that you do not use it in any new rules that you write. The element defines a condition that must be met for the rule to be applied|
 |`url` attribute|a regular expression or wildcard expression to match against the whole URL including the query string|
 |`patternSyntax` attribute|defaults to `ECMAScript` but can also be `Wildcard`|
 |`negate` attribute|defaults to `false`. Set to `true` to invert the result|
@@ -1351,12 +1351,12 @@ Note that not all scopes are applicable in all situations. Please consult the de
 
 | Scope | Description |
 |---|---|
-|`originalUrl`|The full url of the original request regrdless of any rewrite actions that have executed. The way that ASP works means that this will have the `http://domain` part stripped off, and will start with `/` at the beginning of the path. You can only read this scope, the original request can not be modified by design.|
+|`originalUrl`|The full url of the original request regardless of any rewrite actions that have executed. The way that ASP works means that this will have the `http://domain` part stripped off, and will start with `/` at the beginning of the path. You can only read this scope, the original request can not be modified by design.|
 |`originalPath`|Just the path part of the original request excluding the query string. The path starts with the `/` after the domain name and ends with the last character before the `?` if there is one or the rest of the url if there is no `?`. You can only read this scope, the original request can not be modified by design.|
 |`originalQueryString`|Just the query string part of the original request. The query string starts with the first `?` and continues to the end of the url. You can only read this scope, the original request can not be modified by design.|
 |`originalPathElement`|One element from the path. Use the index associated with the scope to specify which element from the path you want to read from. An index value of 0 refers to the whole path, and is equivalent to `path` scope. A positive integer for the index will refer to elements of the path from left to right, the first element is always 1 regardless if whether the url begins with a `/` or not. A negative integer will refer to elements of the path from right to left, the last element is always -1 regardless whether the path has a trailing `/` or not.|
 |`originalParameter`|The value of a parameter from the query string part of the original request. Specify the name of the parameter in the index associated with the scope. The query string part of the url starts with the `?` symbol. Parameters in the query string are separated by `&` symbols. Each parameter is of the form `name=value`. Names and values must be encoded in the url because they can't include characters that have special meaning for urls. The Url Rewrite module will decode these for you so that you can work with the unencoded values in your rules.|
-|`originalHeader`|One of the headers from the original request. Pass the name of the header in the index associated with the scope. Headers are passed from the browser to IIS on separate lines below the url and above the body of the request. When using a browser users can not specify the headers directly, they are inserted automatically by the browser, and contain information about the browser. For a list of headers and thier meanings see https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html |
+|`originalHeader`|One of the headers from the original request. Pass the name of the header in the index associated with the scope. Headers are passed from the browser to IIS on separate lines below the url and above the body of the request. When using a browser users can not specify the headers directly, they are inserted automatically by the browser, and contain information about the browser. For a list of headers and their meanings see https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html |
 |`originalServerVariable`|These variables do not come from the browser, and are not part of the request. These are values that IIS makes available to your software, and they contain information about the IIS environment. For a complete list see http://www.w3schools.com/asp/coll_servervariables.asp. Specify the name of the server variable in the scope index.|
 |`url`|The path and query string that will be passed on to rest of the request processing pipeline. To any handlers that receive this request it will appear as if this was the URL that the user typed into their browser. You can modify the entire url by modifying this scope, or you can modify specific parts of the url using other scopes and these changes will be reflected here. For example if you overwrite a `pathElement` then refer to the `url` the value read back for the url will include the path element modification. Note that you can not set the method and host name by changing this scope, only the path and query string.
 |`path`|Just the path part of the `url` scope not including the query string. Any changes you make to `path` will not affect the query string. If you delete the `path` it will be set to `/`|
@@ -1365,6 +1365,6 @@ Note that not all scopes are applicable in all situations. Please consult the de
 |`parameter`|The value of one parameter from the `queryString` scope. Pass a paremater name in the index associated with the scope. You can `<rewrite>`, `<delete>` and `<keep>` query string parameters. If you `<append>` a query string parameter text will be added to the end of the parameter value|
 |`header`|The modified version of 'originalHeader' scope. Modifications can be made via `<rewrite>`, `<delete>` and `<keep>` actions. If you `<append>` a header, text will be added to the end of the header value|
 |`serverVariable`|Modified version of 'originalServerVariable' scope. Changing these variables only affects the current request.|
-|`literal`|Specifying this scope allows you to provide a hard-coded literal value rather than reading a value from the request. The literal value is passed in the scope index. Many actions have a `value` atttribute that is a shorthand way of specifying `literal` scope.|
+|`literal`|Specifying this scope allows you to provide a hard-coded literal value rather than reading a value from the request. The literal value is passed in the scope index. Many actions have a `value` attribute that is a shorthand way of specifying `literal` scope.|
 |`matchGroup`|One of the groups from the last `<match>` element that matched the request. Index 0 is the whole match, index 1 is match group 1 etc. This is equivalent to the `{r:n}` syntax but more readable. To use this feature use regular expressions in your `<match>` and identify match groups with `()`.|
-|`conditionGroup`|One of the groups from the last `<condition>` element that matched the request. Only conditions that use regular expression syntax produce match groups. Specify index 0 to match the whole matching string, index 1 is match group 1 etc. This is equivalent to the `{c:n}` syntax but more readable. To use this feature use regulat expressions in your `<condition>` and identify match groups with `()`. By default each matching condition will replace all the match groups. You can change this by setting the `trackAllCaptures` attibute of the parent `<conditions>` element.|
+|`conditionGroup`|One of the groups from the last `<condition>` element that matched the request. Only conditions that use regular expression syntax produce match groups. Specify index 0 to match the whole matching string, index 1 is match group 1 etc. This is equivalent to the `{c:n}` syntax but more readable. To use this feature use regular expressions in your `<condition>` and identify match groups with `()`. By default each matching condition will replace all the match groups. You can change this by setting the `trackAllCaptures` attribute of the parent `<conditions>` element.|
