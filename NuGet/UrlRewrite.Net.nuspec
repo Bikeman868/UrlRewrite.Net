@@ -21,6 +21,7 @@
     </summary>
     <projectUrl>https://github.com/Bikeman868/UrlRewrite.Net</projectUrl>
     <license type="expression">Apache-2.0</license>
+	<readme>README.md</readme>
     <tags>IIS rewrite url-rewriter urlrewrite</tags>
     <dependencies>
       <group targetFramework="net40">
