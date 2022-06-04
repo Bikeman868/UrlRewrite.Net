@@ -4,19 +4,22 @@ using System.Xml.Linq;
 using UrlRewrite.Interfaces;
 using UrlRewrite.Interfaces.Actions;
 using UrlRewrite.Interfaces.Rules;
+using System.Linq;
 
 namespace UrlRewrite.Actions
 {
     internal class CustomResponse : Action, ICustomResponse
     {
-        private string _statusLine;
+        private int _statusCode;
+        private string _statusDescription;
         private string _responseLine;
 
         public ICustomResponse Initialize(XElement configuration, bool stopProcessing, bool endRequest)
         {
             _stopProcessing = stopProcessing;
             _endRequest = endRequest;
-            _statusLine = "HTTP/1.1 200 OK";
+            _statusCode = 200;
+            _statusDescription = "OK";
             _responseLine = "OK";
 
             if (configuration.HasAttributes)
@@ -25,8 +28,18 @@ namespace UrlRewrite.Actions
                 {
                     switch (attribute.Name.LocalName.ToLower())
                     {
+                        case "statuscode":
+                            _statusCode = int.Parse(attribute.Value);
+                            break;
+                        case "statusdescription":
+                            _statusDescription = attribute.Value;
+                            break;
                         case "statusline":
-                            _statusLine = attribute.Value;
+                            {
+                                var parts = attribute.Value.Split(' ');
+                                _statusCode = int.Parse(parts[1]);
+                                _statusDescription = string.Join(" ", parts.Skip(2).ToArray());
+                            }
                             break;
                         case "responseline":
                             _responseLine = attribute.Value;
@@ -46,7 +59,8 @@ namespace UrlRewrite.Actions
         {
             if (requestInfo.ExecutionMode != ExecutionMode.TraceOnly)
             {
-                requestInfo.Context.Response.StatusDescription = _statusLine;
+                requestInfo.Context.Response.StatusCode = _statusCode;
+                requestInfo.Context.Response.StatusDescription = _statusDescription;
                 requestInfo.Context.Response.Write(_responseLine);
             }
 

@@ -565,6 +565,8 @@ Note that this Rewrite Module depreciates the `Rewrite` action type in favor of 
 * `redirectType` can be 301, 302, 303 or 307. The default is 307 if this attribute is omitted. See https://en.wikipedia.org/wiki/List_of_HTTP_status_codes for more information.
 * `url` the URL to redirect or rewrite. If this is not provided the last rewrite action will define the url to redirect to.
 * `statusLine` only applies when `type` is `CustomResponse`. Sets the status line of the response so that you can return 503 or 204 or whatever.
+* `statusCode` only applies when `type` is `CustomResponse`. Sets the http status code of the response.
+* `statusDescription` only applies when `type` is `CustomResponse`. Sets the http status description of the response.
 * `responseLine` only applies when `type` is `CustomResponse`. Sets the body of the response.
 * `appendQueryString` adds the original query string to the redirected URL. If false the querystring is stripped off the URL.
 
@@ -1255,6 +1257,8 @@ problem.
 |`redirectType` attribute|defaults to `307`. Only applicable when `type="redirect"` or the `type` attribute is not specified. Specifies the HTTP response code that will be returned to the browser, Can be `301`, `302`, `303`, `307`, `permanent`, `found`, `seeother` or `temporary`|
 |`type` attribute|should only be specified when `redirectType` is not specified. This contains the name of the action type to execute, this can be a custom action defined in a `<class>` element, or one of these built-in action types: `redirect`, `rewrite`, `customresponse`, `abortrequest`, `none`|
 |`statusline` attribute|is only applicable when `type="customResponse"`. It defines the first line of the HTTP response to send back to the browser|
+|`statuscode` attribute|is only applicable when `type="customResponse"`. It defines the http status code to send back to the browser|
+|`statusdescription` attribute|is only applicable when `type="customResponse"`. It defines the http status description to send back to the browser|
 |`responseline` attribute|is only applicable when `type="customResponse"`. It defines the second line of the HTTP response to send back to the browser|
 |Parent|`<rule>`|
 |Children|None|
